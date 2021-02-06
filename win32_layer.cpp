@@ -2,6 +2,8 @@
 
 #include "game.h"
 
+#include "renderer.h"
+
 #include <windows.h>
 #include <xinput.h>
 
@@ -199,6 +201,36 @@ void debug_FreeFile(void* memory) {
 
 // end FILE IO
 // ============================================================================
+// Memory
+
+PermanentResourceAllocator::PermanentResourceAllocator(i64 size) {
+	this->size = size;
+	this->offset = 0;
+
+	this->backing_buffer = (uchar*)VirtualAlloc(0, size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+}
+
+void* PermanentResourceAllocator::Allocate(i64 alloc_size) {
+	if (offset + alloc_size < size) {
+		void* temp = &backing_buffer[offset];
+		offset += alloc_size;
+		memset(temp, 0, alloc_size);
+		return temp;
+	}
+	OutputDebugStringA("PermanentResourceAllocator ran out of memory\n");
+	return NULL;
+}
+
+void PermanentResourceAllocator::FreeAll() {
+	if (backing_buffer) {
+		VirtualFree(backing_buffer, 0, MEM_RELEASE);
+	}
+	size = 0;
+	offset = 0;
+}
+
+// end Memory
+// ============================================================================
 
 struct win32_WindowDimension {
 	i32 width;
@@ -221,7 +253,7 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 	RECT clientRect;
 	GetClientRect(window, &clientRect);
 
-	win32_WindowDimension windowDimension;
+	win32_WindowDimension windowDimension = {};
 	windowDimension.width = clientRect.right - clientRect.left;
 	windowDimension.height = clientRect.bottom - clientRect.top;
 	return windowDimension;
@@ -341,7 +373,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Input* newInput = &gameInput[0];
 			Input* oldInput = &gameInput[1];
 
-			Memory gameMemory;
+			Memory gameMemory = {};
 			gameMemory.isInitialized = 0;
 			gameMemory.size = Kilobytes((u64)1);
 			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
@@ -355,6 +387,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					temp[i + 2] = 50;
 				}
 			}
+
+			VertexBuffer vertex_buffer;
+			ModelBuffer model_buffer;
+
+			PermanentResourceAllocator renderer_allocator(Megabytes((u64)64));
+
+			InitRenderer(&vertex_buffer, &model_buffer, &renderer_allocator);
+
+			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
+			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &model_buffer, &frame_allocator);
+			frame_allocator.FreeAll();
 
 			while (win32_running) {
 				// Timing

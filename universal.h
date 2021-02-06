@@ -6,6 +6,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 // ============================================================================
 // Macros
@@ -23,6 +24,18 @@ struct Memory {
 	b32 isInitialized;
 	u64 size;
 	void* data;
+};
+
+// This allocator is to be used for resources which will exist for the entire 
+// period the program is running
+struct PermanentResourceAllocator {
+	i64 size;
+	i64 offset;
+	uchar* backing_buffer;
+
+	PermanentResourceAllocator(i64 size);
+	void* Allocate(i64 alloc_size);
+	void FreeAll();
 };
 
 // end Memory
