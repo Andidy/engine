@@ -35,7 +35,8 @@ struct PermanentResourceAllocator {
 
 	PermanentResourceAllocator(i64 size);
 	void* Allocate(i64 alloc_size);
-	void FreeAll();
+	void Free();
+	void FreeBackingBuffer();
 };
 
 // end Memory

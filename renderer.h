@@ -13,8 +13,9 @@ struct VertexBuffer {
 
 struct ModelBuffer {
 	i32 num_models;
+	i32 buffer_length;
 	i32* ptr;
-	i32* num_indices;
+	i32* length;
 };
 
 void InitRenderer(VertexBuffer* v_buf, ModelBuffer* models, PermanentResourceAllocator* allocator);

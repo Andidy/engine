@@ -7,9 +7,10 @@ void InitRenderer(VertexBuffer* v_buf, ModelBuffer* models, PermanentResourceAll
 	v_buf->normals = (vec3*)allocator->Allocate(sizeof(vec3) * v_buf->buffer_length);
 	v_buf->texcoords = (vec2*)allocator->Allocate(sizeof(vec2) * v_buf->buffer_length);
 
-	models->num_models = 100;
-	models->ptr = (i32*)allocator->Allocate(sizeof(i32) * models->num_models);
-	models->num_indices = (i32*)allocator->Allocate(sizeof(i32) * models->num_models);
+	models->buffer_length = 100;
+	models->num_models = 0;
+	models->ptr = (i32*)allocator->Allocate(sizeof(i32) * models->buffer_length);
+	models->length = (i32*)allocator->Allocate(sizeof(i32) * models->buffer_length);
 }
 
 struct FaceInt3 {
@@ -25,8 +26,11 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, Perm
 
 	uchar* ptr = (uchar*)obj_file.data;
 
-	i32 num_vertices_and_indices = 0;
 
+	m_buffer->ptr[m_buffer->num_models] = v_buffer->num_vertices;
+
+
+	i32 num_vertices_and_indices = 0;
 	u64 i = 0;
 	while (i < obj_file.size) {
 		if (ptr[i] == 'f') {
@@ -36,6 +40,9 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, Perm
 		i += 1;
 	}
 	num_vertices_and_indices *= 3;
+
+	m_buffer->length[m_buffer->num_models] = num_vertices_and_indices;
+	m_buffer->num_models += 1;
 
 	// allocate temporary space
 	vec3* vertices = (vec3*)allocator->Allocate(sizeof(vec3) * num_vertices_and_indices);
@@ -180,4 +187,6 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, Perm
 		v_buffer->normals[index + 2] = normals[faces[fi].f[2].n];
 		v_buffer->texcoords[index + 2] = texcoords[faces[fi].f[2].t];
 	}
+
+	v_buffer->num_vertices += num_vertices_and_indices;
 }

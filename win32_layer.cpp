@@ -221,7 +221,11 @@ void* PermanentResourceAllocator::Allocate(i64 alloc_size) {
 	return NULL;
 }
 
-void PermanentResourceAllocator::FreeAll() {
+void PermanentResourceAllocator::Free() {
+	offset = 0;
+}
+
+void PermanentResourceAllocator::FreeBackingBuffer() {
 	if (backing_buffer) {
 		VirtualFree(backing_buffer, 0, MEM_RELEASE);
 	}
@@ -397,7 +401,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &model_buffer, &frame_allocator);
-			frame_allocator.FreeAll();
+			frame_allocator.Free();
+
+			LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &model_buffer, &frame_allocator);
+			frame_allocator.Free();
 
 			while (win32_running) {
 				// Timing
