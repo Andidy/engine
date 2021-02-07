@@ -176,8 +176,6 @@ void Render(Image* screen, f32* z_buffer, VertexBuffer* vertex_buffer, ModelBuff
 
 
 
-
-
 struct FaceInt3 {
 	int v, n, t;
 };
