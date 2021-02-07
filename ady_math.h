@@ -1,7 +1,25 @@
 #ifndef ADY_MATH_H
 #define ADY_MATH_H
 
+#include "ady_types.h"
 #include <math.h>
+#include <float.h>
+
+inline i32 intmax(i32 a, i32 b) {
+	return (a > b) ? a : b;
+}
+
+inline i32 intmin(i32 a, i32 b) {
+	return (a < b) ? a : b;
+}
+
+inline f32 floatmax(f32 a, f32 b) {
+	return (a > b) ? a : b;
+}
+
+inline f32 floatmin(f32 a, f32 b) {
+	return (a < b) ? a : b;
+}
 
 const f32 PI = 3.14159265359f;
 

@@ -236,6 +236,10 @@ void PermanentResourceAllocator::FreeBackingBuffer() {
 // end Memory
 // ============================================================================
 
+void OutputDebugFromRenderer(char* string) {
+	OutputDebugStringA(string);
+}
+
 struct win32_WindowDimension {
 	i32 width;
 	i32 height;
@@ -389,22 +393,35 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					temp[i] = 255;
 					temp[i + 1] = 125;
 					temp[i + 2] = 50;
+					//temp[i + 3] = 255;
 				}
 			}
 
 			VertexBuffer vertex_buffer;
 			ModelBuffer model_buffer;
-
+			Image screen_buffer;
 			PermanentResourceAllocator renderer_allocator(Megabytes((u64)64));
 
-			InitRenderer(&vertex_buffer, &model_buffer, &renderer_allocator);
+			InitRenderer(&screen_buffer, dim.width, dim.height, &vertex_buffer, &model_buffer, &renderer_allocator);
+			f32* z_buffer = (f32*)renderer_allocator.Allocate(sizeof(f32) * dim.width * dim.height);
 
 			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
-			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &model_buffer, &frame_allocator);
-			frame_allocator.Free();
-
 			LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &model_buffer, &frame_allocator);
-			frame_allocator.Free();
+
+			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &model_buffer, &frame_allocator);
+
+			Render(&screen_buffer, z_buffer, &vertex_buffer, &model_buffer);
+
+			// put screen_buffer into the windows backbuffer
+			{
+				uchar* temp = (uchar*)globalBackBuffer.memory;
+				for (i32 i = 0; i < 4 * dim.width * dim.height; i += 4) {
+					temp[i] = screen_buffer.data[i];
+					temp[i + 1] = screen_buffer.data[i + 1];
+					temp[i + 2] = screen_buffer.data[i + 2];
+					// temp[i + 3] = screen_buffer.data[i + 3];
+				}
+			}
 
 			while (win32_running) {
 				// Timing
@@ -419,7 +436,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				char str_buffer[256];
 				sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-				OutputDebugStringA(str_buffer);
+				//OutputDebugStringA(str_buffer);
 
 				lasttimer = endtimer;
 				lastcyclecount = endcyclecount;

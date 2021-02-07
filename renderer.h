@@ -18,7 +18,20 @@ struct ModelBuffer {
 	i32* length;
 };
 
-void InitRenderer(VertexBuffer* v_buf, ModelBuffer* models, PermanentResourceAllocator* allocator);
+struct Color {
+	u8 r, g, b, a;
+};
+
+struct Image {
+	i32 width;
+	i32 height;
+	uchar* data;
+};
+
+void InitRenderer(Image* screen_buffer, i32 screen_width, i32 screen_height, VertexBuffer* v_buf, ModelBuffer* models, PermanentResourceAllocator* allocator);
+
+void OutputDebugFromRenderer(char* string);
+void Render(Image* screen, f32* z_buffer, VertexBuffer* vertex_buffer, ModelBuffer* model_buffer);
 
 void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator);
 
