@@ -103,9 +103,17 @@ struct Input {
 
 // ------------ Functions -----------------
 
-b32 keyPressed(ButtonState button);
-b32 keyReleased(ButtonState button);
-b32 keyDown(ButtonState button);
+inline b32 keyPressed(ButtonState button) {
+	return (button.endedDown) && (button.transitionCount > 0);
+}
+
+inline b32 keyReleased(ButtonState button) {
+	return !(button.endedDown) && (button.transitionCount > 0);
+}
+
+inline b32 keyDown(ButtonState button) {
+	return (button.endedDown) && (button.transitionCount == 0);
+}
 
 // end Input
 // ========================================================

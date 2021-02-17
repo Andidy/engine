@@ -4,6 +4,9 @@
 
 #include "renderer.h"
 
+#define STB_IMAGE_IMPLEMENTATION
+#include "libs/stb/stb_image.h"
+
 #include <windows.h>
 #include <xinput.h>
 
@@ -240,11 +243,7 @@ void OutputDebugFromRenderer(char* string) {
 	OutputDebugStringA(string);
 }
 
-struct win32_WindowDimension {
-	i32 width;
-	i32 height;
-};
-
+/*
 struct win32_OffScreenBuffer {
 	// Pixels are alwasy 32-bits wide, Memory Order BB GG RR XX
 	BITMAPINFO info;
@@ -254,8 +253,13 @@ struct win32_OffScreenBuffer {
 	i32 pitch;
 	i32 bytesPerPixel;
 };
-
 win32_OffScreenBuffer globalBackBuffer;
+*/
+
+struct win32_WindowDimension {
+	i32 width;
+	i32 height;
+};
 
 static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 	RECT clientRect;
@@ -267,6 +271,7 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 	return windowDimension;
 }
 
+/*
 static void win32_ResizeDIBSection(win32_OffScreenBuffer* buffer, i32 width, i32 height) {
 	if (buffer->memory) {
 		VirtualFree(buffer->memory, 0, MEM_RELEASE);
@@ -310,14 +315,31 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 		DIB_RGB_COLORS, SRCCOPY);
 }
 
+*/
+
+// ============================================================================
+
+
 LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
 
 	switch (message) {
-		case WM_SIZE: OutputDebugStringW(L"WM_SIZE\n"); break;
+		case WM_CREATE:
+		{
+
+			OutputDebugStringW(L"WM_CREATE\n");
+		} break;
+		case WM_SIZE: 
+		{
+			//if (FAILED(renderer.RendererResize(hwnd, LOWORD(lParam), HIWORD(lParam)))) {
+			//	DestroyWindow(hwnd);
+			//}
+			OutputDebugStringW(L"WM_SIZE\n");
+		} break;
 		case WM_DESTROY: { win32_running = 0; OutputDebugStringW(L"WM_DESTROY\n"); } break;
 		case WM_CLOSE: { win32_running = 0; OutputDebugStringW(L"WM_CLOSE\n"); } break;
 		case WM_ACTIVATEAPP: OutputDebugStringW(L"WM_ACTIVATEAPP\n"); break;
+		
 		case WM_KEYUP:
 		case WM_KEYDOWN:
 		case WM_SYSKEYUP:
@@ -325,15 +347,6 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 		{
 			OutputDebugStringW(L"Keyboard Event in windows callback function\n");
 			assert(0);
-		} break;
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hwnd, &ps);
-			win32_WindowDimension dim = win32_GetWindowDimension(hwnd);
-			Win32DisplayBufferInWindow(&globalBackBuffer, hdc,
-				dim.width, dim.height);
-			EndPaint(hwnd, &ps);
 		} break;
 		default:
 		{
@@ -347,6 +360,8 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	win32_LoadXInput();
 	
+	stbi_set_flip_vertically_on_load(1);
+
 	// Timing Info
 	LARGE_INTEGER perftimerfreqresult;
 	QueryPerformanceFrequency(&perftimerfreqresult);
@@ -369,7 +384,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 		if (window) {
 			win32_WindowDimension dim = win32_GetWindowDimension(window);
-			win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
+			// win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 			
 			win32_running = 1;
 
@@ -386,62 +401,46 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			gameMemory.size = Kilobytes((u64)1);
 			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-			// fill starting window with a pretty blue color
-			{
-				uchar* temp = (uchar*)globalBackBuffer.memory;
-				for (i32 i = 0; i < 4 * dim.width * dim.height; i += 4) {
-					temp[i] = 255;
-					temp[i + 1] = 125;
-					temp[i + 2] = 50;
-					//temp[i + 3] = 255;
-				}
-			}
+			InitGameState(&gameMemory, Vec2((f32)dim.width, (f32)dim.height));
 
 			VertexBuffer vertex_buffer;
+			IndexBuffer index_buffer;
 			ModelBuffer model_buffer;
-			Image screen_buffer;
 			PermanentResourceAllocator renderer_allocator(Megabytes((u64)64));
-
-			InitRenderer(&screen_buffer, dim.width, dim.height, &vertex_buffer, &model_buffer, &renderer_allocator);
-			f32* z_buffer = (f32*)renderer_allocator.Allocate(sizeof(f32) * dim.width * dim.height);
-
 			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
-			LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &model_buffer, &frame_allocator);
 
-			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &model_buffer, &frame_allocator);
+			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
+			
+			// LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 
-			Render(&screen_buffer, z_buffer, &vertex_buffer, &model_buffer);
+			Image my_image;
+			i32 n;
+			my_image.data = stbi_load((char*)"test_assets/african_head_diffuse.tga", &my_image.width, &my_image.height, &n, 4);
 
-			// put screen_buffer into the windows backbuffer
-			{
-				uchar* temp = (uchar*)globalBackBuffer.memory;
-				for (i32 i = 0; i < 4 * dim.width * dim.height; i += 4) {
-					temp[i] = screen_buffer.data[i];
-					temp[i + 1] = screen_buffer.data[i + 1];
-					temp[i + 2] = screen_buffer.data[i + 2];
-					// temp[i + 3] = screen_buffer.data[i + 3];
-				}
-			}
+			Renderer renderer = {};
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, &my_image);
 
 			while (win32_running) {
 				// Timing
-				LARGE_INTEGER endtimer;
-				QueryPerformanceCounter(&endtimer);
-				i64 timerelapsed = endtimer.QuadPart - lasttimer.QuadPart;
-				f32 msperframe = (f32)((1000.0f * (f32)timerelapsed) / (f32)perftimerfreq);
-				i64 fps = (i64)(perftimerfreq / timerelapsed);
+				{
+					LARGE_INTEGER endtimer;
+					QueryPerformanceCounter(&endtimer);
+					i64 timerelapsed = endtimer.QuadPart - lasttimer.QuadPart;
+					f32 msperframe = (f32)((1000.0f * (f32)timerelapsed) / (f32)perftimerfreq);
+					i64 fps = (i64)(perftimerfreq / timerelapsed);
 
-				u64 endcyclecount = __rdtsc();
-				u64 cycleselapsed = endcyclecount - lastcyclecount;
+					u64 endcyclecount = __rdtsc();
+					u64 cycleselapsed = endcyclecount - lastcyclecount;
 
-				char str_buffer[256];
-				sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-				//OutputDebugStringA(str_buffer);
+					char str_buffer[256];
+					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
+					//OutputDebugStringA(str_buffer);
 
-				lasttimer = endtimer;
-				lastcyclecount = endcyclecount;
+					lasttimer = endtimer;
+					lastcyclecount = endcyclecount;
+				}
 
-				
 				// Update Input
 				*newInput = {};
 				for (i32 i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
@@ -449,7 +448,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 				win32_UpdateInput(newInput);
 
+
 				GameUpdate(&gameMemory, newInput);
+
+
+				renderer.RenderFrame(&gameMemory, &model_buffer);
+				if (FAILED(renderer.RenderPresent(window))) {
+					break;
+				}
 
 				// Swap Input structs
 				Input* temp = newInput;

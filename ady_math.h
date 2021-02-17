@@ -57,6 +57,10 @@ inline i32 Vec2To1DIndex(vec2 v, i32 width) {
 	return (i32)v.x + (i32)v.y * width;
 }
 
+inline b32 Vec2Equals(vec2 v1, vec2 v2) {
+	return (b32)((v1.x == v2.x) && (v1.y == v2.y));
+}
+
 // Vector 3 ----------------------------------------------------------------
 
 typedef struct vec3 {
@@ -82,6 +86,10 @@ inline vec3 OneVec() {
 
 inline vec3 UpVec() {
 	return { 0.0f, 1.0f, 0.0f };
+}
+
+inline b32 VecEquals(vec3 v1, vec3 v2) {
+	return (b32)((v1.x == v2.x) && (v1.y == v2.y) && (v1.z == v2.z));
 }
 
 inline vec3 NegVec(vec3 v1) {

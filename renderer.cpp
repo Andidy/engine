@@ -1,20 +1,17 @@
 #include "renderer.h"
 
-void InitRenderer(Image* screen_buffer, i32 screen_width, i32 screen_height, VertexBuffer* v_buf, ModelBuffer* models, PermanentResourceAllocator* allocator) {
-	screen_buffer->width = screen_width;
-	screen_buffer->height = screen_height;
-	screen_buffer->data = (uchar*)allocator->Allocate(sizeof(uchar) * 4 * screen_width * screen_height);
-	
+void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, PermanentResourceAllocator* allocator) {
 	v_buf->buffer_length = 1000000;
 	v_buf->num_vertices = 0;
-	v_buf->positions = (vec3*)allocator->Allocate(sizeof(vec3) * v_buf->buffer_length);
-	v_buf->normals = (vec3*)allocator->Allocate(sizeof(vec3) * v_buf->buffer_length);
-	v_buf->texcoords = (vec2*)allocator->Allocate(sizeof(vec2) * v_buf->buffer_length);
+	v_buf->vertices = (Vertex*)allocator->Allocate(sizeof(Vertex) * v_buf->buffer_length);
+
+	i_buf->buffer_length = 1000000;
+	i_buf->num_indices = 0;
+	i_buf->indices = (i32*)allocator->Allocate(sizeof(i32) * i_buf->buffer_length);
 
 	models->buffer_length = 100;
 	models->num_models = 0;
-	models->ptr = (i32*)allocator->Allocate(sizeof(i32) * models->buffer_length);
-	models->length = (i32*)allocator->Allocate(sizeof(i32) * models->buffer_length);
+	models->models = (Model*)allocator->Allocate(sizeof(Model) * models->buffer_length);
 }
 
 
@@ -24,157 +21,23 @@ void InitRenderer(Image* screen_buffer, i32 screen_width, i32 screen_height, Ver
 
 
 
+//b32 VertexCompare(Vertex v1, Vertex v2) {
+//	return (b32)(VecEquals(v1.pos, v2.pos) && VecEquals(v1.norm, v2.norm) && Vec2Equals(v1.tex, v2.tex));
+//}
 
-void DrawLine(ivec2 start, ivec2 end, Image* screen, Color color) {
-	if ((start.x == end.x) && (start.y == end.y)) {
-		return;
-	}
+b32 VertexCompare(Vertex v1, Vertex v2) {
+	b32 a = v1.x == v2.x;
+	b32 b = v1.y == v2.y;
+	b32 c = v1.z == v2.z;
 
-	bool steep = false;
-	if (abs(start.x - end.x) < abs(start.y - end.y)) {
-		i32 temp = start.x;
-		start.x = start.y;
-		start.y = temp;
-
-		temp = end.x;
-		end.x = end.y;
-		end.y = temp;
-
-		steep = true;
-	}
-
-	if (start.x > end.x) {
-		i32 temp = start.x;
-		start.x = end.x;
-		end.x = temp;
-
-		temp = start.y;
-		start.y = end.y;
-		end.y = temp;
-	}
-
-	for (i32 x = start.x; x <= end.x; x++) {
-		f32 t = (x - start.x) / (f32)(end.x - start.x);
-		i32 y = (i32)((f32)start.y * (1.0f - t) + ((f32)end.y * t));
-		if (steep) {
-			i32 pixel_index = 4 * (y + screen->width * (screen->height - x));
-			screen->data[pixel_index + 0] = color.b;
-			screen->data[pixel_index + 1] = color.g;
-			screen->data[pixel_index + 2] = color.r;
-			screen->data[pixel_index + 3] = color.a;
-		}
-		else {
-			i32 pixel_index = 4 * (x + screen->width * (screen->height - y));
-			screen->data[pixel_index + 0] = color.b;
-			screen->data[pixel_index + 1] = color.g;
-			screen->data[pixel_index + 2] = color.r;
-			screen->data[pixel_index + 3] = color.a;
-		}
-	}
+	b32 d = v1.nx == v2.nx;
+	b32 e = v1.ny == v2.ny;
+	b32 f = v1.nz == v2.nz;
+	
+	b32 g = v1.tx == v2.tx;
+	b32 h = v1.ty == v2.ty;
+	return a && b && c && d && e && f && g && h;
 }
-
-vec3 Barycentric(vec3 p0, vec3 p1, vec3 p2, vec3 P) {
-	vec3 temp0 = Vec3(p2.x - p0.x, p1.x - p0.x, p0.x - P.x);
-	vec3 temp1 = Vec3(p2.y - p0.y, p1.y - p0.y, p0.y - P.y);
-	vec3 u = Cross(temp0, temp1);
-
-	// degenerate triangle
-	if (fabsf(u.z) > 0.001f) 
-		return Vec3(1.0f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
-
-	return Vec3(-1, -1, -1);
-}
-
-void DrawTriangle(vec3* pts, f32* zbuffer, Image* screen, Color color) {
-	vec2 bboxmin = Vec2(FLT_MAX, FLT_MAX);
-	vec2 bboxmax = Vec2(-FLT_MAX, -FLT_MAX);
-	vec2 clamping_vec = Vec2((f32)screen->width - 1, (f32)screen->height - 1);
-
-	for (int i = 0; i < 3; i++) {
-		for (int j = 0; j < 2; j++) {
-			bboxmin.data[j] = (i32)floatmax(0.0f, floatmin(bboxmin.data[j], pts[i].data[j]));
-			bboxmax.data[j] = floatmin(clamping_vec.data[j], floatmax(bboxmax.data[j], pts[i].data[j]));
-		}
-	}
-
-	vec3 P = Vec3(0, 0, 0);
-	for (P.x = bboxmin.x; P.x <= bboxmax.x; P.x+=1) {
-		for (P.y = bboxmin.y; P.y <= bboxmax.y; P.y+=1) {
-			vec3 bc_screen = Barycentric(pts[0], pts[1], pts[2], P);
-
-			if (bc_screen.x < 0 || bc_screen.y < 0 || bc_screen.z < 0) continue;
-
-			P.z = 0;
-			for (int i = 0; i < 3; i++) {
-				P.z += pts[i].z * bc_screen.data[i];
-			}
-
-			if (zbuffer[(i32)(P.x + P.y * screen->width)] < P.z) {
-				zbuffer[(i32)(P.x + P.y * screen->width)] = P.z;
-
-				i32 pixel_index = 4 * (i32)(P.x + screen->width * (screen->height - P.y));
-				screen->data[pixel_index + 0] = color.b;
-				screen->data[pixel_index + 1] = color.g;
-				screen->data[pixel_index + 2] = color.r;
-				screen->data[pixel_index + 3] = color.a;
-			}
-		}
-	}
-}
-
-f32 helper(f32 v) {
-	return (v + 1.0f) / 2.0f;
-}
-
-void Render(Image* screen, f32* z_buffer, VertexBuffer* vertex_buffer, ModelBuffer* model_buffer) {
-	vec3 light_dir = Vec3(0.0f, 0.0f, -1.0f);
-
-	// mat4 proj = PerspectiveMat(45, (window_width / window_height), 0.1, 1000);
-	// mat4 view = LookAtMat(Vec3(0, 0, -1), ZeroVec(), UpVec());
-
-	for (int model = 0; model < model_buffer->num_models; model++) {
-		for (int i = 0; i < model_buffer->length[model]; i += 3) {
-			vec3 screen_coords[3];
-			vec3 world_coords[3];
-			for (int j = 0; j < 3; j++) {
-				vec3 temp = vertex_buffer->positions[model_buffer->ptr[model] + i + j];
-
-				if (model == 0) {
-					temp.x += 2;
-					temp.y += 1;
-				}
-				else if (model == 1) {
-					temp.x += 4;
-					temp.y += 4;
-				}
-
-				world_coords[j] = temp;
-				screen_coords[j] = Vec3(helper(world_coords[j].x) * (f32)screen->width / 4.0f, helper(world_coords[j].y) * (f32)screen->height / 4.0f, world_coords[j].z);
-			}
-
-			vec3 n = Cross(SubVec(world_coords[2], world_coords[0]), SubVec(world_coords[1], world_coords[0]));
-			n = NormVec(n);
-
-			float intensity = Dot(n, light_dir);
-			if (intensity > 0) {
-				Color rand_color;
-				rand_color.b = (uchar)(intensity * 255);
-				rand_color.g = (uchar)(intensity * 255);
-				rand_color.r = (uchar)(intensity * 255);
-				rand_color.a = 255;
-				DrawTriangle(screen_coords, z_buffer, screen, rand_color);
-			}
-		}
-	}
-}
-
-
-
-
-
-
-
-
 
 struct FaceInt3 {
 	int v, n, t;
@@ -184,36 +47,38 @@ struct Face {
 	FaceInt3 f[3];
 };
 
-void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator) {
+void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator) {
+	// load obj
 	debug_ReadFileResult obj_file = debug_ReadFile(filename);
-
 	uchar* ptr = (uchar*)obj_file.data;
 
-
-	m_buffer->ptr[m_buffer->num_models] = v_buffer->num_vertices;
-
-
-	i32 num_vertices_and_indices = 0;
+	// find out how many faces and indices we will need for temp storage and model data
+	i32 num_indices = 0;
+	i32 num_faces = 0;
 	u64 i = 0;
 	while (i < obj_file.size) {
 		if (ptr[i] == 'f') {
-			num_vertices_and_indices += 1;
+			num_faces += 1;
 		}
 		while (ptr[i] != '\n') { i += 1; }
 		i += 1;
 	}
-	num_vertices_and_indices *= 3;
+	num_indices = 3 * num_faces;
 
-	m_buffer->length[m_buffer->num_models] = num_vertices_and_indices;
+	// set this model's information to model buffer
+	m_buffer->models[m_buffer->num_models].start_index = i_buffer->num_indices;
+	m_buffer->models[m_buffer->num_models].length = num_indices;
 	m_buffer->num_models += 1;
 
+
 	// allocate temporary space
-	vec3* vertices = (vec3*)allocator->Allocate(sizeof(vec3) * num_vertices_and_indices);
-	vec3* normals = (vec3*)allocator->Allocate(sizeof(vec3) * num_vertices_and_indices);
-	vec2* texcoords = (vec2*)allocator->Allocate(sizeof(vec2) * num_vertices_and_indices);
+	vec3* vertices = (vec3*)allocator->Allocate(sizeof(vec3) * num_indices);
+	vec3* normals = (vec3*)allocator->Allocate(sizeof(vec3) * num_indices);
+	vec2* texcoords = (vec2*)allocator->Allocate(sizeof(vec2) * num_indices);
 
-	Face* faces = (Face*)allocator->Allocate(sizeof(Face) * num_vertices_and_indices);
+	Face* faces = (Face*)allocator->Allocate(sizeof(Face) * num_faces);
 
+	// extract obj data and place it into temporary storage
 	i32 vi = 0;
 	i32 ni = 0;
 	i32 ti = 0;
@@ -335,25 +200,731 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, ModelBuffer* m_buffer, Perm
 	}
 
 
-	i32 index = v_buffer->num_vertices;
-	for (fi = 0; fi < num_vertices_and_indices; fi++) { // compose vertices 
+	i32 start_v_buf = v_buffer->num_vertices;
 
-		v_buffer->positions[index + 0] = vertices[faces[fi].f[0].v];
-		v_buffer->normals[index + 0] = normals[faces[fi].f[0].n];
-		v_buffer->texcoords[index + 0] = texcoords[faces[fi].f[0].t];
 
-		v_buffer->positions[index + 1] = vertices[faces[fi].f[1].v];
-		v_buffer->normals[index + 1] = normals[faces[fi].f[1].n];
-		v_buffer->texcoords[index + 1] = texcoords[faces[fi].f[1].t];
+	// compose temporary storage into vertices and build vertex and index buffers
+	for (fi = 0; fi < num_faces; fi++) { // compose vertices 
+		for (i32 fii = 0; fii < 3; fii++) {
+			vec3 pos = vertices[faces[fi].f[fii].v];
+			vec3 norm = normals[faces[fi].f[fii].n];
+			vec2 tex = texcoords[faces[fi].f[fii].t];
 
-		v_buffer->positions[index + 2] = vertices[faces[fi].f[2].v];
-		v_buffer->normals[index + 2] = normals[faces[fi].f[2].n];
-		v_buffer->texcoords[index + 2] = texcoords[faces[fi].f[2].t];
+			Vertex v = { pos.x, pos.y, pos.z, norm.x, norm.y, norm.z, tex.x, tex.y };
 
-		index += 3;
+			b32 found_vertex = 0;
+			for (int i = start_v_buf; i < v_buffer->num_vertices; i++) {
+				if (VertexCompare(v, v_buffer->vertices[i])) {
+					i_buffer->indices[i_buffer->num_indices] = i;
+					i_buffer->num_indices += 1;
+					found_vertex = 1;
+					break;
+				}
+			}
+
+			if (!found_vertex) {
+				v_buffer->vertices[v_buffer->num_vertices] = v;
+				i_buffer->indices[i_buffer->num_indices] = v_buffer->num_vertices;
+				v_buffer->num_vertices += 1;
+				i_buffer->num_indices += 1;
+			}
+		}
 	}
 
-	v_buffer->num_vertices += num_vertices_and_indices;
-
 	allocator->Free();
+}
+
+
+
+
+// ============================================================================
+// D3D12
+/*
+void Renderer::CreateRootSig() {
+	// Create a root descriptor
+	D3D12_ROOT_DESCRIPTOR rootCBVDescriptor = { 0, 0 };
+
+	// Create a descriptor range (descriptor table) and fill it out
+	// this is a range of descriptors inside a descriptor heap
+	D3D12_DESCRIPTOR_RANGE descriptorTableRanges[1] = {};
+	descriptorTableRanges[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+	descriptorTableRanges[0].NumDescriptors = 1;
+	descriptorTableRanges[0].BaseShaderRegister = 0;
+	descriptorTableRanges[0].RegisterSpace = 0;
+	descriptorTableRanges[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+
+	// Create a descriptor table
+	D3D12_ROOT_DESCRIPTOR_TABLE descriptorTable = {};
+	descriptorTable.NumDescriptorRanges = _countof(descriptorTableRanges);
+	descriptorTable.pDescriptorRanges = &descriptorTableRanges[0];
+
+	// Create a root parameter
+	D3D12_ROOT_PARAMETER rootParams[2] = {};
+	rootParams[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+	rootParams[0].Descriptor = rootCBVDescriptor;
+	rootParams[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+
+	rootParams[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rootParams[1].DescriptorTable = descriptorTable;
+	rootParams[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	// Create static sampler
+	D3D12_STATIC_SAMPLER_DESC sampler = {};
+	sampler.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	sampler.AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	sampler.MipLODBias = 0;
+	sampler.MaxAnisotropy = 0;
+	sampler.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	sampler.BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	sampler.MinLOD = 0.0f;
+	sampler.MaxLOD = D3D12_FLOAT32_MAX;
+	sampler.ShaderRegister = 0;
+	sampler.RegisterSpace = 0;
+	sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+	D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+	rootSignatureDesc.NumParameters = _countof(rootParams);
+	rootSignatureDesc.pParameters = rootParams;
+	rootSignatureDesc.NumStaticSamplers = 1;
+	rootSignatureDesc.pStaticSamplers = &sampler;
+	rootSignatureDesc.Flags =
+		D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT
+		| D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS
+		| D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS
+		| D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+
+	ID3DBlob* signature;
+	HRESULT hr = D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1, &signature, 0);
+	if (FAILED(hr)) { __debugbreak(); }
+
+	hr = device->CreateRootSignature(0, signature->GetBufferPointer(), signature->GetBufferSize(), IID_PPV_ARGS(&rootSignature));
+	if (FAILED(hr)) { __debugbreak(); }
+}
+
+void Renderer::CreatePSO() {
+	// when debugging, we can compile the shader files at runtime.
+	// but for release versions, we can compile the hlsl shaders
+	// with fxc.exe to create .cso files, which contain the shader
+	// bytecode. We can load the .cso files at runtime to get the
+	// shader bytecode, which of course is faster than compiling
+	// them at runtime
+
+	// compile vertex shader
+	ID3DBlob* vertexShader; // d3d blob for holding vertex shader bytecode
+	ID3DBlob* errorBuff; // a buffer holding the error data if any
+	HRESULT hr = D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &vertexShader, &errorBuff);
+	if (FAILED(hr)) {
+		OutputDebugStringA((char*)errorBuff->GetBufferPointer());
+		__debugbreak();
+	}
+
+	// fill out a shader bytecode structure
+	D3D12_SHADER_BYTECODE vertexShaderBytecode = {};
+	vertexShaderBytecode.BytecodeLength = vertexShader->GetBufferSize();
+	vertexShaderBytecode.pShaderBytecode = vertexShader->GetBufferPointer();
+
+	// compile pixel shader
+	ID3DBlob* pixelShader;
+	hr = D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_5_0",
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &pixelShader, &errorBuff);
+	if (FAILED(hr)) {
+		OutputDebugStringA((char*)errorBuff->GetBufferPointer());
+		__debugbreak();
+	}
+
+	// fill out a shader bytecode structure
+	D3D12_SHADER_BYTECODE pixelShaderBytecode = {};
+	pixelShaderBytecode.BytecodeLength = pixelShader->GetBufferSize();
+	pixelShaderBytecode.pShaderBytecode = pixelShader->GetBufferPointer();
+
+
+
+
+	// create input layout
+	// The input layout is used by the Input Assembler so that it knows
+	// how to read the vertex data bound to it.
+
+	D3D12_INPUT_ELEMENT_DESC inputLayout[] = {
+	  { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	  { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+	  { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 28, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0},
+	  { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 36, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0}
+	};
+
+	// fill out an input layout description structure
+	D3D12_INPUT_LAYOUT_DESC inputLayoutDesc = {};
+	inputLayoutDesc.NumElements = sizeof(inputLayout) / sizeof(D3D12_INPUT_ELEMENT_DESC);
+	inputLayoutDesc.pInputElementDescs = inputLayout;
+
+	// fill out depth stencil state desc
+	D3D12_DEPTH_STENCIL_DESC dsDesc = {};
+	dsDesc.DepthEnable = TRUE;
+	dsDesc.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
+	dsDesc.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+	dsDesc.StencilEnable = FALSE;
+	dsDesc.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;
+	dsDesc.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK;
+	dsDesc.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	dsDesc.BackFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
+	dsDesc.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
+	dsDesc.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+	dsDesc.BackFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
+
+	// fill out rasterizer state desc
+	D3D12_RASTERIZER_DESC rasterizerDesc = {};
+	rasterizerDesc.FillMode = D3D12_FILL_MODE_SOLID;
+	rasterizerDesc.CullMode = D3D12_CULL_MODE_BACK;
+	rasterizerDesc.FrontCounterClockwise = FALSE;
+	rasterizerDesc.DepthBias = 0;
+	rasterizerDesc.DepthBiasClamp = 0.0f;
+	rasterizerDesc.SlopeScaledDepthBias = 0.0f;
+	rasterizerDesc.DepthClipEnable = TRUE;
+	rasterizerDesc.MultisampleEnable = FALSE;
+	rasterizerDesc.AntialiasedLineEnable = FALSE;
+	rasterizerDesc.ForcedSampleCount = 0;
+	rasterizerDesc.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+	// fill out blend state desc
+	D3D12_BLEND_DESC blendDesc = {};
+	blendDesc.IndependentBlendEnable = FALSE;
+	blendDesc.AlphaToCoverageEnable = FALSE;
+	blendDesc.RenderTarget[0].BlendEnable = FALSE;
+	blendDesc.RenderTarget[0].LogicOpEnable = FALSE;
+	blendDesc.RenderTarget[0].SrcBlend = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlend = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOp = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].SrcBlendAlpha = D3D12_BLEND_ONE;
+	blendDesc.RenderTarget[0].DestBlendAlpha = D3D12_BLEND_ZERO;
+	blendDesc.RenderTarget[0].BlendOpAlpha = D3D12_BLEND_OP_ADD;
+	blendDesc.RenderTarget[0].LogicOp = D3D12_LOGIC_OP_NOOP;
+	blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+	// create a pipeline state object (PSO)
+
+	// In a real application, you will have many pso's. for each different shader
+	// or different combinations of shaders, different blend states or different rasterizer states,
+	// different topology types (point, line, triangle, patch), or a different number
+	// of render targets you will need a pso
+
+	// VS is the only required shader for a pso. You might be wondering when a case would be where
+	// you only set the VS. It's possible that you have a pso that only outputs data with the stream
+	// output, and not on a render target, which means you would not need anything after the stream
+	// output.
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
+	psoDesc.InputLayout = inputLayoutDesc;
+	psoDesc.pRootSignature = rootSignature;
+	psoDesc.VS = vertexShaderBytecode;
+	psoDesc.PS = pixelShaderBytecode;
+	psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	psoDesc.SampleDesc.Count = 1;
+	psoDesc.SampleMask = 0xffffffff;
+	psoDesc.DepthStencilState = dsDesc;
+	psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	psoDesc.RasterizerState = rasterizerDesc;
+	psoDesc.BlendState = blendDesc;
+	psoDesc.NumRenderTargets = 1;
+	hr = device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineStateObject));
+	if (FAILED(hr)) { __debugbreak(); }
+}
+
+void UploadModelData(VertexBuffer* vertexBuffer, ModelBuffer* modelBuffer) {
+
+}
+*/
+
+// end D3D12
+// ============================================================================
+// D3D11
+
+void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image) {
+	HRESULT hr;
+
+	// device
+	{
+		UINT flags = D3D11_CREATE_DEVICE_SINGLETHREADED;
+		flags |= D3D11_CREATE_DEVICE_DEBUG;
+		D3D_FEATURE_LEVEL level;
+
+		hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, flags, NULL, 0, D3D11_SDK_VERSION,
+			&device, &level, &context);
+		if (FAILED(hr)) {
+			hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_WARP, NULL, flags, NULL, 0, D3D11_SDK_VERSION,
+				&device, &level, &context);
+			if (FAILED(hr)) {
+				__debugbreak();
+			}
+		}
+
+		hr = context->QueryInterface(__uuidof(ID3D11DeviceContext1), (void**)&context1);
+		if (SUCCEEDED(hr)) {
+			context->Release();
+			context = (ID3D11DeviceContext*)context1;
+		}
+	}
+
+	// swapchain
+	{
+		IDXGIFactory2* factory = {};
+		if (FAILED(hr = CreateDXGIFactory(__uuidof(IDXGIFactory), (void**)&factory))) {
+			__debugbreak();
+		}
+
+		DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
+		swapchainDesc.Width = swapchainWidth;
+		swapchainDesc.Height = swapchainHeight;
+		swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapchainDesc.BufferCount = 2;
+		swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapchainDesc.SampleDesc.Count = 1;
+		swapchainDesc.Scaling = DXGI_SCALING_STRETCH;
+		swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+
+		IDXGISwapChain1* swapchain1;
+		if (FAILED(factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchainDesc, NULL, NULL, &swapchain1))) {
+			// Windows 8.1
+			swapchainDesc.BufferCount = 2;
+			swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+			swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			hr = factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchainDesc, NULL, NULL, &swapchain1);
+			if (FAILED(hr)) { __debugbreak(); }
+		}
+		swapchain = (IDXGISwapChain3*)swapchain1;
+		factory->Release();
+	}
+
+	// rasterizer
+	{
+		D3D11_RASTERIZER_DESC desc = {};
+		desc.FillMode = D3D11_FILL_SOLID;
+		desc.CullMode = D3D11_CULL_BACK;
+		desc.FrontCounterClockwise = FALSE;
+		desc.DepthBias = 0;
+		desc.DepthBiasClamp = 0;
+		desc.SlopeScaledDepthBias = 0.0f;
+		desc.DepthClipEnable = TRUE;
+		desc.ScissorEnable = FALSE;
+		desc.MultisampleEnable = 0;
+		desc.AntialiasedLineEnable = FALSE;
+
+		hr = device->CreateRasterizerState(&desc, &rasterizerState);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// depth stencil state
+	{
+		D3D11_DEPTH_STENCIL_DESC desc = {};
+		desc.DepthEnable = TRUE;
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+		desc.DepthFunc = D3D11_COMPARISON_LESS;
+		desc.StencilEnable = FALSE;
+		desc.StencilReadMask = 0;
+		desc.StencilWriteMask = 0;
+		hr = device->CreateDepthStencilState(&desc, &depthStencilState);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// blend state
+	{
+		D3D11_RENDER_TARGET_BLEND_DESC blendDesc = {};
+		blendDesc.BlendEnable = FALSE;
+		blendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		D3D11_BLEND_DESC desc = {};
+		desc.AlphaToCoverageEnable = FALSE;
+		desc.IndependentBlendEnable = FALSE;
+		desc.RenderTarget[0] = blendDesc;
+
+		hr = device->CreateBlendState(&desc, &blendState);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	/*
+	#if !USE_PRECOMPILED_SHADERS
+	UINT shader_flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS
+		#if USE_DEBUG_MODE
+		  D3DCOMPILE_OPTIMIZATION_LEVEL0 | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
+		#else
+		  D3DCOMPILE_OPTIMIZATION_LEVEL3;
+		#endif
+	#endif
+	*/
+	UINT shader_flags = D3DCOMPILE_ENABLE_STRICTNESS | D3DCOMPILE_WARNINGS_ARE_ERRORS | D3DCOMPILE_OPTIMIZATION_LEVEL0 | D3DCOMPILE_SKIP_OPTIMIZATION | D3DCOMPILE_DEBUG;
+
+	// vertex shader
+	{
+		D3D11_INPUT_ELEMENT_DESC layout[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(Vertex, x), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(Vertex, nx), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(Vertex, tx), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		ID3DBlob* code = NULL;
+		const void* vshader;
+		size_t vshader_size;
+
+		/*
+		#if USE_PRECOMPILED_SHADERS
+		vshader = d3d11_vshader;
+		vshader_size = sizeof(d3d11_vshader);
+		#else
+		*/
+
+		ID3DBlob* errorBuff;
+		hr = D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_5_0",
+			shader_flags, 0, &code, &errorBuff);
+		if (FAILED(hr)) { 
+			OutputDebugFromRenderer((char*)errorBuff->GetBufferPointer());
+			__debugbreak();
+		}
+		vshader = code->GetBufferPointer();
+		vshader_size = code->GetBufferSize();
+
+		//#endif
+
+		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &vertexShader);
+		if (FAILED(hr)) { __debugbreak(); }
+
+		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &inputLayout);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// pixel shader
+	{
+		ID3DBlob* code = NULL;
+		const void* pshader;
+		size_t pshader_size;
+
+		/*
+		#if USE_PRECOMPILED_SHADERS
+		pshader = d3d11_pshader;
+		pshader_size = sizeof(d3d11_pshader);
+		#else
+		*/
+
+		ID3DBlob* errorBuff;
+		hr = D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_5_0",
+			shader_flags, 0, &code, &errorBuff);
+		if (FAILED(hr)) { __debugbreak(); }
+		pshader = code->GetBufferPointer();
+		pshader_size = code->GetBufferSize();
+
+		//#endif
+
+		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &pixelShader);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// vertex buffer
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = v_buf->num_vertices * sizeof(Vertex);
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = {};
+		data.pSysMem = v_buf->vertices;
+
+		hr = device->CreateBuffer(&desc, &data, &vertexBuffer);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// index buffer
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = i_buf->num_indices * sizeof(i32);
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		D3D11_SUBRESOURCE_DATA data = {};
+		data.pSysMem = i_buf->indices;
+
+		hr = device->CreateBuffer(&desc, &data, &indexBuffer);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// constant buffer
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = sizeof(Constants) + 0xf & 0xfffffff0;
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		device->CreateBuffer(&desc, NULL, &constantBuffer);
+	}
+
+	// texture
+	{
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = my_image->width;
+		textureDesc.Height = my_image->height;
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = my_image->data;
+		textureData.SysMemPitch = my_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &texture);
+		device->CreateShaderResourceView(texture, nullptr, &textureView);
+	}
+
+	// sampler
+	{
+		D3D11_SAMPLER_DESC samplerDesc = {};
+		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+
+		device->CreateSamplerState(&samplerDesc, &samplerState);
+	}
+
+	/*
+	UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+	hr = swapchain->ResizeBuffers(0, swapchainWidth, swapchainHeight, DXGI_FORMAT_UNKNOWN, flags);
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR) {
+		// if (failed (recreate device()) )
+		__debugbreak();
+	}
+	else {
+		__debugbreak();
+	}
+	*/
+
+	ID3D11Texture2D* windowBuffer = {};
+	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&windowBuffer);
+	if (FAILED(hr)) { __debugbreak(); }
+
+	hr = device->CreateRenderTargetView((ID3D11Resource*)windowBuffer, NULL, &windowRTView);
+	windowBuffer->Release();
+	if (FAILED(hr)) { __debugbreak(); }
+
+	{
+		D3D11_TEXTURE2D_DESC desc = {};
+		desc.Width = swapchainWidth;
+		desc.Height = swapchainHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_D32_FLOAT;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+		ID3D11Texture2D* depthStencil = {};
+		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
+		if (FAILED(hr)) { __debugbreak(); }
+
+		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &windowDPView);
+		depthStencil->Release();
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = (f32)swapchainWidth;
+	viewport.Height = (f32)swapchainHeight;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
+	context->RSSetViewports(1, &viewport);
+}
+
+HRESULT Renderer::RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight) {
+	if (swapchainWidth == 0 || swapchainHeight == 0) {
+		return S_OK;
+	}
+
+	if (windowRTView) {
+		context->OMSetRenderTargets(0, NULL, NULL);
+		windowRTView->Release();
+		windowRTView = NULL;
+	}
+
+	if (windowDPView) {
+		windowDPView->Release();
+		windowDPView = NULL;
+	}
+
+	UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+	HRESULT hr = swapchain->ResizeBuffers(0, swapchainWidth, swapchainHeight, DXGI_FORMAT_UNKNOWN, flags);
+	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR) {
+		// if (failed (recreate device()) )
+		__debugbreak();
+	}
+	else {
+		__debugbreak();
+	}
+
+	ID3D11Texture2D* windowBuffer;
+	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&windowBuffer);
+	if (FAILED(hr)) { __debugbreak(); }
+
+	hr = device->CreateRenderTargetView((ID3D11Resource*)windowBuffer, NULL, &windowRTView);
+	windowBuffer->Release();
+	if (FAILED(hr)) { __debugbreak(); }
+
+	{
+		D3D11_TEXTURE2D_DESC desc = {};
+		desc.Width = swapchainWidth;
+		desc.Height = swapchainHeight;
+		desc.MipLevels = 1;
+		desc.ArraySize = 1;
+		desc.Format = DXGI_FORMAT_D32_FLOAT;
+		desc.SampleDesc.Count = 1;
+		desc.SampleDesc.Quality = 0;
+		desc.Usage = D3D11_USAGE_DEFAULT;
+		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+		ID3D11Texture2D* depthStencil = {};
+		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
+		if (FAILED(hr)) { __debugbreak(); }
+
+		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &windowDPView);
+		depthStencil->Release();
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = 0.0f;
+	viewport.TopLeftY = 0.0f;
+	viewport.Width = (f32)swapchainWidth;
+	viewport.Height = (f32)swapchainHeight;
+	viewport.MinDepth = 0.0f;
+	viewport.MaxDepth = 1.0f;
+
+	context->RSSetViewports(1, &viewport);
+	return S_OK;
+}
+
+HRESULT Renderer::RenderPresent(HWND window) {
+	HRESULT hr = S_OK;
+	if (renderer_occluded) {
+		hr = swapchain->Present(0, DXGI_PRESENT_TEST);
+		if (SUCCEEDED(hr) && hr != DXGI_STATUS_OCCLUDED) {
+			// DXGI window is back to normal, resuming rendering
+			renderer_occluded = 0;
+		}
+	}
+
+	if (!renderer_occluded) {
+		hr = swapchain->Present(0, 0);
+	}
+
+	if (hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DEVICE_REMOVED) {
+		//if (FAILED(RecreateDevice(wnd))) {
+		//	return FatalDeviceLostError();
+		//}
+
+		//RECT rect;
+		//if (!GetClientRect(wnd, &rect)) {
+		//	LogWin32LastError("GetClientRect failed");
+		//}
+		//else {
+		//	RenderResize(wnd, rect.right - rect.left, rect.bottom - rect.top);
+		//}
+		__debugbreak();
+	}
+	else if (hr == DXGI_STATUS_OCCLUDED) {
+		// DXGI window is occluded, skipping rendering
+		renderer_occluded = 1;
+	}
+	else if (hr == S_OK) {
+		// do nothing because its not an error
+	}
+	else {
+		__debugbreak();
+		// LOG_AND_RETURN_ERROR(hr, "IDXGISwapChain::Present failed");
+	}
+
+	if (renderer_occluded) {
+		Sleep(10);
+	}
+	else {
+		if (context1) {
+			context1->DiscardView((ID3D11View*)windowRTView);
+		}
+	}
+
+	return S_OK;
+}
+
+void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
+	if (!renderer_occluded) {
+		//if (render_frame_latency_wait) {
+		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
+		//}
+
+		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+		context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+
+		Constants* constants = (Constants*)(mappedSubresource.pData);
+
+
+		GameState* gameState = (GameState*)gameMemory->data;
+		mat4 translate = TranslateMat(Vec3(0.0f, 0.0f, 1.0f));
+		mat4 scale = ScaleMat(OneVec());
+		mat4 rotate = RotateMat(180, UpVec());
+
+		mat4 view = gameState->mainCamera.view;
+		mat4 proj = gameState->mainCamera.proj;
+
+		constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(scale, translate))));
+		// constants->LightVector = { 1.0f, -1.0f, 1.0f };
+
+		context->Unmap(constantBuffer, 0);
+
+		context->OMSetRenderTargets(1, &windowRTView, windowDPView);
+		context->OMSetDepthStencilState(depthStencilState, 0);
+		context->ClearDepthStencilView(windowDPView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+
+		// clear background
+		FLOAT clear_color[] = { 100.f / 255.f, 149.f / 255.f, 237.f / 255.f, 1.f };
+		context->ClearRenderTargetView(windowRTView, clear_color);
+
+		// draw a triangle
+		const UINT stride = sizeof(struct Vertex);
+		const UINT offset = 0;
+		context->IASetInputLayout(inputLayout);
+		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		
+		context->RSSetState(rasterizerState);
+		
+		context->VSSetShader(vertexShader, NULL, 0);
+		
+		context->PSSetShader(pixelShader, NULL, 0);
+		context->PSSetShaderResources(0, 1, &textureView);
+		context->PSSetSamplers(0, 1, &samplerState);
+
+		context->OMSetBlendState(blendState, NULL, ~0U);
+		
+		for (i32 i = 0; i < m_buffer->num_models; i++) {
+			context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, m_buffer->models[i].start_index * sizeof(i32));
+			context->VSSetConstantBuffers(0, 1, &constantBuffer);
+			context->DrawIndexed(m_buffer->models[i].length, 0, 0);
+		}	
+	}
 }
