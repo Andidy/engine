@@ -102,36 +102,4 @@ struct Renderer {
 	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer);
 };
 
-/* // D3D12 Renderer
-struct Renderer {
-	ID3D12Debug* debugController;
-
-	static const u32 frameCount = 3;
-	u32 frameIndex;
-	HANDLE fenceEvent;
-	ID3D12Fence* fence[frameCount];
-	u64 fenceValue[frameCount];
-
-	ID3D12Device* device;
-
-	ID3D12CommandAllocator* commandAllocator[frameCount];
-	ID3D12CommandQueue* commandQueue;
-	ID3D12CommandList* commandList;
-	IDXGISwapChain3* swapchain;
-
-	ID3D12DescriptorHeap* rtvHeap;
-	u32 rtvHeapDescSize;
-	ID3D12Resource* renderTargets[frameCount];
-
-	// should be made into arrays in future
-	ID3D12RootSignature* rootSignature;
-	ID3D12PipelineState* pipelineStateObject;
-
-	// need to look at "carnegie-9eca4b7839b4a09badcf5dced58e366b07f9f172" to implement D3D12 init code
-	void InitD3D12(WindowHandle window, i32 swapchainWidth, i32 swapchainHeight);
-	void CreateRootSig();
-	void CreatePSO();
-	void UploadModelData();
-};
-*/
 #endif

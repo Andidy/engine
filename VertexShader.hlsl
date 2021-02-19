@@ -15,8 +15,6 @@ cbuffer ConstantBuffer : register(b0) {
 };
 
 VS_OUTPUT main(VS_INPUT input) {
-	
-	
 	VS_OUTPUT output;
 	output.pos = mul(float4(input.pos, 1), mvp);
 	output.normal = input.normal;

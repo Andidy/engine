@@ -243,19 +243,6 @@ void OutputDebugFromRenderer(char* string) {
 	OutputDebugStringA(string);
 }
 
-/*
-struct win32_OffScreenBuffer {
-	// Pixels are alwasy 32-bits wide, Memory Order BB GG RR XX
-	BITMAPINFO info;
-	void* memory;
-	i32 width;
-	i32 height;
-	i32 pitch;
-	i32 bytesPerPixel;
-};
-win32_OffScreenBuffer globalBackBuffer;
-*/
-
 struct win32_WindowDimension {
 	i32 width;
 	i32 height;
@@ -272,6 +259,17 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 }
 
 /*
+struct win32_OffScreenBuffer {
+	// Pixels are alwasy 32-bits wide, Memory Order BB GG RR XX
+	BITMAPINFO info;
+	void* memory;
+	i32 width;
+	i32 height;
+	i32 pitch;
+	i32 bytesPerPixel;
+};
+win32_OffScreenBuffer globalBackBuffer;
+
 static void win32_ResizeDIBSection(win32_OffScreenBuffer* buffer, i32 width, i32 height) {
 	if (buffer->memory) {
 		VirtualFree(buffer->memory, 0, MEM_RELEASE);
@@ -442,25 +440,34 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				}
 
 				// Update Input
-				*newInput = {};
-				for (i32 i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
-					newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
+				{
+					*newInput = {};
+					for (i32 i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
+						newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
+					}
+					win32_UpdateInput(newInput);
 				}
-				win32_UpdateInput(newInput);
 
-
-				GameUpdate(&gameMemory, newInput);
-
-
-				renderer.RenderFrame(&gameMemory, &model_buffer);
-				if (FAILED(renderer.RenderPresent(window))) {
-					break;
+				// Update Game
+				{
+					GameUpdate(&gameMemory, newInput);
 				}
+
+				// Render Game
+				{
+					renderer.RenderFrame(&gameMemory, &model_buffer);
+					if (FAILED(renderer.RenderPresent(window))) {
+						break;
+					}
+				}
+
 
 				// Swap Input structs
-				Input* temp = newInput;
-				newInput = oldInput;
-				oldInput = temp;
+				{
+					Input* temp = newInput;
+					newInput = oldInput;
+					oldInput = temp;
+				}
 			}
 		}
 	}
