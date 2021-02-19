@@ -3,6 +3,8 @@
 
 #include "universal.h"
 
+#include "../libs/simplex.h"
+
 struct Camera {
 	vec3 pos;
 	vec3 target;
@@ -12,9 +14,24 @@ struct Camera {
 	mat4 view;
 };
 
+struct Entity {
+	vec3 renderPos;
+	vec3 renderScale;
+};
+
+struct GameMap {
+	Entity ent;
+	i32 mapWidth;
+	i32 mapHeight;
+	i32* elevationMap;
+};
+
 struct GameState {
-	ivec2 position;
+	Entity blackGuyHead;
+	GameMap gameMap;
 	Camera mainCamera;
+
+	PermanentResourceAllocator resourceAllocator;
 };
 
 void InitGameState(Memory* gameMemory, vec2 windowDimensions);

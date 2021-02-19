@@ -5,7 +5,7 @@
 #include "renderer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "libs/stb/stb_image.h"
+#include "../libs/stb/stb_image.h"
 
 #include <windows.h>
 #include <xinput.h>
@@ -411,6 +411,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			
 			// LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 
 			Image my_image;
 			i32 n;
@@ -460,7 +461,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						break;
 					}
 				}
-
 
 				// Swap Input structs
 				{

@@ -226,6 +226,60 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mode
 }
 
 
+void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models) {
+	models->models[models->num_models].start_index = i_buf->num_indices;
+	models->models[models->num_models].length = 6 * gameMap->mapWidth * gameMap->mapHeight;
+	models->num_models += 1;
+
+	for (int y = 0; y < gameMap->mapHeight; y++) {
+		for (int x = 0; x < gameMap->mapHeight; x++) {
+			Vertex v0 = {
+				(f32)x - 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y - 0.5f,
+				0, 1, 0,
+				0, 0
+			};
+			Vertex v1 = {
+				(f32)x + 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y - 0.5f,
+				0, 1, 0,
+				1, 0
+			};
+			Vertex v2 = {
+				(f32)x - 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y + 0.5f,
+				0, 1, 0,
+				0, 1
+			};
+			Vertex v3 = {
+				(f32)x + 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y + 0.5f,
+				0, 1, 0,
+				1, 1
+			};
+
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 0;
+			i_buf->num_indices += 1;
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 2;
+			i_buf->num_indices += 1;
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 1;
+			i_buf->num_indices += 1;
+
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 2;
+			i_buf->num_indices += 1;
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 3;
+			i_buf->num_indices += 1;
+			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 1;
+			i_buf->num_indices += 1;
+
+			v_buf->vertices[v_buf->num_vertices] = v0; 
+			v_buf->num_vertices += 1;
+			v_buf->vertices[v_buf->num_vertices] = v1; 
+			v_buf->num_vertices += 1;
+			v_buf->vertices[v_buf->num_vertices] = v2; 
+			v_buf->num_vertices += 1;
+			v_buf->vertices[v_buf->num_vertices] = v3; 
+			v_buf->num_vertices += 1;
+		}
+	}
+}
+
 
 // ============================================================================
 // D3D11
@@ -371,7 +425,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		*/
 
 		ID3DBlob* errorBuff;
-		hr = D3DCompileFromFile(L"VertexShader.hlsl", 0, 0, "main", "vs_5_0",
+		hr = D3DCompileFromFile(L"shaders/VertexShader.hlsl", 0, 0, "main", "vs_5_0",
 			shader_flags, 0, &code, &errorBuff);
 		if (FAILED(hr)) { 
 			OutputDebugFromRenderer((char*)errorBuff->GetBufferPointer());
@@ -403,7 +457,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		*/
 
 		ID3DBlob* errorBuff;
-		hr = D3DCompileFromFile(L"PixelShader.hlsl", 0, 0, "main", "ps_5_0",
+		hr = D3DCompileFromFile(L"shaders/PixelShader.hlsl", 0, 0, "main", "ps_5_0",
 			shader_flags, 0, &code, &errorBuff);
 		if (FAILED(hr)) { __debugbreak(); }
 		pshader = code->GetBufferPointer();
@@ -670,9 +724,9 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 
 
 		GameState* gameState = (GameState*)gameMemory->data;
-		mat4 translate = TranslateMat(Vec3(0.0f, 0.0f, 1.0f));
-		mat4 scale = ScaleMat(OneVec());
-		mat4 rotate = RotateMat(180, UpVec());
+		mat4 translate = TranslateMat(gameState->blackGuyHead.renderPos);
+		mat4 scale = ScaleMat(gameState->blackGuyHead.renderScale);
+		mat4 rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
 
 		mat4 view = gameState->mainCamera.view;
 		mat4 proj = gameState->mainCamera.proj;

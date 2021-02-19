@@ -43,10 +43,6 @@ struct ModelBuffer {
 
 
 
-struct Color {
-	u8 r, g, b, a;
-};
-
 struct Image {
 	i32 width;
 	i32 height;
@@ -58,6 +54,8 @@ void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, 
 void OutputDebugFromRenderer(char* string);
 
 void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator);
+
+void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models);
 
 #include <d3d11_1.h>
 #include <dxgi1_6.h>
