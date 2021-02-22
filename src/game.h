@@ -7,10 +7,10 @@
 
 struct Camera {
 	vec3 pos;
-	vec3 target;
+	vec3 dir;
 	vec3 up;
 
-	Quaternion orientation;
+	f32 yaw, pitch;
 
 	mat4 proj;
 	mat4 view;

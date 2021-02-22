@@ -35,73 +35,77 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
 	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
-	gameState->mainCamera.target = Vec3(0.0f, 0.0f, 0.0f);
+	gameState->mainCamera.dir = Vec3(0.0f, 0.0f, 0.0f);
 	gameState->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
 
-	gameState->mainCamera.orientation = { 0, 0, 0, 1 };
-	gameState->mainCamera.orientation = RotateQuat(gameState->mainCamera.orientation, UpVec(), 180);
+	gameState->mainCamera.pitch = 0.0f;
+	gameState->mainCamera.yaw = 0.0f;
 
 	// gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.target, gameState->mainCamera.up);
-	gameState->mainCamera.view = ViewMatFromQuat(gameState->mainCamera.orientation, gameState->mainCamera.pos);
+	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.dir, gameState->mainCamera.up);
 	gameState->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.0001f, 1000.0f);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	GameState* gameState = (GameState*)gameMemory->data;
 
+	// ========================================================================
+	// Camera Update
+
+	Camera* camera = &gameState->mainCamera;
+
+	const f32 cameraSpeed = 0.01f;
+	const f32 rotateSpeed = 0.25f;
+	
+	vec3 dir = NormVec(camera->dir);
+	vec3 right = NormVec(Cross(camera->up, dir));
+
 	if (keyDown(gameInput->keyboard.w)) {
-		vec3 dir = ZeroVec();
-		dir.x = gameState->mainCamera.orientation.x;
-		dir.y = gameState->mainCamera.orientation.y;
-		dir.z = gameState->mainCamera.orientation.z;
-		dir = NormVec(dir);
-		dir = ScaleVec(dir, dt / 1000.0f);
-		gameState->mainCamera.pos.x += dir.x;
-		gameState->mainCamera.pos.y += dir.y;
-		gameState->mainCamera.pos.z += dir.z;
+		dir = ScaleVec(dir, cameraSpeed * dt);
+		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
 	}
 	else if (keyDown(gameInput->keyboard.s)) {
-		vec3 dir = ZeroVec();
-		dir.x = gameState->mainCamera.orientation.x;
-		dir.y = gameState->mainCamera.orientation.y;
-		dir.z = gameState->mainCamera.orientation.z;
-		dir = NormVec(dir);
-		dir = ScaleVec(dir, dt / 1000.0f);
-		dir = NegVec(dir);
-		gameState->mainCamera.pos.x += dir.x;
-		gameState->mainCamera.pos.y += dir.y;
-		gameState->mainCamera.pos.z += dir.z;
+		dir = NegVec(ScaleVec(dir, cameraSpeed * dt));
+		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
 	}
-	else if (keyReleased(gameInput->keyboard.a)) {
-		gameState->blackGuyHead.renderPos.x -= 1;
+	if (keyDown(gameInput->keyboard.d)) {
+		right = ScaleVec(right, cameraSpeed * dt);
+		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
 	}
-	else if (keyReleased(gameInput->keyboard.d)) {
-		gameState->blackGuyHead.renderPos.x += 1;
+	else if (keyDown(gameInput->keyboard.a)) {
+		right = NegVec(ScaleVec(right, cameraSpeed * dt));
+		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
 	}
 
-	const f32 rotateSpeed = 10;
 	if (keyDown(gameInput->keyboard.q)) {
-		gameState->mainCamera.orientation = RotateQuat(gameState->mainCamera.orientation, UpVec(), DegToRad(-1 * rotateSpeed * dt));
+		camera->yaw += rotateSpeed * dt;
 	}
 	else if (keyDown(gameInput->keyboard.e)) {
-		gameState->mainCamera.orientation = RotateQuat(gameState->mainCamera.orientation, UpVec(), DegToRad(rotateSpeed * dt));
+		camera->yaw -= rotateSpeed * dt;
 	}
-	else if (keyDown(gameInput->keyboard.r)) {
-		mat4 temp = RotMatFromQuat(gameState->mainCamera.orientation);
-		vec3 axis = ZeroVec();
-		axis.x = temp.data[0][0];
-		axis.y = temp.data[1][0];
-		axis.z = temp.data[2][0];
-		gameState->mainCamera.orientation = RotateQuat(gameState->mainCamera.orientation, axis, DegToRad(-1 * rotateSpeed * dt));
+	if (keyDown(gameInput->keyboard.r)) {
+		camera->pitch += rotateSpeed * dt;
 	}
 	else if (keyDown(gameInput->keyboard.f)) {
-		mat4 temp = RotMatFromQuat(gameState->mainCamera.orientation);
-		vec3 axis = ZeroVec();
-		axis.x = temp.data[0][0];
-		axis.y = temp.data[1][0];
-		axis.z = temp.data[2][0];
-		gameState->mainCamera.orientation = RotateQuat(gameState->mainCamera.orientation, axis, DegToRad(rotateSpeed * dt));
+		camera->pitch -= rotateSpeed * dt;
 	}
 
-	gameState->mainCamera.view = ViewMatFromQuat(gameState->mainCamera.orientation, gameState->mainCamera.pos);
+	if (camera->pitch > 89.0f) {
+		camera->pitch = 89.0f;
+	}
+	else if (camera->pitch < -89.0f) {
+		camera->pitch = -89.0f;
+	}
+
+	dir = Vec3(
+		cos(DegToRad(camera->yaw)) * cos(DegToRad(camera->pitch)),
+		sin(DegToRad(camera->pitch)),
+		sin(DegToRad(camera->yaw)) * cos(DegToRad(camera->pitch))
+	);
+	camera->dir = NormVec(dir);
+
+	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
+
+	// end Camera Update
+	// ========================================================================
 }

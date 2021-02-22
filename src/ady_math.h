@@ -325,6 +325,7 @@ inline mat4 LookAtMat(vec3 eye, vec3 target, vec3 up) {
 // ----------------------------------------------------------------------------
 // Quaternion
 
+/*
 struct Quaternion {
 	union {
 		struct {
@@ -424,29 +425,8 @@ inline mat4 ViewMatFromQuat(Quaternion q, vec3 pos) {
 	mat4 transmat = TranslateMat(NegVec(pos));
 
 	result = MulMat(rotmat, transmat);
-	/*
-	result.data[0][0] = ;
-	result.data[0][1] = ;
-	result.data[0][2] = ;
-	result.data[0][3] = ;
-
-	result.data[1][0] = ;
-	result.data[1][1] = ;
-	result.data[1][2] = ;
-	result.data[1][3] = ;
-	
-	result.data[2][0] = ;
-	result.data[2][1] = ;
-	result.data[2][2] = ;
-	result.data[2][3] = ;
-	
-	result.data[3][0] = ;
-	result.data[3][1] = ;
-	result.data[3][2] = ;
-	result.data[3][3] = ;
-	*/
-
 	return result;
 }
+*/
 
 #endif

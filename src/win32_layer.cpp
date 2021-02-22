@@ -435,7 +435,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					//OutputDebugStringA(str_buffer);
+					OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 
