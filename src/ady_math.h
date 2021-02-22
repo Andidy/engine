@@ -322,4 +322,131 @@ inline mat4 LookAtMat(vec3 eye, vec3 target, vec3 up) {
 	return result;
 }
 
+// ----------------------------------------------------------------------------
+// Quaternion
+
+struct Quaternion {
+	union {
+		struct {
+			f32 x, y, z, w;
+		};
+		struct {
+			vec3 axis;
+			f32 r;
+		};
+	};
+};
+
+inline f32 MagQuat(Quaternion q1) {
+	return sqrtf(powf(q1.x, 2) + powf(q1.y, 2) + powf(q1.z, 2) + powf(q1.w, 2));
+}
+
+inline Quaternion NormQuat(Quaternion q1) {
+	f32 magnitude = MagQuat(q1);
+	q1.x /= magnitude;
+	q1.y /= magnitude;
+	q1.z /= magnitude;
+	q1.w /= magnitude;
+	return q1;
+}
+
+inline Quaternion CongQuat(Quaternion q) {
+	return { -q.x, -q.y, -q.z, q.w };
+}
+
+inline Quaternion MulQuat(Quaternion q1, Quaternion q2) {
+	Quaternion result = {};
+	result.x = q1.w * q2.x + q1.x * q2.w + q1.y * q2.z - q1.z * q2.y;
+	result.y = q1.w * q2.y - q1.x * q2.z + q1.y * q2.w + q1.z * q2.x;
+	result.z = q1.w * q2.z + q1.x * q2.y - q1.y * q2.x + q1.z * q2.w;
+	result.w = q1.w * q2.w - q1.x * q2.x - q1.y * q2.y - q1.z * q2.z;
+	return result;
+}
+
+inline Quaternion InverseQuat(Quaternion q) {
+	Quaternion cq = CongQuat(q);
+	f32 divisor = 1.0f / powf(MagQuat(q), 2);
+	cq.x /= divisor;
+	cq.y /= divisor;
+	cq.z /= divisor;
+	cq.w /= divisor;
+	return cq;
+}
+
+// angle in degrees, it is converted to radians internally
+inline Quaternion RotateQuat(Quaternion orientation, vec3 axis, f32 angle) {
+	Quaternion rotation = {};
+	angle = DegToRad(angle);
+	rotation.x = axis.x * sinf(angle / 2);
+	rotation.y = axis.y * sinf(angle / 2);
+	rotation.z = axis.z * sinf(angle / 2);
+	rotation.w = cosf(angle / 2);
+
+	orientation = MulQuat(rotation, orientation);
+	return orientation;
+}
+
+inline mat4 RotMatFromQuat(Quaternion q) {
+	mat4 result = {};
+
+	f32 x = q.x;
+	f32 y = q.y;
+	f32 z = q.z;
+	f32 w = q.w;
+
+	result.m0 = 1 - 2*y*y - 2*z*z;
+	result.m1 = 2*x*y - 2*w*z;
+	result.m2 = 2*x*z + 2*w*y;
+	result.m3 = 0.0f;
+
+	result.m4 = 2*x*y + 2*w*z;
+	result.m5 = 1 - 2*x*x - 2*z*z;
+	result.m6 = 2*y*z + 2*w*z;
+	result.m7 = 0.0f;
+
+	result.m8 = 2*x*z - 2*w*y;
+	result.m9 = 2*y*z - 2*w*x;
+	result.m10 = 1 - 2*x*x - 2*y*y;
+	result.m11 = 0.0f;
+
+	result.m12 = 0.0f;
+	result.m13 = 0.0f;
+	result.m14 = 0.0f;
+	result.m15 = 1.0f;
+
+	return result;
+}
+
+inline mat4 ViewMatFromQuat(Quaternion q, vec3 pos) {
+	mat4 result = {};
+
+	mat4 rotmat = TransposeMat(RotMatFromQuat(q));
+	mat4 transmat = TranslateMat(NegVec(pos));
+
+	result = MulMat(rotmat, transmat);
+	/*
+	result.data[0][0] = ;
+	result.data[0][1] = ;
+	result.data[0][2] = ;
+	result.data[0][3] = ;
+
+	result.data[1][0] = ;
+	result.data[1][1] = ;
+	result.data[1][2] = ;
+	result.data[1][3] = ;
+	
+	result.data[2][0] = ;
+	result.data[2][1] = ;
+	result.data[2][2] = ;
+	result.data[2][3] = ;
+	
+	result.data[3][0] = ;
+	result.data[3][1] = ;
+	result.data[3][2] = ;
+	result.data[3][3] = ;
+	*/
+
+	return result;
+}
+
 #endif

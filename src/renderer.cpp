@@ -232,27 +232,14 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 	models->num_models += 1;
 
 	for (int y = 0; y < gameMap->mapHeight; y++) {
-		for (int x = 0; x < gameMap->mapHeight; x++) {
-			Vertex v0 = {
-				(f32)x - 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y - 0.5f,
-				0, 1, 0,
-				0, 0
-			};
-			Vertex v1 = {
-				(f32)x + 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y - 0.5f,
-				0, 1, 0,
-				1, 0
-			};
-			Vertex v2 = {
-				(f32)x - 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y + 0.5f,
-				0, 1, 0,
-				0, 1
-			};
-			Vertex v3 = {
-				(f32)x + 0.5f, (f32)gameMap->elevationMap[x + y * gameMap->mapWidth], (f32)y + 0.5f,
-				0, 1, 0,
-				1, 1
-			};
+		for (int x = 0; x < gameMap->mapWidth; x++) {			
+			// f32 elevation = (f32)gameMap->elevationMap[x + y * gameMap->mapWidth];
+			f32 elevation = 0.0f;
+
+			Vertex v0 = { (f32)x - 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 0, 0 };
+			Vertex v1 = { (f32)x + 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 1, 0 };
+			Vertex v2 = { (f32)x - 0.5f, elevation, (f32)y + 0.5f, 0, 1, 0, 0, 1 };
+			Vertex v3 = { (f32)x + 0.5f, elevation, (f32)y + 0.5f, 0, 1, 0, 1, 1 };
 
 			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 0;
 			i_buf->num_indices += 1;
@@ -761,10 +748,12 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 
 		context->OMSetBlendState(blendState, NULL, ~0U);
 		
+		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		for (i32 i = 0; i < m_buffer->num_models; i++) {
-			context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, m_buffer->models[i].start_index * sizeof(i32));
+			// context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, m_buffer->models[i].start_index * sizeof(i32));
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
-			context->DrawIndexed(m_buffer->models[i].length, 0, 0);
+			// context->DrawIndexed(m_buffer->models[i].length, 0, 0);
+			context->DrawIndexed(m_buffer->models[i].length, m_buffer->models[i].start_index, 0);
 		}	
 	}
 }

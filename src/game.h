@@ -10,6 +10,8 @@ struct Camera {
 	vec3 target;
 	vec3 up;
 
+	Quaternion orientation;
+
 	mat4 proj;
 	mat4 view;
 };
@@ -35,6 +37,6 @@ struct GameState {
 };
 
 void InitGameState(Memory* gameMemory, vec2 windowDimensions);
-void GameUpdate(Memory* gameMemory, Input* gameInput);
+void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt);
 
 #endif
