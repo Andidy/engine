@@ -239,8 +239,8 @@ void PermanentResourceAllocator::FreeBackingBuffer() {
 // end Memory
 // ============================================================================
 
-void OutputDebugFromRenderer(char* string) {
-	OutputDebugStringA(string);
+void DebugPrint(char* str) {
+	OutputDebugStringA(str);
 }
 
 struct win32_WindowDimension {

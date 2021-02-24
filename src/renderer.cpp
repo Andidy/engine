@@ -415,7 +415,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		hr = D3DCompileFromFile(L"shaders/VertexShader.hlsl", 0, 0, "main", "vs_5_0",
 			shader_flags, 0, &code, &errorBuff);
 		if (FAILED(hr)) { 
-			OutputDebugFromRenderer((char*)errorBuff->GetBufferPointer());
+			DebugPrint((char*)errorBuff->GetBufferPointer());
 			__debugbreak();
 		}
 		vshader = code->GetBufferPointer();

@@ -35,7 +35,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
 	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
-	gameState->mainCamera.dir = Vec3(0.0f, 0.0f, 0.0f);
+	gameState->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);
 	gameState->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
 
 	gameState->mainCamera.pitch = 0.0f;
@@ -61,18 +61,36 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	vec3 right = NormVec(Cross(camera->up, dir));
 
 	if (keyDown(gameInput->keyboard.w)) {
+		vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir) , 2.0f))));
+		temp_dir = ScaleVec(NormVec(temp_dir), cameraSpeed * dt);
+		camera->pos = AddVec(camera->pos, temp_dir);
+	}
+	else if (keyDown(gameInput->keyboard.s)) {
+		vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
+		temp_dir = ScaleVec(NormVec(temp_dir), cameraSpeed * dt);
+		camera->pos = AddVec(camera->pos, NegVec(temp_dir));
+	}
+	else if (keyDown(gameInput->keyboard.up)) {
 		dir = ScaleVec(dir, cameraSpeed * dt);
 		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
 	}
-	else if (keyDown(gameInput->keyboard.s)) {
+	else if (keyDown(gameInput->keyboard.down)) {
 		dir = NegVec(ScaleVec(dir, cameraSpeed * dt));
 		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
 	}
-	if (keyDown(gameInput->keyboard.d)) {
+
+	if (keyDown(gameInput->keyboard.t)) {
+		camera->pos = AddVec(camera->pos, ScaleVec(UpVec(), cameraSpeed * dt));
+	}
+	else if (keyDown(gameInput->keyboard.g)) {
+		camera->pos = AddVec(camera->pos, NegVec(ScaleVec(UpVec(), cameraSpeed * dt)));
+	}
+
+	if (keyDown(gameInput->keyboard.right) || keyDown(gameInput->keyboard.d)) {
 		right = ScaleVec(right, cameraSpeed * dt);
 		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
 	}
-	else if (keyDown(gameInput->keyboard.a)) {
+	else if (keyDown(gameInput->keyboard.left) || keyDown(gameInput->keyboard.a)) {
 		right = NegVec(ScaleVec(right, cameraSpeed * dt));
 		gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
 	}
@@ -105,6 +123,10 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	camera->dir = NormVec(dir);
 
 	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
+
+	char debug_str[256];
+	snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
+	DebugPrint(debug_str);
 
 	// end Camera Update
 	// ========================================================================
