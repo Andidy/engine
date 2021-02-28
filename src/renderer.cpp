@@ -1,11 +1,11 @@
 #include "renderer.h"
 
 void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, PermanentResourceAllocator* allocator) {
-	v_buf->buffer_length = 1000000;
+	v_buf->buffer_length = 100000000;
 	v_buf->num_vertices = 0;
 	v_buf->vertices = (Vertex*)allocator->Allocate(sizeof(Vertex) * v_buf->buffer_length);
 
-	i_buf->buffer_length = 1000000;
+	i_buf->buffer_length = 100000000;
 	i_buf->num_indices = 0;
 	i_buf->indices = (i32*)allocator->Allocate(sizeof(i32) * i_buf->buffer_length);
 
@@ -228,13 +228,14 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mode
 
 void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models) {
 	models->models[models->num_models].start_index = i_buf->num_indices;
-	models->models[models->num_models].length = 6 * gameMap->mapWidth * gameMap->mapHeight;
+	models->models[models->num_models].length = 24 * gameMap->mapWidth * gameMap->mapHeight;
 	models->num_models += 1;
 
+	/*
 	for (int y = 0; y < gameMap->mapHeight; y++) {
 		for (int x = 0; x < gameMap->mapWidth; x++) {			
-			// f32 elevation = (f32)gameMap->elevationMap[x + y * gameMap->mapWidth];
-			f32 elevation = 0.0f;
+			f32 elevation = (f32)gameMap->tiles[x + y * gameMap->mapWidth].elevation;
+			// f32 elevation = 0.0f;
 
 			Vertex v0 = { (f32)x - 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 0, 0 };
 			Vertex v1 = { (f32)x + 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 1, 0 };
@@ -263,6 +264,95 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 			v_buf->num_vertices += 1;
 			v_buf->vertices[v_buf->num_vertices] = v3; 
 			v_buf->num_vertices += 1;
+		}
+	}*/
+
+	i32 v_start = v_buf->num_vertices;
+
+	i32 width = gameMap->mapWidth;
+	i32 height = gameMap->mapHeight;
+	i32 vert_width = 2 * width + 1;
+	f32 border_elevation = 0.0f;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			f32 elevation = (f32)gameMap->tiles[x + y * gameMap->mapWidth].elevation;
+
+			i32 bl = v_start + ((2 * x) + 0 + (2 * y) * vert_width); // bot left
+			i32 bc = v_start + ((2 * x) + 1 + (2 * y) * vert_width); // bot center
+			i32 br = v_start + ((2 * x) + 2 + (2 * y) * vert_width); // bot right
+
+			i32 cl = v_start + ((2 * x) + 0 + (2 * y + 1) * vert_width); // center left
+			i32 cc = v_start + ((2 * x) + 1 + (2 * y + 1) * vert_width); // center center
+			i32 cr = v_start + ((2 * x) + 2 + (2 * y + 1) * vert_width); // center right
+
+			i32 tl = v_start + ((2 * x) + 0 + (2 * y + 2) * vert_width); // top left
+			i32 tc = v_start + ((2 * x) + 1 + (2 * y + 2) * vert_width); // top center
+			i32 tr = v_start + ((2 * x) + 2 + (2 * y + 2) * vert_width); // top right
+
+			if (x == 0 && y == 0) {
+				Vertex bottom_left = { (f32)x + 0.0f, border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
+				v_buf->vertices[bl] = bottom_left;
+				v_buf->num_vertices += 1;
+			}
+			if (x == 0) {
+				Vertex left_top = { (f32)x + 0.0f, border_elevation, (f32)y + 1.0f,  0, 1, 0, 0, 0 };
+				Vertex left_bot = { (f32)x + 0.0f, border_elevation, (f32)y + 0.25f, 0, 1, 0, 0, 0 };
+
+				v_buf->vertices[cl] = left_bot;
+				v_buf->vertices[tl] = left_top;
+				v_buf->num_vertices += 2;
+			}
+			if (y == 0) {
+				Vertex bot_left =  { (f32)x + 0.25f, border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
+				Vertex bot_right = { (f32)x + 1.0f,  border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
+
+				v_buf->vertices[bc] = bot_left;
+				v_buf->vertices[br] = bot_right;
+				v_buf->num_vertices += 2;
+			}
+
+			Vertex v0 = { (f32)x + 0.25f, elevation, (f32)y + 0.25f, 0, 1, 0, 0, 0 };
+			Vertex v1 = { (f32)x + 1.0f,  elevation, (f32)y + 0.25f, 0, 1, 0, 1, 0 };
+			Vertex v2 = { (f32)x + 0.25f, elevation, (f32)y + 1.0f,  0, 1, 0, 0, 1 };
+			Vertex v3 = { (f32)x + 1.0f,  elevation, (f32)y + 1.0f,  0, 1, 0, 1, 1 };
+
+			v_buf->vertices[cc] = v0;
+			v_buf->vertices[cr] = v1;
+			v_buf->vertices[tc] = v2;
+			v_buf->vertices[tr] = v3;
+			v_buf->num_vertices += 4;
+
+			i_buf->indices[i_buf->num_indices++] = bl;
+			i_buf->indices[i_buf->num_indices++] = cl;
+			i_buf->indices[i_buf->num_indices++] = bc;
+
+			i_buf->indices[i_buf->num_indices++] = cl;
+			i_buf->indices[i_buf->num_indices++] = cc;
+			i_buf->indices[i_buf->num_indices++] = bc;
+
+			i_buf->indices[i_buf->num_indices++] = bc;
+			i_buf->indices[i_buf->num_indices++] = cc;
+			i_buf->indices[i_buf->num_indices++] = br;
+
+			i_buf->indices[i_buf->num_indices++] = cc;
+			i_buf->indices[i_buf->num_indices++] = cr;
+			i_buf->indices[i_buf->num_indices++] = br;
+
+			i_buf->indices[i_buf->num_indices++] = cl;
+			i_buf->indices[i_buf->num_indices++] = tl;
+			i_buf->indices[i_buf->num_indices++] = cc;
+
+			i_buf->indices[i_buf->num_indices++] = tl;
+			i_buf->indices[i_buf->num_indices++] = tc;
+			i_buf->indices[i_buf->num_indices++] = cc;
+
+			i_buf->indices[i_buf->num_indices++] = cc;
+			i_buf->indices[i_buf->num_indices++] = tc;
+			i_buf->indices[i_buf->num_indices++] = cr;
+			
+			i_buf->indices[i_buf->num_indices++] = tc;
+			i_buf->indices[i_buf->num_indices++] = tr;
+			i_buf->indices[i_buf->num_indices++] = cr;
 		}
 	}
 }
@@ -704,25 +794,6 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
 		//}
 
-		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-		context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
-
-		Constants* constants = (Constants*)(mappedSubresource.pData);
-
-
-		GameState* gameState = (GameState*)gameMemory->data;
-		mat4 translate = TranslateMat(gameState->blackGuyHead.renderPos);
-		mat4 scale = ScaleMat(gameState->blackGuyHead.renderScale);
-		mat4 rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-
-		mat4 view = gameState->mainCamera.view;
-		mat4 proj = gameState->mainCamera.proj;
-
-		constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(scale, translate))));
-		// constants->LightVector = { 1.0f, -1.0f, 1.0f };
-
-		context->Unmap(constantBuffer, 0);
-
 		context->OMSetRenderTargets(1, &windowRTView, windowDPView);
 		context->OMSetDepthStencilState(depthStencilState, 0);
 		context->ClearDepthStencilView(windowDPView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
@@ -750,6 +821,32 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		
 		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		for (i32 i = 0; i < m_buffer->num_models; i++) {
+			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+
+			Constants* constants = (Constants*)(mappedSubresource.pData);
+			GameState* gameState = (GameState*)gameMemory->data;
+			
+			mat4 translate, scale, rotate;
+			if (i == 0) {
+				translate = TranslateMat(gameState->blackGuyHead.renderPos);
+				scale = ScaleMat(gameState->blackGuyHead.renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
+			else if (i == 1) {
+				translate = TranslateMat(gameState->gameMap.ent.renderPos);
+				scale = ScaleMat(gameState->gameMap.ent.renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
+
+			mat4 view = gameState->mainCamera.view;
+			mat4 proj = gameState->mainCamera.proj;
+
+			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(scale, translate))));
+			// constants->LightVector = { 1.0f, -1.0f, 1.0f };
+
+			context->Unmap(constantBuffer, 0);
+			
 			// context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, m_buffer->models[i].start_index * sizeof(i32));
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
 			// context->DrawIndexed(m_buffer->models[i].length, 0, 0);

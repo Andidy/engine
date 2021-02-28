@@ -1,0 +1,2 @@
+1: 2000x1000 squares rendered with height varying based on simplex noise
+2: 20x10 squares, but now they have their edges connected to their neighbors, simplex noise still present, just with reduced range, ignore test image

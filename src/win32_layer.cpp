@@ -404,7 +404,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
 			ModelBuffer model_buffer;
-			PermanentResourceAllocator renderer_allocator(Megabytes((u64)64));
+			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)4));
 			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
@@ -435,7 +435,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					OutputDebugStringA(str_buffer);
+					// OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 

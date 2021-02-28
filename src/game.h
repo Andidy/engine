@@ -21,11 +21,29 @@ struct Entity {
 	vec3 renderScale;
 };
 
+enum TileResource {
+	NONE,
+	GRAINS,
+	FRUITS,
+	VEGETABLES,
+	SPICES,
+	FIBERPLANTS,
+	SMALL_GAME,
+	LARGE_GAME,
+	SURFACE_ORE,
+	DEEP_ORE
+};
+
+struct Tile {
+	i32 elevation;
+	TileResource resources[3];
+};
+
 struct GameMap {
 	Entity ent;
 	i32 mapWidth;
 	i32 mapHeight;
-	i32* elevationMap;
+	Tile* tiles;
 };
 
 struct GameState {

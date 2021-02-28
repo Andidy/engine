@@ -1,17 +1,13 @@
 #include "game.h"
 
 void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
-	const int width = 100;
-	const int height = 75;
-	const int numTerraces = 15;
-	gameMap->elevationMap = (int*)allocator->Allocate(sizeof(int) * width * height);
-	gameMap->mapWidth = width;
-	gameMap->mapHeight = height;
+	// const int numTerraces = 15;
+	gameMap->tiles = (Tile*)allocator->Allocate(sizeof(Tile) * gameMap->mapWidth * gameMap->mapHeight);
 
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			f32 nx = (f32)x / (f32)width - 0.5f;
-			f32 ny = (f32)y / (f32)height - 0.5f;
+	for (int y = 0; y < gameMap->mapHeight; y++) {
+		for (int x = 0; x < gameMap->mapWidth; x++) {
+			f32 nx = (f32)x / (f32)gameMap->mapWidth - 0.5f;
+			f32 ny = (f32)y / (f32)gameMap->mapHeight - 0.5f;
 			f32 e = 0;
 			f32 f = 0;
 			for (int n = 1; n <= 5; n++) {
@@ -19,7 +15,8 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 				e += f * noise(n * nx, n * ny);
 			}
 			e /= f;
-			gameMap->elevationMap[x + y * width] = ((int)(e * (f32)numTerraces)) / numTerraces;
+			// gameMap->tiles[x + y * gameMap->mapWidth].elevation = ((int)(e * (f32)numTerraces)) / numTerraces;
+			gameMap->tiles[x + y * gameMap->mapWidth].elevation = (int)(e * 100.0f);
 		}
 	}
 }
@@ -27,11 +24,13 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	GameState* gameState = (GameState*)gameMemory->data;
 
-	gameState->resourceAllocator = PermanentResourceAllocator(Megabytes(1));
+	gameState->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
 
-	gameState->blackGuyHead = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f) };
+	gameState->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
 	
-	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f) };
+	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.001f, 1.0f) };
+	gameState->gameMap.mapWidth = 20;
+	gameState->gameMap.mapHeight = 10;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
 	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
@@ -126,7 +125,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	char debug_str[256];
 	snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
-	DebugPrint(debug_str);
+	//DebugPrint(debug_str);
 
 	// end Camera Update
 	// ========================================================================
