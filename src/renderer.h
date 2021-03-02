@@ -12,6 +12,8 @@ struct Vertex {
 	f32 tx, ty;
 };
 
+Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex);
+
 struct VertexBuffer {
 	i32 buffer_length;
 	i32 num_vertices;
@@ -87,12 +89,15 @@ struct Renderer {
 
 	ID3D11SamplerState* samplerState;
 
-	ID3D11Texture2D* texture;
-	ID3D11ShaderResourceView* textureView;
+	ID3D11Texture2D* blackguyface_texture;
+	ID3D11ShaderResourceView* blackguyface_textureView;
+
+	ID3D11Texture2D* grass_texture;
+	ID3D11ShaderResourceView* grass_textureView;
 
 	b32 renderer_occluded = 0;
 
-	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image);
+	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image);
 	HRESULT RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight);
 	HRESULT RenderPresent(HWND window);
 	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer);

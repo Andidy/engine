@@ -16,7 +16,7 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 			}
 			e /= f;
 			// gameMap->tiles[x + y * gameMap->mapWidth].elevation = ((int)(e * (f32)numTerraces)) / numTerraces;
-			gameMap->tiles[x + y * gameMap->mapWidth].elevation = (int)(e * 100.0f);
+			gameMap->tiles[x + y * gameMap->mapWidth].elevation = floorf(e*10.0f);//(int)(e * 100.0f);
 		}
 	}
 }
@@ -28,9 +28,9 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 
 	gameState->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
 	
-	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 0.001f, 1.0f) };
-	gameState->gameMap.mapWidth = 20;
-	gameState->gameMap.mapHeight = 10;
+	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.00f, 1.0f) };
+	gameState->gameMap.mapWidth = 200;
+	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
 	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
@@ -54,7 +54,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	Camera* camera = &gameState->mainCamera;
 
 	const f32 cameraSpeed = 0.01f;
-	const f32 rotateSpeed = 0.25f;
+	const f32 rotateSpeed = 0.15f;
 	
 	vec3 dir = NormVec(camera->dir);
 	vec3 right = NormVec(Cross(camera->up, dir));

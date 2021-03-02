@@ -1,5 +1,18 @@
 #include "renderer.h"
 
+Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex) {
+	Vertex result = {};
+	result.x = pos.x;
+	result.y = pos.y;
+	result.z = pos.z;
+	result.nx = norm.x;
+	result.ny = norm.y;
+	result.nz = norm.z;
+	result.tx = tex.x;
+	result.ty = tex.y;
+	return result;
+}
+
 void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, PermanentResourceAllocator* allocator) {
 	v_buf->buffer_length = 100000000;
 	v_buf->num_vertices = 0;
@@ -13,8 +26,6 @@ void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, 
 	models->num_models = 0;
 	models->models = (Model*)allocator->Allocate(sizeof(Model) * models->buffer_length);
 }
-
-
 
 b32 VertexCompare(Vertex v1, Vertex v2) {
 	b32 a = v1.x == v2.x;
@@ -225,50 +236,14 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mode
 	allocator->Free();
 }
 
-
 void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models) {
 	models->models[models->num_models].start_index = i_buf->num_indices;
 	models->models[models->num_models].length = 24 * gameMap->mapWidth * gameMap->mapHeight;
 	models->num_models += 1;
 
+	//i32 v_start = v_buf->num_vertices;
+
 	/*
-	for (int y = 0; y < gameMap->mapHeight; y++) {
-		for (int x = 0; x < gameMap->mapWidth; x++) {			
-			f32 elevation = (f32)gameMap->tiles[x + y * gameMap->mapWidth].elevation;
-			// f32 elevation = 0.0f;
-
-			Vertex v0 = { (f32)x - 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 0, 0 };
-			Vertex v1 = { (f32)x + 0.5f, elevation, (f32)y - 0.5f, 0, 1, 0, 1, 0 };
-			Vertex v2 = { (f32)x - 0.5f, elevation, (f32)y + 0.5f, 0, 1, 0, 0, 1 };
-			Vertex v3 = { (f32)x + 0.5f, elevation, (f32)y + 0.5f, 0, 1, 0, 1, 1 };
-
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 0;
-			i_buf->num_indices += 1;
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 2;
-			i_buf->num_indices += 1;
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 1;
-			i_buf->num_indices += 1;
-
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 2;
-			i_buf->num_indices += 1;
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 3;
-			i_buf->num_indices += 1;
-			i_buf->indices[i_buf->num_indices] = v_buf->num_vertices + 1;
-			i_buf->num_indices += 1;
-
-			v_buf->vertices[v_buf->num_vertices] = v0; 
-			v_buf->num_vertices += 1;
-			v_buf->vertices[v_buf->num_vertices] = v1; 
-			v_buf->num_vertices += 1;
-			v_buf->vertices[v_buf->num_vertices] = v2; 
-			v_buf->num_vertices += 1;
-			v_buf->vertices[v_buf->num_vertices] = v3; 
-			v_buf->num_vertices += 1;
-		}
-	}*/
-
-	i32 v_start = v_buf->num_vertices;
-
 	i32 width = gameMap->mapWidth;
 	i32 height = gameMap->mapHeight;
 	i32 vert_width = 2 * width + 1;
@@ -355,13 +330,124 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 			i_buf->indices[i_buf->num_indices++] = cr;
 		}
 	}
+	*/
+
+	vec3 norm = ZeroVec();
+	i32 width = gameMap->mapWidth;
+	i32 height = gameMap->mapHeight;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			f32 my_elevation = (f32)gameMap->tiles[x + y * gameMap->mapWidth].elevation;
+
+			f32 west_neighbor_elevation = 0;
+			f32 south_neighbor_elevation = 0;
+			f32 southwest_neighbor_elevation = 0;
+			if ((x - 1) >= 0) {
+				west_neighbor_elevation = (f32)gameMap->tiles[(x - 1) + y * gameMap->mapWidth].elevation;
+			}
+			if ((y - 1) >= 0) {
+				south_neighbor_elevation = (f32)gameMap->tiles[x + (y - 1) * gameMap->mapWidth].elevation;
+			}
+			if (((x - 1) >= 0) && ((y - 1) >= 0)) {
+				southwest_neighbor_elevation = (f32)gameMap->tiles[(x - 1) + (y - 1) * gameMap->mapWidth].elevation;
+			}
+
+			vec3 a0 = { (f32)x + 0.0f, west_neighbor_elevation, (f32)y + 1.0f };
+			vec3 a1 = { (f32)x + 0.25f, my_elevation, (f32)y + 1.0f };
+			vec3 a2 = { (f32)x + 0.0f, west_neighbor_elevation, (f32)y + 0.25f };
+			norm = Cross(SubVec(a1, a0), SubVec(a2, a0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(a0, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(a1, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(a2, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 b0 = { (f32)x + 0.25f, my_elevation, (f32)y + 1.0f };
+			vec3 b1 = { (f32)x + 0.0f, west_neighbor_elevation, (f32)y + 0.25f };
+			vec3 b2 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			norm = Cross(SubVec(b2, b0), SubVec(b1, b0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(b0, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(b2, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(b1, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 c0 = { (f32)x + 0.25f, my_elevation, (f32)y + 1.0f };
+			vec3 c1 = { (f32)x + 1.0f, my_elevation, (f32)y + 1.0f };
+			vec3 c2 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			norm = Cross(SubVec(c1, c0), SubVec(c2, c0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(c0, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(c1, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(c2, norm, Vec2(1, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 d0 = { (f32)x + 1.0f, my_elevation, (f32)y + 1.0f };
+			vec3 d1 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			vec3 d2 = { (f32)x + 1.0f, my_elevation, (f32)y + 0.25f };
+			norm = Cross(SubVec(d2, d0), SubVec(d1, d0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(d0, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(d2, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(d1, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 e0 = { (f32)x + 0.0f, west_neighbor_elevation, (f32)y + 0.25f };
+			vec3 e1 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			vec3 e2 = { (f32)x + 0.0f, southwest_neighbor_elevation, (f32)y + 0.0f };
+			norm = Cross(SubVec(e1, e0), SubVec(e2, e0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(e0, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(e1, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(e2, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 f0 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			vec3 f1 = { (f32)x + 0.0f, southwest_neighbor_elevation, (f32)y + 0.0f };
+			vec3 f2 = { (f32)x + 0.25f, south_neighbor_elevation, (f32)y + 0.0f };
+			norm = Cross(SubVec(f2, f0), SubVec(f1, f0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(f0, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(f2, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(f1, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 g0 = { (f32)x + 0.25f, my_elevation, (f32)y + 0.25f };
+			vec3 g1 = { (f32)x + 1.0f, my_elevation, (f32)y + 0.25f };
+			vec3 g2 = { (f32)x + 0.25f, south_neighbor_elevation, (f32)y + 0.0f };
+			norm = Cross(SubVec(g1, g0), SubVec(g2, g0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(g0, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(g1, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(g2, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+
+			vec3 h0 = { (f32)x + 1.0f, my_elevation, (f32)y + 0.25f };
+			vec3 h1 = { (f32)x + 0.25f, south_neighbor_elevation, (f32)y + 0.0f };
+			vec3 h2 = { (f32)x + 1.0f, south_neighbor_elevation, (f32)y + 0.0f };
+			norm = Cross(SubVec(h2, h0), SubVec(h1, h0));
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(h0, norm, Vec2(1, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(h2, norm, Vec2(0, 1));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+			v_buf->vertices[v_buf->num_vertices] = CreateVertex(h1, norm, Vec2(0, 0));
+			i_buf->indices[i_buf->num_indices++] = v_buf->num_vertices++;
+		}
+	}
 }
 
 
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image) {
+void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image) {
 	HRESULT hr;
 
 	// device
@@ -536,7 +622,10 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		ID3DBlob* errorBuff;
 		hr = D3DCompileFromFile(L"shaders/PixelShader.hlsl", 0, 0, "main", "ps_5_0",
 			shader_flags, 0, &code, &errorBuff);
-		if (FAILED(hr)) { __debugbreak(); }
+		if (FAILED(hr)) { 
+			DebugPrint((char*)errorBuff->GetBufferPointer());
+			__debugbreak(); 
+		}
 		pshader = code->GetBufferPointer();
 		pshader_size = code->GetBufferSize();
 
@@ -601,8 +690,28 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		textureData.pSysMem = my_image->data;
 		textureData.SysMemPitch = my_image->width * 4; // 4 bytes per pixel
 
-		device->CreateTexture2D(&textureDesc, &textureData, &texture);
-		device->CreateShaderResourceView(texture, nullptr, &textureView);
+		device->CreateTexture2D(&textureDesc, &textureData, &blackguyface_texture);
+		device->CreateShaderResourceView(blackguyface_texture, nullptr, &blackguyface_textureView);
+	}
+
+	// texture 2
+	{
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = grass_image->width;
+		textureDesc.Height = grass_image->height;
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = grass_image->data;
+		textureData.SysMemPitch = grass_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &grass_texture);
+		device->CreateShaderResourceView(grass_texture, nullptr, &grass_textureView);
 	}
 
 	// sampler
@@ -814,13 +923,14 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		context->VSSetShader(vertexShader, NULL, 0);
 		
 		context->PSSetShader(pixelShader, NULL, 0);
-		context->PSSetShaderResources(0, 1, &textureView);
 		context->PSSetSamplers(0, 1, &samplerState);
 
 		context->OMSetBlendState(blendState, NULL, ~0U);
 		
 		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		for (i32 i = 0; i < m_buffer->num_models; i++) {
+			
+
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 
@@ -829,11 +939,15 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 			
 			mat4 translate, scale, rotate;
 			if (i == 0) {
+				context->PSSetShaderResources(0, 1, &blackguyface_textureView);
+				
 				translate = TranslateMat(gameState->blackGuyHead.renderPos);
 				scale = ScaleMat(gameState->blackGuyHead.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
 			}
 			else if (i == 1) {
+				context->PSSetShaderResources(0, 1, &grass_textureView);
+
 				translate = TranslateMat(gameState->gameMap.ent.renderPos);
 				scale = ScaleMat(gameState->gameMap.ent.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
@@ -843,7 +957,6 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 			mat4 proj = gameState->mainCamera.proj;
 
 			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(scale, translate))));
-			// constants->LightVector = { 1.0f, -1.0f, 1.0f };
 
 			context->Unmap(constantBuffer, 0);
 			

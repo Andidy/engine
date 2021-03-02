@@ -416,9 +416,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Image my_image;
 			i32 n;
 			my_image.data = stbi_load((char*)"test_assets/african_head_diffuse.tga", &my_image.width, &my_image.height, &n, 4);
+			
+			Image grass_image;
+			grass_image.data = stbi_load((char*)"test_assets/grass.png", &grass_image.width, &grass_image.height, &n, 4);
 
 			Renderer renderer = {};
-			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, &my_image);
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, &my_image, &grass_image);
 
 			while (win32_running) {
 				// Timing

@@ -35,7 +35,7 @@ enum TileResource {
 };
 
 struct Tile {
-	i32 elevation;
+	f32 elevation;
 	TileResource resources[3];
 };
 

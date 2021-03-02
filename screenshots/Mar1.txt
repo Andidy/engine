@@ -1,0 +1,1 @@
+Added basic lighting model, changed terrain model generation to allow for vertex normal calculation, and got a different texture for terrain
