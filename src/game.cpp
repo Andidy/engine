@@ -16,7 +16,7 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 			}
 			e /= f;
 			// gameMap->tiles[x + y * gameMap->mapWidth].elevation = ((int)(e * (f32)numTerraces)) / numTerraces;
-			gameMap->tiles[x + y * gameMap->mapWidth].elevation = floorf(e*10.0f);//(int)(e * 100.0f);
+			gameMap->tiles[x + y * gameMap->mapWidth].elevation = floorf(e*2.0f);//(int)(e * 100.0f);
 		}
 	}
 }
@@ -27,7 +27,18 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
 
 	gameState->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
-	
+	gameState->deerTest = { Vec3(-5.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
+	gameState->bunnyTest = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->treeTest = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
+
+	gameState->cubes[0] = { Vec3(-1.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[1] = { Vec3(-2.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[2] = { Vec3(-3.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[3] = { Vec3(-4.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[4] = { Vec3(-5.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[5] = { Vec3(-6.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+	gameState->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
+
 	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.00f, 1.0f) };
 	gameState->gameMap.mapWidth = 200;
 	gameState->gameMap.mapHeight = 100;
@@ -129,4 +140,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	// end Camera Update
 	// ========================================================================
+
+
 }

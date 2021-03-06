@@ -411,6 +411,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			
 			// LoadOBJ((char*)"test_assets/monkey_triangulated.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/deer.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/tree_default.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 
 			Image my_image;
@@ -420,8 +431,26 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Image grass_image;
 			grass_image.data = stbi_load((char*)"test_assets/grass.png", &grass_image.width, &grass_image.height, &n, 4);
 
+			Image bunny_image;
+			bunny_image.data = stbi_load((char*)"test_assets/bunny.png", &bunny_image.width, &bunny_image.height, &n, 4);
+
+			Image red_image;
+			red_image.data = stbi_load((char*)"test_assets/red.png", &red_image.width, &red_image.height, &n, 4);
+			Image orange_image;
+			orange_image.data = stbi_load((char*)"test_assets/orange.png", &orange_image.width, &orange_image.height, &n, 4);
+			Image yellow_image;
+			yellow_image.data = stbi_load((char*)"test_assets/yellow.png", &yellow_image.width, &yellow_image.height, &n, 4);
+			Image green_image;
+			green_image.data = stbi_load((char*)"test_assets/green.png", &green_image.width, &green_image.height, &n, 4);
+			Image cyan_image;
+			cyan_image.data = stbi_load((char*)"test_assets/cyan.png", &cyan_image.width, &cyan_image.height, &n, 4);
+			Image blue_image;
+			blue_image.data = stbi_load((char*)"test_assets/blue.png", &blue_image.width, &blue_image.height, &n, 4);
+			Image gray_image;
+			gray_image.data = stbi_load((char*)"test_assets/gray.png", &gray_image.width, &gray_image.height, &n, 4);
+
 			Renderer renderer = {};
-			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, &my_image, &grass_image);
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, &my_image, &grass_image, &bunny_image, &red_image, &orange_image, &yellow_image, &green_image, &cyan_image, &blue_image, &gray_image);
 
 			while (win32_running) {
 				// Timing
@@ -438,7 +467,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					// OutputDebugStringA(str_buffer);
+					OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 

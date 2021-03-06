@@ -241,97 +241,6 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 	models->models[models->num_models].length = 24 * gameMap->mapWidth * gameMap->mapHeight;
 	models->num_models += 1;
 
-	//i32 v_start = v_buf->num_vertices;
-
-	/*
-	i32 width = gameMap->mapWidth;
-	i32 height = gameMap->mapHeight;
-	i32 vert_width = 2 * width + 1;
-	f32 border_elevation = 0.0f;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			f32 elevation = (f32)gameMap->tiles[x + y * gameMap->mapWidth].elevation;
-
-			i32 bl = v_start + ((2 * x) + 0 + (2 * y) * vert_width); // bot left
-			i32 bc = v_start + ((2 * x) + 1 + (2 * y) * vert_width); // bot center
-			i32 br = v_start + ((2 * x) + 2 + (2 * y) * vert_width); // bot right
-
-			i32 cl = v_start + ((2 * x) + 0 + (2 * y + 1) * vert_width); // center left
-			i32 cc = v_start + ((2 * x) + 1 + (2 * y + 1) * vert_width); // center center
-			i32 cr = v_start + ((2 * x) + 2 + (2 * y + 1) * vert_width); // center right
-
-			i32 tl = v_start + ((2 * x) + 0 + (2 * y + 2) * vert_width); // top left
-			i32 tc = v_start + ((2 * x) + 1 + (2 * y + 2) * vert_width); // top center
-			i32 tr = v_start + ((2 * x) + 2 + (2 * y + 2) * vert_width); // top right
-
-			if (x == 0 && y == 0) {
-				Vertex bottom_left = { (f32)x + 0.0f, border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
-				v_buf->vertices[bl] = bottom_left;
-				v_buf->num_vertices += 1;
-			}
-			if (x == 0) {
-				Vertex left_top = { (f32)x + 0.0f, border_elevation, (f32)y + 1.0f,  0, 1, 0, 0, 0 };
-				Vertex left_bot = { (f32)x + 0.0f, border_elevation, (f32)y + 0.25f, 0, 1, 0, 0, 0 };
-
-				v_buf->vertices[cl] = left_bot;
-				v_buf->vertices[tl] = left_top;
-				v_buf->num_vertices += 2;
-			}
-			if (y == 0) {
-				Vertex bot_left =  { (f32)x + 0.25f, border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
-				Vertex bot_right = { (f32)x + 1.0f,  border_elevation, (f32)y + 0.0f, 0, 1, 0, 0, 0 };
-
-				v_buf->vertices[bc] = bot_left;
-				v_buf->vertices[br] = bot_right;
-				v_buf->num_vertices += 2;
-			}
-
-			Vertex v0 = { (f32)x + 0.25f, elevation, (f32)y + 0.25f, 0, 1, 0, 0, 0 };
-			Vertex v1 = { (f32)x + 1.0f,  elevation, (f32)y + 0.25f, 0, 1, 0, 1, 0 };
-			Vertex v2 = { (f32)x + 0.25f, elevation, (f32)y + 1.0f,  0, 1, 0, 0, 1 };
-			Vertex v3 = { (f32)x + 1.0f,  elevation, (f32)y + 1.0f,  0, 1, 0, 1, 1 };
-
-			v_buf->vertices[cc] = v0;
-			v_buf->vertices[cr] = v1;
-			v_buf->vertices[tc] = v2;
-			v_buf->vertices[tr] = v3;
-			v_buf->num_vertices += 4;
-
-			i_buf->indices[i_buf->num_indices++] = bl;
-			i_buf->indices[i_buf->num_indices++] = cl;
-			i_buf->indices[i_buf->num_indices++] = bc;
-
-			i_buf->indices[i_buf->num_indices++] = cl;
-			i_buf->indices[i_buf->num_indices++] = cc;
-			i_buf->indices[i_buf->num_indices++] = bc;
-
-			i_buf->indices[i_buf->num_indices++] = bc;
-			i_buf->indices[i_buf->num_indices++] = cc;
-			i_buf->indices[i_buf->num_indices++] = br;
-
-			i_buf->indices[i_buf->num_indices++] = cc;
-			i_buf->indices[i_buf->num_indices++] = cr;
-			i_buf->indices[i_buf->num_indices++] = br;
-
-			i_buf->indices[i_buf->num_indices++] = cl;
-			i_buf->indices[i_buf->num_indices++] = tl;
-			i_buf->indices[i_buf->num_indices++] = cc;
-
-			i_buf->indices[i_buf->num_indices++] = tl;
-			i_buf->indices[i_buf->num_indices++] = tc;
-			i_buf->indices[i_buf->num_indices++] = cc;
-
-			i_buf->indices[i_buf->num_indices++] = cc;
-			i_buf->indices[i_buf->num_indices++] = tc;
-			i_buf->indices[i_buf->num_indices++] = cr;
-			
-			i_buf->indices[i_buf->num_indices++] = tc;
-			i_buf->indices[i_buf->num_indices++] = tr;
-			i_buf->indices[i_buf->num_indices++] = cr;
-		}
-	}
-	*/
-
 	vec3 norm = ZeroVec();
 	i32 width = gameMap->mapWidth;
 	i32 height = gameMap->mapHeight;
@@ -447,7 +356,8 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image) {
+void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image, Image* bunny_image,
+	Image* red_image, Image* orange_image, Image* yellow_image, Image* green_image, Image* cyan_image, Image* blue_image, Image* gray_image) {
 	HRESULT hr;
 
 	// device
@@ -714,6 +624,102 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		device->CreateShaderResourceView(grass_texture, nullptr, &grass_textureView);
 	}
 
+	// texture 3
+	{
+		D3D11_TEXTURE2D_DESC textureDesc = {};
+		textureDesc.Width = bunny_image->width;
+		textureDesc.Height = bunny_image->height;
+		textureDesc.MipLevels = 1;
+		textureDesc.ArraySize = 1;
+		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+		textureDesc.SampleDesc.Count = 1;
+		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = bunny_image->data;
+		textureData.SysMemPitch = bunny_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &bunny_texture);
+		device->CreateShaderResourceView(bunny_texture, nullptr, &bunny_textureView);
+	}
+
+	D3D11_TEXTURE2D_DESC textureDesc = {};
+	textureDesc.Width = red_image->width;
+	textureDesc.Height = red_image->height;
+	textureDesc.MipLevels = 1;
+	textureDesc.ArraySize = 1;
+	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+	
+	//red
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = red_image->data;
+		textureData.SysMemPitch = red_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &red_texture);
+		device->CreateShaderResourceView(red_texture, nullptr, &red_textureView);
+	}
+	// orange
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = orange_image->data;
+		textureData.SysMemPitch = orange_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &orange_texture);
+		device->CreateShaderResourceView(orange_texture, nullptr, &orange_textureView);
+	}
+	// yellow
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = yellow_image->data;
+		textureData.SysMemPitch = yellow_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &yellow_texture);
+		device->CreateShaderResourceView(yellow_texture, nullptr, &yellow_textureView);
+	}
+	// green
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = green_image->data;
+		textureData.SysMemPitch = green_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &green_texture);
+		device->CreateShaderResourceView(green_texture, nullptr, &green_textureView);
+	}
+	// cyan
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = cyan_image->data;
+		textureData.SysMemPitch = cyan_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &cyan_texture);
+		device->CreateShaderResourceView(cyan_texture, nullptr, &cyan_textureView);
+	}
+	// blue
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = blue_image->data;
+		textureData.SysMemPitch = blue_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &blue_texture);
+		device->CreateShaderResourceView(blue_texture, nullptr, &blue_textureView);
+	}
+	// gray
+	{
+		D3D11_SUBRESOURCE_DATA textureData = {};
+		textureData.pSysMem = gray_image->data;
+		textureData.SysMemPitch = gray_image->width * 4; // 4 bytes per pixel
+
+		device->CreateTexture2D(&textureDesc, &textureData, &gray_texture);
+		device->CreateShaderResourceView(gray_texture, nullptr, &gray_textureView);
+	}
+
+
+
 	// sampler
 	{
 		D3D11_SAMPLER_DESC samplerDesc = {};
@@ -945,18 +951,55 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 				scale = ScaleMat(gameState->blackGuyHead.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
 			}
-			else if (i == 1) {
+			else if (i == (m_buffer->num_models - 1)) {
 				context->PSSetShaderResources(0, 1, &grass_textureView);
 
 				translate = TranslateMat(gameState->gameMap.ent.renderPos);
 				scale = ScaleMat(gameState->gameMap.ent.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
 			}
+			else if (i == 1) {
+				context->PSSetShaderResources(0, 1, &blackguyface_textureView);
+
+				translate = TranslateMat(gameState->deerTest.renderPos);
+				scale = ScaleMat(gameState->deerTest.renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
+			else if (i == 2) {
+				context->PSSetShaderResources(0, 1, &bunny_textureView);
+
+				translate = TranslateMat(gameState->bunnyTest.renderPos);
+				scale = ScaleMat(gameState->bunnyTest.renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
+			else if (i == 3) {
+				context->PSSetShaderResources(0, 1, &grass_textureView);
+
+				translate = TranslateMat(gameState->treeTest.renderPos);
+				scale = ScaleMat(gameState->treeTest.renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
+			else if (i == 4 || i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 10) {
+				switch (i) {
+					case 4: context->PSSetShaderResources(0, 1, &red_textureView); break;
+					case 5: context->PSSetShaderResources(0, 1, &orange_textureView); break;
+					case 6: context->PSSetShaderResources(0, 1, &yellow_textureView); break;
+					case 7: context->PSSetShaderResources(0, 1, &green_textureView); break;
+					case 8: context->PSSetShaderResources(0, 1, &cyan_textureView); break;
+					case 9: context->PSSetShaderResources(0, 1, &blue_textureView); break;
+					case 10: context->PSSetShaderResources(0, 1, &gray_textureView); break;
+				}
+
+				i32 index = i - 4;
+				translate = TranslateMat(gameState->cubes[index].renderPos);
+				scale = ScaleMat(gameState->cubes[index].renderScale);
+				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			}
 
 			mat4 view = gameState->mainCamera.view;
 			mat4 proj = gameState->mainCamera.proj;
 
-			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(scale, translate))));
+			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(translate, scale))));
 
 			context->Unmap(constantBuffer, 0);
 			
