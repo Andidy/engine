@@ -1,8 +1,23 @@
 #include "game.h"
 
 void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
-	// const int numTerraces = 15;
 	gameMap->tiles = (Tile*)allocator->Allocate(sizeof(Tile) * gameMap->mapWidth * gameMap->mapHeight);
+
+	
+	for (int y = 0; y < gameMap->mapHeight; y++) {
+		for (int x = 0; x < gameMap->mapWidth; x++) {
+			f32 nx = (f32)x / (f32)gameMap->mapWidth - 0.5f;
+			f32 ny = (f32)y / (f32)gameMap->mapHeight - 0.5f;
+			f32 e = 0;
+			f32 f = 0;
+			for (int n = 1; n <= 5; n++) {
+				f += (1.0f / n);
+				e += f * noise(n * nx, n * ny);
+			}
+			e /= f;
+			gameMap->tiles[x + y * gameMap->mapWidth].elevation = floorf(e*2.0f);
+		}
+	}
 
 	for (int y = 0; y < gameMap->mapHeight; y++) {
 		for (int x = 0; x < gameMap->mapWidth; x++) {
@@ -15,8 +30,13 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 				e += f * noise(n * nx, n * ny);
 			}
 			e /= f;
-			// gameMap->tiles[x + y * gameMap->mapWidth].elevation = ((int)(e * (f32)numTerraces)) / numTerraces;
-			gameMap->tiles[x + y * gameMap->mapWidth].elevation = floorf(e*2.0f);//(int)(e * 100.0f);
+
+			if (e > 0.5f) {
+				gameMap->tiles[x + y * gameMap->mapWidth].feature = TileFeatures::FOREST;
+			}
+			else {
+				gameMap->tiles[x + y * gameMap->mapWidth].feature = TileFeatures::NONE;
+			}
 		}
 	}
 }
@@ -39,7 +59,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->cubes[5] = { Vec3(-6.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
 	gameState->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
 
-	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.00f, 1.0f) };
+	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f) };
 	gameState->gameMap.mapWidth = 200;
 	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);

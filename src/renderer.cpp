@@ -917,26 +917,21 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		FLOAT clear_color[] = { 100.f / 255.f, 149.f / 255.f, 237.f / 255.f, 1.f };
 		context->ClearRenderTargetView(windowRTView, clear_color);
 
-		// draw a triangle
 		const UINT stride = sizeof(struct Vertex);
 		const UINT offset = 0;
 		context->IASetInputLayout(inputLayout);
 		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		
 		context->RSSetState(rasterizerState);
+		context->OMSetBlendState(blendState, NULL, ~0U);
 		
 		context->VSSetShader(vertexShader, NULL, 0);
-		
 		context->PSSetShader(pixelShader, NULL, 0);
 		context->PSSetSamplers(0, 1, &samplerState);
 
-		context->OMSetBlendState(blendState, NULL, ~0U);
-		
-		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 		for (i32 i = 0; i < m_buffer->num_models; i++) {
-			
-
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 
@@ -950,6 +945,8 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 				translate = TranslateMat(gameState->blackGuyHead.renderPos);
 				scale = ScaleMat(gameState->blackGuyHead.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+
+				
 			}
 			else if (i == (m_buffer->num_models - 1)) {
 				context->PSSetShaderResources(0, 1, &grass_textureView);
@@ -1003,9 +1000,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 
 			context->Unmap(constantBuffer, 0);
 			
-			// context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, m_buffer->models[i].start_index * sizeof(i32));
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
-			// context->DrawIndexed(m_buffer->models[i].length, 0, 0);
 			context->DrawIndexed(m_buffer->models[i].length, m_buffer->models[i].start_index, 0);
 		}	
 	}
