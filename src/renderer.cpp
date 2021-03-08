@@ -932,10 +932,6 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		context->PSSetSamplers(0, 1, &samplerState);
 
 		for (i32 i = 0; i < m_buffer->num_models; i++) {
-			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
-
-			Constants* constants = (Constants*)(mappedSubresource.pData);
 			GameState* gameState = (GameState*)gameMemory->data;
 			
 			mat4 translate, scale, rotate;
@@ -994,8 +990,10 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 			mat4 view = gameState->mainCamera.view;
 			mat4 proj = gameState->mainCamera.proj;
 
+			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+			Constants* constants = (Constants*)(mappedSubresource.pData);
 			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(translate, scale))));
-
 			context->Unmap(constantBuffer, 0);
 			
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
