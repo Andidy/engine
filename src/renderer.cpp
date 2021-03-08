@@ -917,7 +917,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		FLOAT clear_color[] = { 100.f / 255.f, 149.f / 255.f, 237.f / 255.f, 1.f };
 		context->ClearRenderTargetView(windowRTView, clear_color);
 
-		const UINT stride = sizeof(struct Vertex);
+		const UINT stride = sizeof(Vertex);
 		const UINT offset = 0;
 		context->IASetInputLayout(inputLayout);
 		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
@@ -945,8 +945,6 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 				translate = TranslateMat(gameState->blackGuyHead.renderPos);
 				scale = ScaleMat(gameState->blackGuyHead.renderScale);
 				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-
-				
 			}
 			else if (i == (m_buffer->num_models - 1)) {
 				context->PSSetShaderResources(0, 1, &grass_textureView);
