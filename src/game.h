@@ -80,6 +80,7 @@ struct GameMap {
 };
 
 struct GameState {
+	i32 numEntities;
 	Entity blackGuyHead;
 	Entity deerTest;
 	Entity bunnyTest;

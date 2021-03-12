@@ -46,6 +46,8 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 
 	gameState->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
 
+	gameState->numEntities = 0;
+
 	gameState->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
 	gameState->deerTest = { Vec3(-5.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f) };
 	gameState->bunnyTest = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f) };
@@ -63,6 +65,8 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->gameMap.mapWidth = 200;
 	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
+
+	gameState->numEntities = 12;
 
 	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
 	gameState->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);
@@ -146,9 +150,9 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	}
 
 	dir = Vec3(
-		cos(DegToRad(camera->yaw)) * cos(DegToRad(camera->pitch)),
-		sin(DegToRad(camera->pitch)),
-		sin(DegToRad(camera->yaw)) * cos(DegToRad(camera->pitch))
+		cosf(DegToRad(camera->yaw)) * cosf(DegToRad(camera->pitch)),
+		sinf(DegToRad(camera->pitch)),
+		sinf(DegToRad(camera->yaw)) * cosf(DegToRad(camera->pitch))
 	);
 	camera->dir = NormVec(dir);
 
@@ -156,7 +160,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	char debug_str[256];
 	snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
-	//DebugPrint(debug_str);
+	DebugPrint(debug_str);
 
 	// end Camera Update
 	// ========================================================================
