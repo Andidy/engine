@@ -356,8 +356,7 @@ void GenerateTerrainModel(GameMap* gameMap, VertexBuffer* v_buf, IndexBuffer* i_
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image, Image* bunny_image,
-	Image* red_image, Image* orange_image, Image* yellow_image, Image* green_image, Image* cyan_image, Image* blue_image, Image* gray_image) {
+void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages) {
 	HRESULT hr;
 
 	// device
@@ -584,141 +583,27 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		device->CreateBuffer(&desc, NULL, &constantBuffer);
 	}
 
-	// texture
+	// textures
 	{
-		D3D11_TEXTURE2D_DESC textureDesc = {};
-		textureDesc.Width = my_image->width;
-		textureDesc.Height = my_image->height;
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		for (int i = 0; i < numImages; i++) {
+			D3D11_TEXTURE2D_DESC textureDesc = {};
+			textureDesc.Width = images[i].width;
+			textureDesc.Height = images[i].height;
+			textureDesc.MipLevels = 1;
+			textureDesc.ArraySize = 1;
+			textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			textureDesc.SampleDesc.Count = 1;
+			textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
+			textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = my_image->data;
-		textureData.SysMemPitch = my_image->width * 4; // 4 bytes per pixel
+			D3D11_SUBRESOURCE_DATA textureData = {};
+			textureData.pSysMem = images[i].data;
+			textureData.SysMemPitch = images[i].width * 4; // 4 bytes per pixel
 
-		device->CreateTexture2D(&textureDesc, &textureData, &blackguyface_texture);
-		device->CreateShaderResourceView(blackguyface_texture, nullptr, &blackguyface_textureView);
+			device->CreateTexture2D(&textureDesc, &textureData, &textures[i]);
+			device->CreateShaderResourceView(textures[i], nullptr, &textureViews[i]);
+		}
 	}
-
-	// texture 2
-	{
-		D3D11_TEXTURE2D_DESC textureDesc = {};
-		textureDesc.Width = grass_image->width;
-		textureDesc.Height = grass_image->height;
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = grass_image->data;
-		textureData.SysMemPitch = grass_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &grass_texture);
-		device->CreateShaderResourceView(grass_texture, nullptr, &grass_textureView);
-	}
-
-	// texture 3
-	{
-		D3D11_TEXTURE2D_DESC textureDesc = {};
-		textureDesc.Width = bunny_image->width;
-		textureDesc.Height = bunny_image->height;
-		textureDesc.MipLevels = 1;
-		textureDesc.ArraySize = 1;
-		textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-		textureDesc.SampleDesc.Count = 1;
-		textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-		textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = bunny_image->data;
-		textureData.SysMemPitch = bunny_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &bunny_texture);
-		device->CreateShaderResourceView(bunny_texture, nullptr, &bunny_textureView);
-	}
-
-	D3D11_TEXTURE2D_DESC textureDesc = {};
-	textureDesc.Width = red_image->width;
-	textureDesc.Height = red_image->height;
-	textureDesc.MipLevels = 1;
-	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-	textureDesc.SampleDesc.Count = 1;
-	textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-	textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-	
-	//red
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = red_image->data;
-		textureData.SysMemPitch = red_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &red_texture);
-		device->CreateShaderResourceView(red_texture, nullptr, &red_textureView);
-	}
-	// orange
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = orange_image->data;
-		textureData.SysMemPitch = orange_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &orange_texture);
-		device->CreateShaderResourceView(orange_texture, nullptr, &orange_textureView);
-	}
-	// yellow
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = yellow_image->data;
-		textureData.SysMemPitch = yellow_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &yellow_texture);
-		device->CreateShaderResourceView(yellow_texture, nullptr, &yellow_textureView);
-	}
-	// green
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = green_image->data;
-		textureData.SysMemPitch = green_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &green_texture);
-		device->CreateShaderResourceView(green_texture, nullptr, &green_textureView);
-	}
-	// cyan
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = cyan_image->data;
-		textureData.SysMemPitch = cyan_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &cyan_texture);
-		device->CreateShaderResourceView(cyan_texture, nullptr, &cyan_textureView);
-	}
-	// blue
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = blue_image->data;
-		textureData.SysMemPitch = blue_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &blue_texture);
-		device->CreateShaderResourceView(blue_texture, nullptr, &blue_textureView);
-	}
-	// gray
-	{
-		D3D11_SUBRESOURCE_DATA textureData = {};
-		textureData.pSysMem = gray_image->data;
-		textureData.SysMemPitch = gray_image->width * 4; // 4 bytes per pixel
-
-		device->CreateTexture2D(&textureDesc, &textureData, &gray_texture);
-		device->CreateShaderResourceView(gray_texture, nullptr, &gray_textureView);
-	}
-
-
 
 	// sampler
 	{
@@ -938,6 +823,9 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		for (int i = 0; i < renderData->num_entities; i++) {
 			RenderEntity re = renderData->entities[i];
 			
+			context->PSSetShaderResources(0, 1, &textureViews[re.texture_index]);
+
+			/*
 			switch (re.texture_index) {
 				case 0: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
 				case 1: context->PSSetShaderResources(0, 1, &grass_textureView); break;
@@ -950,7 +838,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 				case 8: context->PSSetShaderResources(0, 1, &blue_textureView); break;
 				case 9: context->PSSetShaderResources(0, 1, &gray_textureView); break;
 				default: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
-			}
+			}*/
 			
 			mat4 translate, scale, rotate;
 			translate = TranslateMat(re.pos);

@@ -160,7 +160,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	char debug_str[256];
 	snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
-	DebugPrint(debug_str);
+	//DebugPrint(debug_str);
 
 	// end Camera Update
 	// ========================================================================

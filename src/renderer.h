@@ -98,34 +98,12 @@ struct Renderer {
 
 	ID3D11SamplerState* samplerState;
 
-	ID3D11Texture2D* blackguyface_texture;
-	ID3D11ShaderResourceView* blackguyface_textureView;
-
-	ID3D11Texture2D* grass_texture;
-	ID3D11ShaderResourceView* grass_textureView;
-
-	ID3D11Texture2D* bunny_texture;
-	ID3D11ShaderResourceView* bunny_textureView;
-
-	ID3D11Texture2D* red_texture;
-	ID3D11ShaderResourceView* red_textureView;
-	ID3D11Texture2D* orange_texture;
-	ID3D11ShaderResourceView* orange_textureView;
-	ID3D11Texture2D* yellow_texture;
-	ID3D11ShaderResourceView* yellow_textureView;
-	ID3D11Texture2D* green_texture;
-	ID3D11ShaderResourceView* green_textureView;
-	ID3D11Texture2D* cyan_texture;
-	ID3D11ShaderResourceView* cyan_textureView;
-	ID3D11Texture2D* blue_texture;
-	ID3D11ShaderResourceView* blue_textureView;
-	ID3D11Texture2D* gray_texture;
-	ID3D11ShaderResourceView* gray_textureView;
+	ID3D11Texture2D* textures[16];
+	ID3D11ShaderResourceView* textureViews[16];
 
 	b32 renderer_occluded = 0;
 
-	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* my_image, Image* grass_image, Image* bunny_image,
-		Image* red_image, Image* orange_image, Image* yellow_image, Image* green_image, Image* cyan_image, Image* blue_image, Image* gray_image);
+	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages);
 	HRESULT RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight);
 	HRESULT RenderPresent(HWND window);
 	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData);
