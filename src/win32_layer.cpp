@@ -315,6 +315,22 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 
 */
 
+void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentResourceAllocator* allocator) {
+	GameState* gs = (GameState*)gameMemory->data;
+
+	int iter = 0;
+	renderData->entities = (RenderEntity*)allocator->Allocate(sizeof(RenderEntity) * gs->numEntities);
+	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, 0, 0 };
+	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, 2, 2 };
+	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, 3, 1 };
+	renderData->entities[iter++] = { gs->deerTest.renderPos, gs->deerTest.renderScale, 1, 0 };
+	for (int i = 0; i < 7; i++) {
+		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, 4, 3 + i };
+	}
+	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, 5, 1 };
+	renderData->num_entities = iter;
+}
+
 // ============================================================================
 
 
@@ -415,13 +431,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/tree_default.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			
+			/*
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			*/
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 
 			Image my_image;
@@ -467,7 +485,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					OutputDebugStringA(str_buffer);
+					//OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 
@@ -491,10 +509,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Render Game
 				{
-					renderer.RenderFrame(&gameMemory, &model_buffer);
+					RenderData renderData = {};
+					PrepareRenderData(&gameMemory, &renderData, &frame_allocator);
+					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}
+					frame_allocator.Free();
 				}
 
 				// Swap Input structs

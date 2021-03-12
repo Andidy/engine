@@ -32,14 +32,23 @@ struct Model {
 };
 
 struct ModelBuffer {
-	i32 num_models;
 	i32 buffer_length;
+	i32 num_models;
 	Model* models;
 };
 
+struct RenderEntity {
+	vec3 pos;
+	vec3 scale;
 
+	int32_t model_index;
+	int32_t texture_index;
+};
 
-
+struct RenderData {
+	int32_t num_entities;
+	RenderEntity* entities;
+};
 
 
 
@@ -119,7 +128,7 @@ struct Renderer {
 		Image* red_image, Image* orange_image, Image* yellow_image, Image* green_image, Image* cyan_image, Image* blue_image, Image* gray_image);
 	HRESULT RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer);
+	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData);
 };
 
 #endif

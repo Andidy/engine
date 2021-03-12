@@ -903,7 +903,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
+void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -931,73 +931,40 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer) {
 		context->PSSetShader(pixelShader, NULL, 0);
 		context->PSSetSamplers(0, 1, &samplerState);
 
-		for (i32 i = 0; i < m_buffer->num_models; i++) {
-			GameState* gameState = (GameState*)gameMemory->data;
+		GameState* gameState = (GameState*)gameMemory->data;
+		mat4 view = gameState->mainCamera.view;
+		mat4 proj = gameState->mainCamera.proj;
+
+		for (int i = 0; i < renderData->num_entities; i++) {
+			RenderEntity re = renderData->entities[i];
+			
+			switch (re.texture_index) {
+				case 0: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
+				case 1: context->PSSetShaderResources(0, 1, &grass_textureView); break;
+				case 2: context->PSSetShaderResources(0, 1, &bunny_textureView); break;
+				case 3: context->PSSetShaderResources(0, 1, &red_textureView); break;
+				case 4: context->PSSetShaderResources(0, 1, &orange_textureView); break;
+				case 5: context->PSSetShaderResources(0, 1, &yellow_textureView); break;
+				case 6: context->PSSetShaderResources(0, 1, &green_textureView); break;
+				case 7: context->PSSetShaderResources(0, 1, &cyan_textureView); break;
+				case 8: context->PSSetShaderResources(0, 1, &blue_textureView); break;
+				case 9: context->PSSetShaderResources(0, 1, &gray_textureView); break;
+				default: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
+			}
 			
 			mat4 translate, scale, rotate;
-			if (i == 0) {
-				context->PSSetShaderResources(0, 1, &blackguyface_textureView);
-				
-				translate = TranslateMat(gameState->blackGuyHead.renderPos);
-				scale = ScaleMat(gameState->blackGuyHead.renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-			else if (i == (m_buffer->num_models - 1)) {
-				context->PSSetShaderResources(0, 1, &grass_textureView);
-
-				translate = TranslateMat(gameState->gameMap.ent.renderPos);
-				scale = ScaleMat(gameState->gameMap.ent.renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-			else if (i == 1) {
-				context->PSSetShaderResources(0, 1, &blackguyface_textureView);
-
-				translate = TranslateMat(gameState->deerTest.renderPos);
-				scale = ScaleMat(gameState->deerTest.renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-			else if (i == 2) {
-				context->PSSetShaderResources(0, 1, &bunny_textureView);
-
-				translate = TranslateMat(gameState->bunnyTest.renderPos);
-				scale = ScaleMat(gameState->bunnyTest.renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-			else if (i == 3) {
-				context->PSSetShaderResources(0, 1, &grass_textureView);
-
-				translate = TranslateMat(gameState->treeTest.renderPos);
-				scale = ScaleMat(gameState->treeTest.renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-			else if (i == 4 || i == 5 || i == 6 || i == 7 || i == 8 || i == 9 || i == 10) {
-				switch (i) {
-					case 4: context->PSSetShaderResources(0, 1, &red_textureView); break;
-					case 5: context->PSSetShaderResources(0, 1, &orange_textureView); break;
-					case 6: context->PSSetShaderResources(0, 1, &yellow_textureView); break;
-					case 7: context->PSSetShaderResources(0, 1, &green_textureView); break;
-					case 8: context->PSSetShaderResources(0, 1, &cyan_textureView); break;
-					case 9: context->PSSetShaderResources(0, 1, &blue_textureView); break;
-					case 10: context->PSSetShaderResources(0, 1, &gray_textureView); break;
-				}
-
-				i32 index = i - 4;
-				translate = TranslateMat(gameState->cubes[index].renderPos);
-				scale = ScaleMat(gameState->cubes[index].renderScale);
-				rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
-			}
-
-			mat4 view = gameState->mainCamera.view;
-			mat4 proj = gameState->mainCamera.proj;
+			translate = TranslateMat(re.pos);
+			scale = ScaleMat(re.scale);
+			rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
 
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 			Constants* constants = (Constants*)(mappedSubresource.pData);
 			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(translate, scale))));
 			context->Unmap(constantBuffer, 0);
-			
+
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
-			context->DrawIndexed(m_buffer->models[i].length, m_buffer->models[i].start_index, 0);
-		}	
+			context->DrawIndexed(m_buffer->models[re.model_index].length, m_buffer->models[re.model_index].start_index, 0);
+		}
 	}
 }
