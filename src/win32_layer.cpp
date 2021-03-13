@@ -318,8 +318,9 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentResourceAllocator* allocator) {
 	GameState* gs = (GameState*)gameMemory->data;
 
+	int dynamicEntitiesMax = 1000000;
 	int iter = 0;
-	renderData->entities = (RenderEntity*)allocator->Allocate(sizeof(RenderEntity) * gs->numEntities);
+	renderData->entities = (RenderEntity*)allocator->Allocate(sizeof(RenderEntity) * (gs->numEntities + dynamicEntitiesMax));
 	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, 0, 0 };
 	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, 2, 2 };
 	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, 3, 1 };
@@ -328,6 +329,18 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentReso
 		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, 4, 3 + i };
 	}
 	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, 5, 1 };
+
+	int width = gs->gameMap.mapWidth;
+	int height = gs->gameMap.mapHeight;
+	for (int y = 0; y < height; y++) {
+		for (int x = 0; x < width; x++) {
+			Tile t = gs->gameMap.tiles[x + y * width];
+			if (t.feature == TileFeatures::FOREST) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, OneVec(), 3, 1 };
+			}
+		}
+	}
+
 	renderData->num_entities = iter;
 }
 
@@ -421,7 +434,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			IndexBuffer index_buffer;
 			ModelBuffer model_buffer;
 			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)4));
-			PermanentResourceAllocator frame_allocator(Megabytes((u64)1));
+			PermanentResourceAllocator frame_allocator(Megabytes((u64)64));
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
@@ -466,16 +479,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				{
 					LARGE_INTEGER endtimer;
 					QueryPerformanceCounter(&endtimer);
-					i64 timerelapsed = endtimer.QuadPart - lasttimer.QuadPart;
+					int64_t timerelapsed = endtimer.QuadPart - lasttimer.QuadPart;
 					f32 msperframe = (f32)((1000.0f * (f32)timerelapsed) / (f32)perftimerfreq);
-					i64 fps = (i64)(perftimerfreq / timerelapsed);
+					int64_t fps = (int64_t)(perftimerfreq / timerelapsed);
 
-					u64 endcyclecount = __rdtsc();
-					u64 cycleselapsed = endcyclecount - lastcyclecount;
+					uint64_t endcyclecount = __rdtsc();
+					uint64_t cycleselapsed = endcyclecount - lastcyclecount;
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					//OutputDebugStringA(str_buffer);
+					OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 
@@ -486,7 +499,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Update Input
 				{
 					*newInput = {};
-					for (i32 i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
+					for (int i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
 						newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
 					}
 					win32_UpdateInput(newInput);

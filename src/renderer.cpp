@@ -747,7 +747,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	}
 
 	if (!renderer_occluded) {
-		hr = swapchain->Present(0, 0);
+		hr = swapchain->Present(1, 0);
 	}
 
 	if (hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DEVICE_REMOVED) {

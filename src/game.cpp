@@ -21,17 +21,19 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 
 	for (int y = 0; y < gameMap->mapHeight; y++) {
 		for (int x = 0; x < gameMap->mapWidth; x++) {
-			f32 nx = (f32)x / (f32)gameMap->mapWidth - 0.5f;
-			f32 ny = (f32)y / (f32)gameMap->mapHeight - 0.5f;
+			f32 nx = (f32)x * 123.5f / (f32)gameMap->mapWidth - 0.5f;
+			f32 ny = (f32)y * 123.5f / (f32)gameMap->mapHeight - 0.5f;
 			f32 e = 0;
 			f32 f = 0;
+			f32 f_sum = 0;
 			for (int n = 1; n <= 5; n++) {
-				f += (1.0f / n);
+				f = (1.0f / n);
+				f_sum += f;
 				e += f * noise(n * nx, n * ny);
 			}
-			e /= f;
+			e /= f_sum;
 
-			if (e > 0.5f) {
+			if (e > 0.8f) {
 				gameMap->tiles[x + y * gameMap->mapWidth].feature = TileFeatures::FOREST;
 			}
 			else {
