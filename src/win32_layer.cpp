@@ -321,14 +321,16 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentReso
 	int dynamicEntitiesMax = 1000000;
 	int iter = 0;
 	renderData->entities = (RenderEntity*)allocator->Allocate(sizeof(RenderEntity) * (gs->numEntities + dynamicEntitiesMax));
-	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, 0, 0 };
-	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, 2, 2 };
-	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, 3, 1 };
-	renderData->entities[iter++] = { gs->deerTest.renderPos, gs->deerTest.renderScale, 1, 0 };
+	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, gs->blackGuyHead.renderRotAxis, gs->blackGuyHead.renderRotAngle, 0, 0 };
+	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, gs->bunnyTest.renderRotAxis, gs->bunnyTest.renderRotAngle, 2, 2 };
+	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, gs->treeTest.renderRotAxis, gs->treeTest.renderRotAngle, 3, 1 };
+	renderData->entities[iter++] = { gs->deerTest.renderPos, gs->deerTest.renderScale, gs->deerTest.renderRotAxis, gs->deerTest.renderRotAngle, 1, 0 };
 	for (int i = 0; i < 7; i++) {
-		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, 4, 3 + i };
+		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
 	}
-	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, 5, 1 };
+	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, gs->gameMap.ent.renderRotAxis, gs->gameMap.ent.renderRotAngle, 6, 1 };
+	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
+	renderData->entities[iter++] = { gs->waterQuad.renderPos, gs->waterQuad.renderScale, gs->waterQuad.renderRotAxis, gs->waterQuad.renderRotAngle, 5, 8 };
 
 	int width = gs->gameMap.mapWidth;
 	int height = gs->gameMap.mapHeight;
@@ -336,7 +338,7 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentReso
 		for (int x = 0; x < width; x++) {
 			Tile t = gs->gameMap.tiles[x + y * width];
 			if (t.feature == TileFeatures::FOREST) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, OneVec(), 3, 1 };
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, OneVec(), UpVec(), 0.0f, 3, 1 };
 			}
 		}
 	}
@@ -443,7 +445,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/tree_default.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			
+			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 
 			int n, iter = 0;

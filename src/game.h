@@ -19,6 +19,8 @@ struct Camera {
 struct Entity {
 	vec3 renderPos;
 	vec3 renderScale;
+	vec3 renderRotAxis;
+	f32 renderRotAngle;
 };
 
 enum class TileTerrain {
@@ -86,6 +88,8 @@ struct GameState {
 	Entity bunnyTest;
 	Entity treeTest;
 	Entity cubes[7];
+	Entity quad;
+	Entity waterQuad;
 
 	GameMap gameMap;
 	Camera mainCamera;

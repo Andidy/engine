@@ -824,31 +824,16 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			RenderEntity re = renderData->entities[i];
 			
 			context->PSSetShaderResources(0, 1, &textureViews[re.texture_index]);
-
-			/*
-			switch (re.texture_index) {
-				case 0: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
-				case 1: context->PSSetShaderResources(0, 1, &grass_textureView); break;
-				case 2: context->PSSetShaderResources(0, 1, &bunny_textureView); break;
-				case 3: context->PSSetShaderResources(0, 1, &red_textureView); break;
-				case 4: context->PSSetShaderResources(0, 1, &orange_textureView); break;
-				case 5: context->PSSetShaderResources(0, 1, &yellow_textureView); break;
-				case 6: context->PSSetShaderResources(0, 1, &green_textureView); break;
-				case 7: context->PSSetShaderResources(0, 1, &cyan_textureView); break;
-				case 8: context->PSSetShaderResources(0, 1, &blue_textureView); break;
-				case 9: context->PSSetShaderResources(0, 1, &gray_textureView); break;
-				default: context->PSSetShaderResources(0, 1, &blackguyface_textureView); break;
-			}*/
 			
 			mat4 translate, scale, rotate;
 			translate = TranslateMat(re.pos);
 			scale = ScaleMat(re.scale);
-			rotate = DiagonalMat(1.0f); // RotateMat(0, UpVec());
+			rotate = RotateMat(re.rot_angle, re.rot_axis);
 
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 			Constants* constants = (Constants*)(mappedSubresource.pData);
-			constants->mvp = MulMat(proj, MulMat(view, MulMat(rotate, MulMat(translate, scale))));
+			constants->mvp = MulMat(proj, MulMat(view, MulMat(translate, MulMat(rotate, scale))));
 			context->Unmap(constantBuffer, 0);
 
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);

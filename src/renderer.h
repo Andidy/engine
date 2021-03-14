@@ -40,6 +40,8 @@ struct ModelBuffer {
 struct RenderEntity {
 	vec3 pos;
 	vec3 scale;
+	vec3 rot_axis;
+	f32 rot_angle;
 
 	int32_t model_index;
 	int32_t texture_index;
