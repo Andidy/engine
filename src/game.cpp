@@ -64,7 +64,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
 
 	gameState->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
-	gameState->waterQuad = { Vec3(100.0f, 1.5f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
+	gameState->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
 
 
 	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
@@ -83,7 +83,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 
 	// gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.target, gameState->mainCamera.up);
 	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.dir, gameState->mainCamera.up);
-	gameState->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.0001f, 1000.0f);
+	gameState->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.1f, 1000.0f);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
