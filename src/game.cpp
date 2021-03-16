@@ -66,16 +66,15 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
 	gameState->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
 
-
 	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
 	gameState->gameMap.mapWidth = 200;
 	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
-	gameState->numEntities = 12;
+	gameState->numEntities = 14;
 
-	gameState->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
-	gameState->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);
+	gameState->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
+	gameState->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);
 	gameState->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
 
 	gameState->mainCamera.pitch = 0.0f;
