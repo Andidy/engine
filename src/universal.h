@@ -45,6 +45,12 @@ struct PermanentResourceAllocator {
 	void FreeBackingBuffer();
 };
 
+// This allocator is for resources that should only exist for a single loop
+// iteration, for example a frame of the game loop, and then the Free()
+// method is called at the end of the loop, freeing all contents of the
+// allocator but not its backing buffer
+typedef PermanentResourceAllocator FrameAllocator;
+
 // end Memory
 // ============================================================================
 // Input

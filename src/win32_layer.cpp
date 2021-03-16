@@ -315,7 +315,7 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 
 */
 
-void PrepareRenderData(Memory* gameMemory, RenderData* renderData, PermanentResourceAllocator* allocator) {
+void PrepareRenderData(Memory* gameMemory, RenderData* renderData, FrameAllocator* allocator) {
 	GameState* gs = (GameState*)gameMemory->data;
 
 	int dynamicEntitiesMax = 1000000;
@@ -436,7 +436,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			IndexBuffer index_buffer;
 			ModelBuffer model_buffer;
 			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)4));
-			PermanentResourceAllocator frame_allocator(Megabytes((u64)64));
+			FrameAllocator frame_allocator(Megabytes((u64)64));
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
