@@ -1,0 +1,2 @@
+I've simplified the code neccesary to render game entities and different models and textures
+Added simple tree placement to game map procedural generation code and added a water layer to the map
