@@ -1,5 +1,388 @@
 #include "game.h"
 
+ivec2 GetNeighborPosition(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction) {
+	// a -1 means neighbor is an invalid map position (out of bounds)
+
+	ivec2 neighborPosition = IVec2(-1, -1);
+
+	switch (direction) {
+		case TileNeighbor::EAST:
+		{
+			neighborPosition.y = y;
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTHEAST:
+		{
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTH:
+		{
+			neighborPosition.x = x;
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTHWEST:
+		{
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+			
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::WEST:
+		{
+			neighborPosition.y = y;
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTHEAST:
+		{
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTH:
+		{
+			neighborPosition.x = x;
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTHWEST:
+		{
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		default: /* some error? */ break;
+	}
+
+	return neighborPosition;
+}
+
+ivec2 GetNeighborPosition(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction) {
+	// a -1 means neighbor is an invalid map position (out of bounds)
+	int32_t x = tileIndex % gameMap->mapWidth;
+	int32_t y = tileIndex / gameMap->mapWidth;
+	ivec2 neighborPosition = IVec2(-1, -1);
+
+	switch (direction) {
+		case TileNeighbor::EAST:
+		{
+			neighborPosition.y = y;
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTHEAST:
+		{
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTH:
+		{
+			neighborPosition.x = x;
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::NORTHWEST:
+		{
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y + 1) < gameMap->mapHeight) {
+				neighborPosition.y = y + 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = 0;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::WEST:
+		{
+			neighborPosition.y = y;
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTHEAST:
+		{
+			if ((x + 1) < gameMap->mapWidth) {
+				neighborPosition.x = x + 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = 0;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTH:
+		{
+			neighborPosition.x = x;
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		case TileNeighbor::SOUTHWEST:
+		{
+			if ((x - 1) >= 0) {
+				neighborPosition.x = x - 1;
+			}
+			else {
+				if (gameMap->wrapHorizontal) {
+					neighborPosition.x = gameMap->mapWidth - 1;
+				}
+				else {
+					neighborPosition.x = -1;
+				}
+			}
+
+			if ((y - 1) >= 0) {
+				neighborPosition.y = y - 1;
+			}
+			else {
+				if (gameMap->wrapVertical) {
+					neighborPosition.y = gameMap->mapHeight - 1;
+				}
+				else {
+					neighborPosition.y = -1;
+				}
+			}
+		} break;
+		default: /* some error? */ break;
+	}
+
+	return neighborPosition;
+}
+
+int32_t GetNeighborIndex(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction) {
+	// -1 means neighbor is an invalid map position (out of bounds)
+	int32_t index = 0;
+
+	ivec2 result = GetNeighborPosition(gameMap, x, y, direction);
+	if (result.x == -1 || result.y == -1) {
+		index = -1;
+	}
+	else {
+		index = result.x + result.y * gameMap->mapWidth;
+	}
+
+	return index;
+}
+
+int32_t GetNeighborIndex(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction) {
+	// -1 means neighbor is an invalid map position (out of bounds)
+	int32_t index = 0;
+
+	ivec2 result = GetNeighborPosition(gameMap, tileIndex, direction);
+	if (result.x == -1 || result.y == -1) { 
+		index = -1;
+	}
+	else {
+		index = result.x + result.y * gameMap->mapWidth;
+	}
+
+	return index;
+}
+
 void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 	gameMap->tiles = (Tile*)allocator->Allocate(sizeof(Tile) * gameMap->mapWidth * gameMap->mapHeight);
 
@@ -41,6 +424,16 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 			}
 		}
 	}
+
+	gameMap->tiles[10 + 15 * gameMap->mapWidth].resources[0] = TileResource::SMALL_GAME;
+	gameMap->tiles[11 + 14 * gameMap->mapWidth].resources[0] = TileResource::LARGE_GAME;
+	gameMap->tiles[11 + 15 * gameMap->mapWidth].resources[0] = TileResource::SMALL_GAME;
+	gameMap->tiles[11 + 16 * gameMap->mapWidth].resources[0] = TileResource::STONE;
+	gameMap->tiles[10 + 16 * gameMap->mapWidth].resources[0] = TileResource::FRUITS;
+	gameMap->tiles[9  + 16 * gameMap->mapWidth].resources[0] = TileResource::GRAINS;
+	gameMap->tiles[9  + 15 * gameMap->mapWidth].resources[0] = TileResource::VEGETABLES;
+	gameMap->tiles[9  + 14 * gameMap->mapWidth].resources[0] = TileResource::SMALL_GAME;
+	gameMap->tiles[10 + 14 * gameMap->mapWidth].resources[0] = TileResource::STONE;
 }
 
 void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
@@ -66,12 +459,34 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
 	gameState->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
 
+	gameState->gameMap.wrapHorizontal = true;
+	gameState->gameMap.wrapVertical = false;
 	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
 	gameState->gameMap.mapWidth = 200;
 	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
 	gameState->numEntities = 14;
+
+
+	char debug_str[256];
+	snprintf(debug_str, 256, "%d, %d, %d\n%d, %d, %d\n%d, %d, %d\n", gameState->gameMap.tiles[9 + 16 * gameState->gameMap.mapWidth].resources[0],
+		gameState->gameMap.tiles[10 + 16 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[11 + 16 * gameState->gameMap.mapWidth].resources[0],
+		gameState->gameMap.tiles[9 + 15 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[10 + 15 * gameState->gameMap.mapWidth].resources[0],
+		gameState->gameMap.tiles[11 + 15 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[9 + 14 * gameState->gameMap.mapWidth].resources[0],
+		gameState->gameMap.tiles[10 + 14 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[11 + 14 * gameState->gameMap.mapWidth].resources[0]);
+	DebugPrint(debug_str);
+	snprintf(debug_str, 256, "%d, %d, %d\n%d, %d, %d\n%d, %d, %d\n", 
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTHWEST)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTH)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTHEAST)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::WEST)].resources[0],
+		gameState->gameMap.tiles[10 + 15 * gameState->gameMap.mapWidth].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::EAST)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTHWEST)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTH)].resources[0],
+		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTHEAST)].resources[0]);
+	DebugPrint(debug_str);
 
 	gameState->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
 	gameState->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);

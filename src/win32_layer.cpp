@@ -340,6 +340,24 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData, FrameAllocato
 			if (t.feature == TileFeatures::FOREST) {
 				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, OneVec(), UpVec(), 0.0f, 3, 1 };
 			}
+			if (t.resources[0] == TileResource::GRAINS) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 5 };
+			}
+			if (t.resources[0] == TileResource::FRUITS) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 3 };
+			}
+			if (t.resources[0] == TileResource::STONE) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 9 };
+			}
+			if (t.resources[0] == TileResource::VEGETABLES) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 6 };
+			}
+			if (t.resources[0] == TileResource::SMALL_GAME) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 2, 2 };
+			}
+			if (t.resources[0] == TileResource::LARGE_GAME) {
+				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.5f, 0.5f, 0.5f), UpVec(), 0.0f, 1, 0 };
+			}
 		}
 	}
 

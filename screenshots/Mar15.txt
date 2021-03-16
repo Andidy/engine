@@ -1,2 +1,4 @@
-I've simplified the code neccesary to render game entities and different models and textures
-Added simple tree placement to game map procedural generation code and added a water layer to the map
+1: I've simplified the code neccesary to render game entities and different models and textures
+   and Added simple tree placement to game map procedural generation code and added a water layer to the map
+2: Shows adding more of the debug models to the easy entity drawing code
+3: not shown, but tested most of functionality of new game map functions (still need to test the wrapping behavior)

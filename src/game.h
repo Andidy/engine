@@ -23,6 +23,17 @@ struct Entity {
 	f32 renderRotAngle;
 };
 
+enum class TileNeighbor {
+	NORTHWEST,
+	NORTH,
+	NORTHEAST,
+	EAST,
+	SOUTHEAST,
+	SOUTH,
+	SOUTHWEST,
+	WEST
+};
+
 enum class TileTerrain {
 	WATER,
 	FLATLAND,
@@ -75,11 +86,18 @@ struct Tile {
 };
 
 struct GameMap {
+	bool wrapHorizontal;
+	bool wrapVertical;
 	Entity ent;
-	i32 mapWidth;
-	i32 mapHeight;
+	int32_t mapWidth;
+	int32_t mapHeight;
 	Tile* tiles;
 };
+
+ivec2 GetNeighborPosition(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction);
+ivec2 GetNeighborPosition(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction);
+int32_t GetNeighborIndex(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction);
+int32_t GetNeighborIndex(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction);
 
 struct GameState {
 	i32 numEntities;
