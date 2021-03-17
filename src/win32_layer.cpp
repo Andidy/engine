@@ -315,12 +315,10 @@ static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
 
 */
 
-void PrepareRenderData(Memory* gameMemory, RenderData* renderData, FrameAllocator* allocator) {
+void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	GameState* gs = (GameState*)gameMemory->data;
 
-	int dynamicEntitiesMax = 1000000;
 	int iter = 0;
-	renderData->entities = (RenderEntity*)allocator->Allocate(sizeof(RenderEntity) * (gs->numEntities + dynamicEntitiesMax));
 	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, gs->blackGuyHead.renderRotAxis, gs->blackGuyHead.renderRotAngle, 0, 0 };
 	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, gs->bunnyTest.renderRotAxis, gs->bunnyTest.renderRotAngle, 2, 2 };
 	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, gs->treeTest.renderRotAxis, gs->treeTest.renderRotAngle, 3, 1 };
@@ -494,6 +492,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Renderer renderer = {};
 			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter);
 
+			RenderData renderData = {};
+			const int dynamicEntitiesMax = 1000000;
+			renderData.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)gameMemory.data)->numEntities + dynamicEntitiesMax));
+
 			while (win32_running) {
 				// Timing
 				f32 dt = 0.0f;
@@ -509,7 +511,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
-					OutputDebugStringA(str_buffer);
+					//OutputDebugStringA(str_buffer);
 
 					dt = msperframe;
 
@@ -533,13 +535,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Render Game
 				{
-					RenderData renderData = {};
-					PrepareRenderData(&gameMemory, &renderData, &frame_allocator);
+					PrepareRenderData(&gameMemory, &renderData);
 					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}
-					frame_allocator.Free();
 				}
 
 				// Swap Input structs
