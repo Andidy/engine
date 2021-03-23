@@ -326,10 +326,11 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	for (int i = 0; i < 7; i++) {
 		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
 	}
-	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, gs->gameMap.ent.renderRotAxis, gs->gameMap.ent.renderRotAngle, 6, 1 };
 	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
-	renderData->entities[iter++] = { gs->waterQuad.renderPos, gs->waterQuad.renderScale, gs->waterQuad.renderRotAxis, gs->waterQuad.renderRotAngle, 5, 8 };
 
+	/*
+	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, gs->gameMap.ent.renderRotAxis, gs->gameMap.ent.renderRotAngle, 6, 1 };
+	renderData->entities[iter++] = { gs->waterQuad.renderPos, gs->waterQuad.renderScale, gs->waterQuad.renderRotAxis, gs->waterQuad.renderRotAngle, 5, 8 };
 	int width = gs->gameMap.mapWidth;
 	int height = gs->gameMap.mapHeight;
 	for (int y = 0; y < height; y++) {
@@ -358,6 +359,8 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 			}
 		}
 	}
+	*/
+	renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 7, 1 };
 
 	renderData->num_entities = iter;
 }
@@ -464,7 +467,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
-
+			GenerateTerrainMapModel(&((GameState*)gameMemory.data)->terrainMap, &vertex_buffer, &index_buffer, &model_buffer);
+			
 			int n, iter = 0;
 			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
 

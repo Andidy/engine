@@ -436,6 +436,23 @@ void GenerateTerrain(GameMap* gameMap, PermanentResourceAllocator* allocator) {
 	gameMap->tiles[10 + 14 * gameMap->mapWidth].resources[0] = TileResource::STONE;
 }
 
+void GenerateTerrainMap(TerrainMap* t) {
+	for (int y = 0; y < t->height; y++) {
+		for (int x = 0; x < t->width; x++) {
+			f32 nx = (f32)x / (f32)t->width - 0.5f;
+			f32 ny = (f32)y / (f32)t->height - 0.5f;
+			f32 e = 0;
+			f32 f = 0;
+
+			e = 1 * noise(nx, ny) + 0.5 * noise(2 * nx, 2 * ny) + 0.25 * noise(4 * nx, 4 * ny);
+			f = 1 + 0.5 + 0.25;
+			e = e / f;
+			
+			t->elevation[x + y * t->width] = powf(e * 1.03f, 2.0f) * 100;
+		}
+	}
+}
+
 void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	GameState* gameState = (GameState*)gameMemory->data;
 
@@ -462,31 +479,17 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gameState->gameMap.wrapHorizontal = true;
 	gameState->gameMap.wrapVertical = false;
 	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gameState->gameMap.mapWidth = 200;
+	gameState->gameMap.mapWidth = 100;
 	gameState->gameMap.mapHeight = 100;
 	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
 
-	gameState->numEntities = 14;
+	gameState->terrainMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gameState->terrainMap.width = 1000;
+	gameState->terrainMap.height = 1000;
+	gameState->terrainMap.elevation = (f32*)gameState->resourceAllocator.Allocate(sizeof(f32) * gameState->terrainMap.width * gameState->terrainMap.height);
+	GenerateTerrainMap(&gameState->terrainMap);
 
-
-	char debug_str[256];
-	snprintf(debug_str, 256, "%d, %d, %d\n%d, %d, %d\n%d, %d, %d\n", gameState->gameMap.tiles[9 + 16 * gameState->gameMap.mapWidth].resources[0],
-		gameState->gameMap.tiles[10 + 16 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[11 + 16 * gameState->gameMap.mapWidth].resources[0],
-		gameState->gameMap.tiles[9 + 15 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[10 + 15 * gameState->gameMap.mapWidth].resources[0],
-		gameState->gameMap.tiles[11 + 15 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[9 + 14 * gameState->gameMap.mapWidth].resources[0],
-		gameState->gameMap.tiles[10 + 14 * gameState->gameMap.mapWidth].resources[0], gameState->gameMap.tiles[11 + 14 * gameState->gameMap.mapWidth].resources[0]);
-	DebugPrint(debug_str);
-	snprintf(debug_str, 256, "%d, %d, %d\n%d, %d, %d\n%d, %d, %d\n", 
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTHWEST)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTH)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::NORTHEAST)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::WEST)].resources[0],
-		gameState->gameMap.tiles[10 + 15 * gameState->gameMap.mapWidth].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::EAST)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTHWEST)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTH)].resources[0],
-		gameState->gameMap.tiles[GetNeighborIndex(&gameState->gameMap, 10 + 15 * gameState->gameMap.mapWidth, TileNeighbor::SOUTHEAST)].resources[0]);
-	DebugPrint(debug_str);
+	gameState->numEntities = 15;
 
 	gameState->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
 	gameState->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);
@@ -508,7 +511,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	Camera* camera = &gameState->mainCamera;
 
-	const f32 cameraSpeed = 0.01f;
+	const f32 cameraSpeed = 0.1f;
 	const f32 rotateSpeed = 0.15f;
 	
 	vec3 dir = NormVec(camera->dir);

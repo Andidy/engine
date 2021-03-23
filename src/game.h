@@ -99,6 +99,13 @@ ivec2 GetNeighborPosition(GameMap* gameMap, int32_t tileIndex, TileNeighbor dire
 int32_t GetNeighborIndex(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction);
 int32_t GetNeighborIndex(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction);
 
+struct TerrainMap {
+	Entity ent;
+	int32_t width;
+	int32_t height;
+	f32* elevation;
+};
+
 struct GameState {
 	i32 numEntities;
 	Entity blackGuyHead;
@@ -109,6 +116,7 @@ struct GameState {
 	Entity quad;
 	Entity waterQuad;
 
+	TerrainMap terrainMap;
 	GameMap gameMap;
 	Camera mainCamera;
 
