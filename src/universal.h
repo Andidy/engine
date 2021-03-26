@@ -87,6 +87,7 @@ struct ControllerState {
 
 const int NUM_MOUSE_BUTTONS = 5;
 struct MouseState {
+	int32_t x, y;
 	union {
 		ButtonState buttons[NUM_MOUSE_BUTTONS];
 		struct {

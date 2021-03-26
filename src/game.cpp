@@ -444,11 +444,11 @@ void GenerateTerrainMap(TerrainMap* t) {
 			f32 e = 0;
 			f32 f = 0;
 
-			e = 1 * noise(nx, ny) + 0.5 * noise(2 * nx, 2 * ny) + 0.25 * noise(4 * nx, 4 * ny);
-			f = 1 + 0.5 + 0.25;
+			e = 1 * noise(nx, ny) + 0.5 * noise(2 * nx, 2 * ny) + 0.25 * noise(4 * nx, 4 * ny) + 0.125 * noise(8 * nx, 8 * ny) + 0.0625 * noise(16 * nx, 16 * ny) + 0.03 * noise(32 * nx, 32 * ny);
+			f = 1 + 0.5 + 0.25 + 0.125 + 0.0625 + 0.03;
 			e = e / f;
 			
-			t->elevation[x + y * t->width] = powf(e * 1.03f, 2.0f) * 100;
+			t->elevation[x + y * t->width] = powf(e * 1.03f, 2.0f)*2.0f;
 		}
 	}
 }
@@ -513,12 +513,12 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	const f32 cameraSpeed = 0.1f;
 	const f32 rotateSpeed = 0.15f;
-	
+
 	vec3 dir = NormVec(camera->dir);
 	vec3 right = NormVec(Cross(camera->up, dir));
 
 	if (keyDown(gameInput->keyboard.w)) {
-		vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir) , 2.0f))));
+		vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
 		temp_dir = ScaleVec(NormVec(temp_dir), cameraSpeed * dt);
 		camera->pos = AddVec(camera->pos, temp_dir);
 	}
@@ -581,12 +581,18 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
 
-	char debug_str[256];
-	snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
-	//DebugPrint(debug_str);
+	{
+		char debug_str[256];
+		snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
+		//DebugPrint(debug_str);
+	}
 
 	// end Camera Update
 	// ========================================================================
 
-
+	{
+		char debug_str[256];
+		snprintf(debug_str, 256, "Mouse: (%d, %d)\n", gameInput->mouse.x, gameInput->mouse.y);
+		DebugPrint(debug_str);
+	}
 }

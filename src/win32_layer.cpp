@@ -8,6 +8,7 @@
 #include "../libs/stb/stb_image.h"
 
 #include <windows.h>
+#include <windowsx.h>
 #include <xinput.h>
 
 
@@ -138,12 +139,40 @@ static void win32_UpdateInput(Input* gameInput) {
 				}
 			} break;
 
+			case WM_MOUSEMOVE:
+			{
+				// mouse move is for only when action is needed during movement
+
+				//int32_t xPos = GET_X_LPARAM(message.lParam);
+				//int32_t yPos = GET_Y_LPARAM(message.lParam);
+
+				/*
+				// Check for if modifer keys are pressed while moving mouse
+				uint32_t modifierKeyFlags = message.wParam;
+				if (modifierKeyFlags & MK_CONTROL) {}
+				if (modifierKeyFlags & MK_LBUTTON) {}
+				if (modifierKeyFlags & MK_RBUTTON) {}
+				if (modifierKeyFlags & MK_MBUTTON) {}
+				if (modifierKeyFlags & MK_SHIFT){}
+				if (modifierKeyFlags & MK_XBUTTON1){}
+				if (modifierKeyFlags & MK_XBUTTON2) {}
+				*/
+
+				//gameInput->mouse.x = xPos;
+				//gameInput->mouse.y = yPos;
+			} break;
+
 			default:
 			{
 				TranslateMessage(&message);
 				DispatchMessage(&message);
 			} break;
 		}
+	}
+	POINT cursorPoint;
+	if (GetCursorPos(&cursorPoint)) {
+		gameInput->mouse.x = cursorPoint.x;
+		gameInput->mouse.y = cursorPoint.y;
 	}
 }
 
