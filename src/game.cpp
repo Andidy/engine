@@ -454,53 +454,52 @@ void GenerateTerrainMap(TerrainMap* t) {
 }
 
 void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
-	GameState* gameState = (GameState*)gameMemory->data;
+	GameState* gs = (GameState*)gameMemory->data;
 
-	gameState->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
+	gs->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
 
-	gameState->numEntities = 0;
+	gs->numEntities = 0;
 
-	gameState->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gameState->deerTest = { Vec3(-5.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gameState->bunnyTest = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->treeTest = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->deerTest = { Vec3(-5.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->bunnyTest = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->treeTest = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
 
-	gameState->cubes[0] = { Vec3(-1.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[1] = { Vec3(-2.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[2] = { Vec3(-3.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[3] = { Vec3(-4.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[4] = { Vec3(-5.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[5] = { Vec3(-6.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gameState->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[0] = { Vec3(-1.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[1] = { Vec3(-2.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[2] = { Vec3(-3.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[3] = { Vec3(-4.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[4] = { Vec3(-5.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[5] = { Vec3(-6.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	gs->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
 
-	gameState->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
-	gameState->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
+	gs->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
+	gs->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
 
-	gameState->gameMap.wrapHorizontal = true;
-	gameState->gameMap.wrapVertical = false;
-	gameState->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gameState->gameMap.mapWidth = 100;
-	gameState->gameMap.mapHeight = 100;
-	GenerateTerrain(&gameState->gameMap, &gameState->resourceAllocator);
+	gs->gameMap.wrapHorizontal = true;
+	gs->gameMap.wrapVertical = false;
+	gs->gameMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->gameMap.mapWidth = 100;
+	gs->gameMap.mapHeight = 100;
+	GenerateTerrain(&gs->gameMap, &gs->resourceAllocator);
 
-	gameState->terrainMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gameState->terrainMap.width = 1000;
-	gameState->terrainMap.height = 1000;
-	gameState->terrainMap.elevation = (f32*)gameState->resourceAllocator.Allocate(sizeof(f32) * gameState->terrainMap.width * gameState->terrainMap.height);
-	GenerateTerrainMap(&gameState->terrainMap);
+	gs->terrainMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->terrainMap.width = 1000;
+	gs->terrainMap.height = 1000;
+	gs->terrainMap.elevation = (f32*)gs->resourceAllocator.Allocate(sizeof(f32) * gs->terrainMap.width * gs->terrainMap.height);
+	GenerateTerrainMap(&gs->terrainMap);
 
-	gameState->numEntities = 15;
+	gs->numEntities = 15;
 
-	gameState->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
-	gameState->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);
-	gameState->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
+	gs->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
+	gs->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);
+	gs->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
 
-	gameState->mainCamera.pitch = 0.0f;
-	gameState->mainCamera.yaw = 0.0f;
+	gs->mainCamera.pitch = 0.0f;
+	gs->mainCamera.yaw = 0.0f;
 
-	// gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.target, gameState->mainCamera.up);
-	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, gameState->mainCamera.dir, gameState->mainCamera.up);
-	gameState->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.1f, 1000.0f);
+	gs->mainCamera.view = LookAtMat(gs->mainCamera.pos, gs->mainCamera.dir, gs->mainCamera.up);
+	gs->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.1f, 1000.0f);
 }
 
 void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
@@ -593,6 +592,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 	{
 		char debug_str[256];
 		snprintf(debug_str, 256, "Mouse: (%d, %d)\n", gameInput->mouse.x, gameInput->mouse.y);
-		DebugPrint(debug_str);
+		//DebugPrint(debug_str);
 	}
 }

@@ -525,6 +525,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Renderer renderer = {};
 			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter);
 
+			for (int i = 0; i < iter; i++) {
+				stbi_image_free(images[iter].data);
+			}
+
 			RenderData renderData = {};
 			const int dynamicEntitiesMax = 1000000;
 			renderData.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)gameMemory.data)->numEntities + dynamicEntitiesMax));

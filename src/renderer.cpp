@@ -615,7 +615,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		*/
 
 		ID3DBlob* errorBuff;
-		hr = D3DCompileFromFile(L"shaders/VertexShader.hlsl", 0, 0, "main", "vs_5_0",
+		hr = D3DCompileFromFile(L"shaders/GeneralVS.hlsl", 0, 0, "main", "vs_5_0",
 			shader_flags, 0, &code, &errorBuff);
 		if (FAILED(hr)) { 
 			DebugPrint((char*)errorBuff->GetBufferPointer());
@@ -647,7 +647,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		*/
 
 		ID3DBlob* errorBuff;
-		hr = D3DCompileFromFile(L"shaders/PixelShader.hlsl", 0, 0, "main", "ps_5_0",
+		hr = D3DCompileFromFile(L"shaders/GeneralPS.hlsl", 0, 0, "main", "ps_5_0",
 			shader_flags, 0, &code, &errorBuff);
 		if (FAILED(hr)) { 
 			DebugPrint((char*)errorBuff->GetBufferPointer());
