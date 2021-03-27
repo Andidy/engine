@@ -14,6 +14,12 @@ struct Vertex {
 
 Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex);
 
+struct TextVertex {
+	f32 x, y, z;
+	f32 r, g, b, a;
+	f32 tx, ty;
+};
+
 struct VertexBuffer {
 	i32 buffer_length;
 	i32 num_vertices;
@@ -92,12 +98,21 @@ struct Renderer {
 	ID3D11PixelShader* pixelShader;
 	ID3D11InputLayout* inputLayout;
 
-	ID3D11RenderTargetView* windowRTView;
-	ID3D11DepthStencilView* windowDPView;
-
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
 	ID3D11Buffer* constantBuffer;
+	
+
+	const int MAX_NUM_TEXT_CHARS = 1024;
+	ID3D11VertexShader* textVS;
+	ID3D11PixelShader* textPS;
+	ID3D11InputLayout* textIL;
+
+	ID3D11Buffer* textVertexBuffer;
+	ID3D11Buffer* textIndexBuffer;
+
+	ID3D11RenderTargetView* windowRTView;
+	ID3D11DepthStencilView* windowDPView;
 
 	ID3D11SamplerState* samplerState;
 
@@ -106,10 +121,10 @@ struct Renderer {
 
 	b32 renderer_occluded = 0;
 
-	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages);
+	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages, TextVertex* textVertBuffer, int numTextVerts);
 	HRESULT RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData);
+	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData, TextVertex* verts);
 };
 
 #endif

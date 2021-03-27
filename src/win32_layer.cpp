@@ -522,8 +522,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
 			iter += 1;
 
+			const int NUM_TEXT_VERTS = 1024 * 4;
+			TextVertex verts[NUM_TEXT_VERTS];
+			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
+				verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, 0, 0 };
+				verts[i + 1] = { 1, 0, 0, 1, 1, 1, 1, 1, 0 };
+				verts[i + 2] = { 0, 1, 0, 1, 1, 1, 1, 0, 1 };
+				verts[i + 3] = { 1, 1, 0, 1, 1, 1, 1, 1, 1 };
+			}
+
 			Renderer renderer = {};
-			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter);
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter, verts, NUM_TEXT_VERTS);
 
 			for (int i = 0; i < iter; i++) {
 				stbi_image_free(images[iter].data);
@@ -573,7 +582,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Render Game
 				{
 					PrepareRenderData(&gameMemory, &renderData);
-					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData);
+					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}

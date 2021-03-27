@@ -474,7 +474,7 @@ void GenerateTerrainMapModel(TerrainMap* terrMap, VertexBuffer* v_buf, IndexBuff
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages) {
+void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages, TextVertex* textVertBuffer, int numTextVerts) {
 	HRESULT hr;
 
 	// device
@@ -727,12 +727,120 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 	{
 		D3D11_SAMPLER_DESC samplerDesc = {};
 		samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_POINT;
-		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
 		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 
 		device->CreateSamplerState(&samplerDesc, &samplerState);
+	}
+
+	// text vertex shader
+	{
+		D3D11_INPUT_ELEMENT_DESC layout[] = {
+			{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, offsetof(TextVertex, x), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, offsetof(TextVertex, r), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, offsetof(TextVertex, tx), D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+		ID3DBlob* code = NULL;
+		const void* vshader;
+		size_t vshader_size;
+
+		/*
+		#if USE_PRECOMPILED_SHADERS
+		vshader = d3d11_vshader;
+		vshader_size = sizeof(d3d11_vshader);
+		#else
+		*/
+
+		ID3DBlob* errorBuff;
+		hr = D3DCompileFromFile(L"shaders/TextVS.hlsl", 0, 0, "main", "vs_5_0",
+			shader_flags, 0, &code, &errorBuff);
+		if (FAILED(hr)) {
+			DebugPrint((char*)errorBuff->GetBufferPointer());
+			__debugbreak();
+		}
+		vshader = code->GetBufferPointer();
+		vshader_size = code->GetBufferSize();
+
+		//#endif
+
+		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &textVS);
+		if (FAILED(hr)) { __debugbreak(); }
+
+		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &textIL);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// text pixel shader
+	{
+		ID3DBlob* code = NULL;
+		const void* pshader;
+		size_t pshader_size;
+
+		/*
+		#if USE_PRECOMPILED_SHADERS
+		pshader = d3d11_pshader;
+		pshader_size = sizeof(d3d11_pshader);
+		#else
+		*/
+
+		ID3DBlob* errorBuff;
+		hr = D3DCompileFromFile(L"shaders/TextPS.hlsl", 0, 0, "main", "ps_5_0",
+			shader_flags, 0, &code, &errorBuff);
+		if (FAILED(hr)) {
+			DebugPrint((char*)errorBuff->GetBufferPointer());
+			__debugbreak();
+		}
+		pshader = code->GetBufferPointer();
+		pshader_size = code->GetBufferSize();
+
+		//#endif
+
+		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &textPS);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// text vertex buffer
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = MAX_NUM_TEXT_CHARS * 4 * sizeof(TextVertex);
+		desc.Usage = D3D11_USAGE_DYNAMIC;
+		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+
+		D3D11_SUBRESOURCE_DATA data = {};
+		data.pSysMem = textVertBuffer;
+
+		hr = device->CreateBuffer(&desc, &data, &textVertexBuffer);
+		if (FAILED(hr)) { __debugbreak(); }
+	}
+
+	// text index buffer
+	{
+		D3D11_BUFFER_DESC desc = {};
+		desc.ByteWidth = MAX_NUM_TEXT_CHARS * 6 * sizeof(i32);
+		desc.Usage = D3D11_USAGE_IMMUTABLE;
+		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+		i32 indices[6144];
+		int index = 0;
+		for (int i = 0; i < 4096; i += 4) {
+			indices[index + 0] = i + 0;
+			indices[index + 1] = i + 2;
+			indices[index + 2] = i + 1;
+			indices[index + 3] = i + 3;
+			indices[index + 4] = i + 1;
+			indices[index + 5] = i + 2;
+			index += 6;
+		}
+
+		D3D11_SUBRESOURCE_DATA data = {};
+		data.pSysMem = indices;
+
+		hr = device->CreateBuffer(&desc, &data, &textIndexBuffer);
+		if (FAILED(hr)) { __debugbreak(); }
 	}
 
 	/*
@@ -906,7 +1014,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData) {
+void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData, TextVertex* textVertBuffer) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -914,25 +1022,25 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 
 		context->OMSetRenderTargets(1, &windowRTView, windowDPView);
 		context->OMSetDepthStencilState(depthStencilState, 0);
-		context->ClearDepthStencilView(windowDPView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.f, 0);
+		context->ClearDepthStencilView(windowDPView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		// clear background
-		FLOAT clear_color[] = { 100.f / 255.f, 149.f / 255.f, 237.f / 255.f, 1.f };
+		FLOAT clear_color[] = { 100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f };
 		context->ClearRenderTargetView(windowRTView, clear_color);
 
-		const UINT stride = sizeof(Vertex);
-		const UINT offset = 0;
-		context->IASetInputLayout(inputLayout);
-		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-		
 		context->RSSetState(rasterizerState);
 		context->OMSetBlendState(blendState, NULL, ~0U);
 		
 		context->VSSetShader(vertexShader, NULL, 0);
 		context->PSSetShader(pixelShader, NULL, 0);
 		context->PSSetSamplers(0, 1, &samplerState);
+		
+		UINT stride = sizeof(Vertex);
+		UINT offset = 0;
+		context->IASetInputLayout(inputLayout);
+		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 		GameState* gameState = (GameState*)gameMemory->data;
 		mat4 view = gameState->mainCamera.view;
@@ -957,5 +1065,19 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);
 			context->DrawIndexed(m_buffer->models[re.model_index].length, m_buffer->models[re.model_index].start_index, 0);
 		}
+
+		context->VSSetShader(textVS, NULL, 0);
+		context->PSSetShader(textPS, NULL, 0);
+		context->PSSetSamplers(0, 1, &samplerState);
+
+		stride = sizeof(TextVertex);
+		offset = 0;
+		context->IASetInputLayout(textIL);
+		context->IASetVertexBuffers(0, 1, &textVertexBuffer, &stride, &offset);
+		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+		context->IASetIndexBuffer(textIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+
+		context->PSSetShaderResources(0, 1, &textureViews[0]);
+		context->DrawIndexed(6144, 0, 0);
 	}
 }
