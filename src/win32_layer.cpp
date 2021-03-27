@@ -522,6 +522,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
 			iter += 1;
 
+			int test_int = 0;
+			f32 timer_test = 0.0f;
 			const int NUM_TEXT_VERTS = 1024 * 4;
 			TextVertex verts[NUM_TEXT_VERTS];
 			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
@@ -582,6 +584,23 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Render Game
 				{
 					PrepareRenderData(&gameMemory, &renderData);
+					
+					timer_test += dt;
+
+					if (timer_test > 1000.0f) {
+						f32 xs[4] = { 0, 1, 0, 1 };
+						f32 ys[4] = { 0, 0, 1, 1 };
+						for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
+							verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, xs[(0 + test_int) % 4], ys[(0 + test_int) % 4] };
+							verts[i + 1] = { 1, 0, 0, 1, 1, 1, 1, xs[(1 + test_int) % 4], ys[(1 + test_int) % 4] };
+							verts[i + 2] = { 0, 1, 0, 1, 1, 1, 1, xs[(2 + test_int) % 4], ys[(2 + test_int) % 4] };
+							verts[i + 3] = { 1, 1, 0, 1, 1, 1, 1, xs[(3 + test_int) % 4], ys[(3 + test_int) % 4] };
+						}
+						test_int += 1;
+						test_int %= 4;
+						timer_test = 0.0f;
+					}
+					
 					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;

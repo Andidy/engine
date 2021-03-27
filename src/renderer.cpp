@@ -1070,6 +1070,11 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		context->PSSetShader(textPS, NULL, 0);
 		context->PSSetSamplers(0, 1, &samplerState);
 
+		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+		context->Map(textVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+		memcpy(mappedSubresource.pData, textVertBuffer, sizeof(TextVertex) * 1024 * 4);
+		context->Unmap(textVertexBuffer, 0);
+
 		stride = sizeof(TextVertex);
 		offset = 0;
 		context->IASetInputLayout(textIL);
