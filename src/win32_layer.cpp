@@ -6,6 +6,8 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "../libs/stb/stb_image.h"
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "../libs/stb/stb_image_write.h"
 
 #include <windows.h>
 #include <windowsx.h>
@@ -394,6 +396,69 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	renderData->num_entities = iter;
 }
 
+void PrepareText(char* str, int str_len, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
+	/* calculate the origin of the string */
+	f32 scale = stbtt_ScaleForPixelHeight(&(font->info), font->size);
+
+	i32 ascent, descent, linegap;
+	stbtt_GetFontVMetrics(&(font->info), &ascent, &descent, &linegap);
+
+	i32 first_char_lsb;
+	stbtt_GetCodepointHMetrics(&(font->info), str[0], 0, &first_char_lsb);
+
+	f32 horz_pos = xpos + (scale * first_char_lsb) + 2;
+	f32 baseline = ypos + (scale * ((f32)ascent - (f32)descent + (f32)linegap));
+
+	int vi = 0;
+	int num_new_lines = 1;
+	for (i32 i = 0; i < str_len; i++) {
+		if (str[i] == '\n') {
+			/* if we hit a new line indicator, we need to adjust the baseline */
+			num_new_lines++;
+			stbtt_GetFontVMetrics(&(font->info), &ascent, &descent, &linegap);
+			baseline = ypos + num_new_lines * (scale * ((f32)ascent - (f32)descent + (f32)linegap));
+			horz_pos = xpos + (scale * first_char_lsb) + 2;
+			continue;
+		}
+		
+		stbtt_aligned_quad vd; // vertex_data, holds position and texcoord data
+		stbtt_GetPackedQuad(
+			font->chardata_for_range, 256, 128,
+			str[i], &horz_pos, &baseline, &vd, 1
+		);
+
+		/* vd is 0,0 top left and scr_wid, scr_hgt bottom right */
+		/* so we have to scale it to the NDC */
+		vd.x0 = (vd.x0 / (f32)scr.width);
+		vd.x1 = (vd.x1 / (f32)scr.width);
+
+		vd.y0 = (vd.y0 / (f32)scr.height);
+		vd.y1 = (vd.y1 / (f32)scr.height);
+
+		/* scale x's and y's from [0,1] to [-1,1] */
+		/* y's are inverted to try to solve stb using different coordinates from DX */
+
+		vd.x0 = vd.x0 * 2.0f - 1.0f;
+		vd.x1 = vd.x1 * 2.0f - 1.0f;
+
+		vd.y0 = -(vd.y0 * 2.0f - 1.0f);
+		vd.y1 = -(vd.y1 * 2.0f - 1.0f);
+		
+		verts[vi + 0] = { vd.x0, vd.y1, 0, 1, 1, 1, 1, vd.s0, vd.t1 };
+		verts[vi + 1] = { vd.x1, vd.y1, 0, 1, 1, 1, 1, vd.s1, vd.t1 };
+		verts[vi + 2] = { vd.x0, vd.y0, 0, 1, 1, 1, 1, vd.s0, vd.t0 };
+		verts[vi + 3] = { vd.x1, vd.y0, 0, 1, 1, 1, 1, vd.s1, vd.t0 };
+		vi += 4;
+		
+		//font->char_count += 1;
+
+		// --------------------------------------- 
+		// TODO: re add kerning? 
+		//i32 kern = stbtt_GetCodepointKernAdvance(&(font->info), str[i], str[i + 1]);
+		//horz_pos += kern * scale;
+	}
+}
+
 // ============================================================================
 
 
@@ -498,6 +563,71 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 			GenerateTerrainMapModel(&((GameState*)gameMemory.data)->terrainMap, &vertex_buffer, &index_buffer, &model_buffer);
 			
+			const i32 FONT_SIZE = 20;
+			Image font_image;
+			Font font;
+			{
+				/* TODO: Decide if fontsize should be made negative or not */
+				font.size = FONT_SIZE;
+
+				/* load font from file */
+				FILE* font_file;
+				fopen_s(&font_file, "C:/Windows/Fonts/Arial.ttf", "rb");
+				fseek(font_file, 0, SEEK_END);
+				i32 font_buf_size = ftell(font_file);
+				fseek(font_file, 0, SEEK_SET);
+				font.font_buf = (uchar*)malloc(font_buf_size); // malloc
+
+				fread(font.font_buf, font_buf_size, 1, font_file);
+				fclose(font_file);
+
+				/* prepare font */
+				if (!stbtt_InitFont(&(font.info), font.font_buf, 0)) {
+					DebugPrint((char*)"Failed to init font\n");
+				}
+
+				/* Packing fonts ---------------------------------------*/
+				/* packed font bitmap init */
+				font_image.width = 256, font_image.height = 128;
+				uchar* pack_font_1bpp = (uchar*)malloc(sizeof(uchar) * font_image.width * font_image.height);
+
+				/* stride is 0 because we are tightly packed */
+				/* 1 for padding because filtering */
+				/* NULL because no allocator */
+				stbtt_pack_context spc;
+				stbtt_PackBegin(
+					&spc, pack_font_1bpp,
+					font_image.width, font_image.height,
+					0, 1, NULL
+				);
+
+				/* 0 because i only want the first font */
+				i32 which_font_in_the_ttf = 0;
+
+				/* 0 and 256 because i want all of ascii */
+				i32 first_unicode_char_to_pull = 0;
+				i32 num_chars_in_range = 256;
+
+				i32 res = stbtt_PackFontRange(
+					&spc, font.font_buf, which_font_in_the_ttf, font.size,
+					first_unicode_char_to_pull, num_chars_in_range, font.chardata_for_range
+				);
+				if (res != 1) {
+					DebugPrint((char*)"possible font packing error\n");
+				}
+
+				stbtt_PackEnd(&spc);
+				/* done with the packing context -------------------------*/
+
+				font_image.data = (uchar*)malloc(4 * sizeof(uchar) * font_image.width * font_image.height);
+				for (i32 i = 0; i < font_image.width * font_image.height; i++) {
+					font_image.data[4 * i + 0] = 255;
+					font_image.data[4 * i + 1] = 255;
+					font_image.data[4 * i + 2] = 255;
+					font_image.data[4 * i + 3] = pack_font_1bpp[i];
+				}
+			}
+
 			int n, iter = 0;
 			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
 
@@ -521,10 +651,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
 			iter += 1;
+			images[iter].data = font_image.data;
+			images[iter].width = font_image.width;
+			images[iter].height = font_image.height;
+			iter += 1;
 
-			int test_int = 0;
-			f32 timer_test = 0.0f;
-			const int NUM_TEXT_VERTS = 1024 * 4;
+			stbi_write_png("test.png", font_image.width, font_image.height, 4, font_image.data, 0);
+
+			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
 			TextVertex verts[NUM_TEXT_VERTS];
 			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
 				verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, 0, 0 };
@@ -584,23 +718,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Render Game
 				{
 					PrepareRenderData(&gameMemory, &renderData);
-					
-					timer_test += dt;
-
-					if (timer_test > 1000.0f) {
-						f32 xs[4] = { 0, 1, 0, 1 };
-						f32 ys[4] = { 0, 0, 1, 1 };
-						for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
-							verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, xs[(0 + test_int) % 4], ys[(0 + test_int) % 4] };
-							verts[i + 1] = { 1, 0, 0, 1, 1, 1, 1, xs[(1 + test_int) % 4], ys[(1 + test_int) % 4] };
-							verts[i + 2] = { 0, 1, 0, 1, 1, 1, 1, xs[(2 + test_int) % 4], ys[(2 + test_int) % 4] };
-							verts[i + 3] = { 1, 1, 0, 1, 1, 1, 1, xs[(3 + test_int) % 4], ys[(3 + test_int) % 4] };
-						}
-						test_int += 1;
-						test_int %= 4;
-						timer_test = 0.0f;
-					}
-					
+					char* test_str = (char*)"This is my test string.\nThis is the second line.\nAnd this is the third line.";
+					PrepareText(
+						test_str, strlen(test_str), 10, 10,
+						&font, verts, win32_GetWindowDimension(window)
+					);
 					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;

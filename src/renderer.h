@@ -6,6 +6,9 @@
 // fix this?
 #include "game.h"
 
+#include "../libs/stb/stb_rect_pack.h"
+#include "../libs/stb/stb_truetype.h"
+
 struct Vertex {
 	f32 x, y, z;
 	f32 nx, ny, nz;
@@ -58,7 +61,13 @@ struct RenderData {
 	RenderEntity* entities;
 };
 
+struct Font {
+	stbtt_fontinfo info;
+	uchar* font_buf;
+	i32 size;
 
+	stbtt_packedchar chardata_for_range[256];
+};
 
 
 
@@ -91,6 +100,7 @@ struct Renderer {
 	ID3D11RasterizerState* rasterizerState;
 	ID3D11DepthStencilState* depthStencilState;
 	ID3D11BlendState* blendState;
+	ID3D11BlendState* transparencyBlendState;
 
 	IDXGISwapChain3* swapchain;
 
@@ -103,7 +113,7 @@ struct Renderer {
 	ID3D11Buffer* constantBuffer;
 	
 
-	const int MAX_NUM_TEXT_CHARS = 1024;
+	static const int MAX_NUM_TEXT_CHARS = 1024;
 	ID3D11VertexShader* textVS;
 	ID3D11PixelShader* textPS;
 	ID3D11InputLayout* textIL;

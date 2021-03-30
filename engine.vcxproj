@@ -274,6 +274,7 @@
   <ItemGroup>
     <ClInclude Include="libs\simplex.h" />
     <ClInclude Include="libs\stb\stb_image.h" />
+    <ClInclude Include="libs\stb\stb_image_write.h" />
     <ClInclude Include="libs\stb\stb_rect_pack.h" />
     <ClInclude Include="libs\stb\stb_truetype.h" />
     <ClInclude Include="src\ady_math.h" />

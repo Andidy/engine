@@ -1,3 +1,6 @@
+#define STB_RECT_PACK_IMPLEMENTATION
+#define STB_TRUETYPE_IMPLEMENTATION
+
 #include "renderer.h"
 
 Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex) {
@@ -581,6 +584,25 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 
 		hr = device->CreateBlendState(&desc, &blendState);
 		if (FAILED(hr)) { __debugbreak(); }
+		
+
+		blendDesc = {};
+		blendDesc.BlendEnable = TRUE;
+		blendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.BlendOp = D3D11_BLEND_OP_ADD;
+		blendDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		blendDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		blendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		desc = {};
+		desc.AlphaToCoverageEnable = FALSE;
+		desc.IndependentBlendEnable = FALSE;
+		desc.RenderTarget[0] = blendDesc;
+
+		hr = device->CreateBlendState(&desc, &transparencyBlendState);
+		if (FAILED(hr)) { __debugbreak(); }
 	}
 
 	/*
@@ -805,7 +827,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 	// text vertex buffer
 	{
 		D3D11_BUFFER_DESC desc = {};
-		desc.ByteWidth = MAX_NUM_TEXT_CHARS * 4 * sizeof(TextVertex);
+		desc.ByteWidth = Renderer::MAX_NUM_TEXT_CHARS * 4 * sizeof(TextVertex);
 		desc.Usage = D3D11_USAGE_DYNAMIC;
 		desc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
@@ -820,13 +842,13 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 	// text index buffer
 	{
 		D3D11_BUFFER_DESC desc = {};
-		desc.ByteWidth = MAX_NUM_TEXT_CHARS * 6 * sizeof(i32);
+		desc.ByteWidth = Renderer::MAX_NUM_TEXT_CHARS * 6 * sizeof(i32);
 		desc.Usage = D3D11_USAGE_IMMUTABLE;
 		desc.BindFlags = D3D11_BIND_INDEX_BUFFER;
 
 		i32 indices[6144];
 		int index = 0;
-		for (int i = 0; i < 4096; i += 4) {
+		for (int i = 0; i < Renderer::MAX_NUM_TEXT_CHARS * 4; i += 4) {
 			indices[index + 0] = i + 0;
 			indices[index + 1] = i + 2;
 			indices[index + 2] = i + 1;
@@ -1066,13 +1088,15 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			context->DrawIndexed(m_buffer->models[re.model_index].length, m_buffer->models[re.model_index].start_index, 0);
 		}
 
+		context->OMSetBlendState(transparencyBlendState, NULL, ~0U);
+
 		context->VSSetShader(textVS, NULL, 0);
 		context->PSSetShader(textPS, NULL, 0);
 		context->PSSetSamplers(0, 1, &samplerState);
 
 		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 		context->Map(textVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
-		memcpy(mappedSubresource.pData, textVertBuffer, sizeof(TextVertex) * 1024 * 4);
+		memcpy(mappedSubresource.pData, textVertBuffer, sizeof(TextVertex) * Renderer::MAX_NUM_TEXT_CHARS * 4);
 		context->Unmap(textVertexBuffer, 0);
 
 		stride = sizeof(TextVertex);
@@ -1082,7 +1106,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(textIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
-		context->PSSetShaderResources(0, 1, &textureViews[0]);
-		context->DrawIndexed(6144, 0, 0);
+		context->PSSetShaderResources(0, 1, &textureViews[10]);
+		context->DrawIndexed(Renderer::MAX_NUM_TEXT_CHARS * 6, 0, 0);
 	}
 }
