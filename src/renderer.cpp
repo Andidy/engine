@@ -1107,6 +1107,6 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		context->IASetIndexBuffer(textIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
 
 		context->PSSetShaderResources(0, 1, &textureViews[10]);
-		context->DrawIndexed(Renderer::MAX_NUM_TEXT_CHARS * 6, 0, 0);
+		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
 }

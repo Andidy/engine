@@ -112,7 +112,7 @@ struct Renderer {
 	ID3D11Buffer* indexBuffer;
 	ID3D11Buffer* constantBuffer;
 	
-
+	int NUM_CHARS_TO_RENDER = 0;
 	static const int MAX_NUM_TEXT_CHARS = 1024;
 	ID3D11VertexShader* textVS;
 	ID3D11PixelShader* textPS;

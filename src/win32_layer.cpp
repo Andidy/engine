@@ -398,7 +398,7 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	renderData->num_entities = iter;
 }
 
-void PrepareText(char* str, int str_len, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
+void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
 	/* calculate the origin of the string */
 	f32 scale = stbtt_ScaleForPixelHeight(&(font->info), font->size);
 
@@ -459,6 +459,8 @@ void PrepareText(char* str, int str_len, int xpos, int ypos, Font* font, TextVer
 		//i32 kern = stbtt_GetCodepointKernAdvance(&(font->info), str[i], str[i + 1]);
 		//horz_pos += kern * scale;
 	}
+
+	*num_chars_visible = vi / 4;
 }
 
 // ============================================================================
@@ -722,7 +724,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				{
 					PrepareRenderData(&gameMemory, &renderData);
 					PrepareText(
-						gameDebugText, strlen(gameDebugText), 10, 10,
+						gameDebugText, strlen(gameDebugText), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
 						&font, verts, win32_GetWindowDimension(window)
 					);
 					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);
