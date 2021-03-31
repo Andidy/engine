@@ -124,6 +124,6 @@ struct GameState {
 };
 
 void InitGameState(Memory* gameMemory, vec2 windowDimensions);
-void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt);
+void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugText);
 
 #endif

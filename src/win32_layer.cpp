@@ -563,6 +563,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 			GenerateTerrainMapModel(&((GameState*)gameMemory.data)->terrainMap, &vertex_buffer, &index_buffer, &model_buffer);
 			
+			char gameDebugText[1024];
 			const i32 FONT_SIZE = 20;
 			Image font_image;
 			Font font;
@@ -712,15 +713,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Update Game
 				{
-					GameUpdate(&gameMemory, newInput, dt);
+					GameUpdate(&gameMemory, newInput, dt, gameDebugText);
 				}
 
 				// Render Game
 				{
 					PrepareRenderData(&gameMemory, &renderData);
-					char* test_str = (char*)"This is my test string.\nThis is the second line.\nAnd this is the third line.";
 					PrepareText(
-						test_str, strlen(test_str), 10, 10,
+						gameDebugText, strlen(gameDebugText), 10, 10,
 						&font, verts, win32_GetWindowDimension(window)
 					);
 					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);

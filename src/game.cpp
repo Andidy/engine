@@ -502,7 +502,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gs->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.1f, 1000.0f);
 }
 
-void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
+void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugText) {
 	GameState* gameState = (GameState*)gameMemory->data;
 
 	// ========================================================================
@@ -580,18 +580,11 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt) {
 
 	gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
 
-	{
-		char debug_str[256];
-		snprintf(debug_str, 256, "Camera: (%f, %f, %f)\n", camera->pos.x, camera->pos.y, camera->pos.z);
-		//DebugPrint(debug_str);
-	}
-
 	// end Camera Update
 	// ========================================================================
 
+	// Debug Text to draw to screen
 	{
-		char debug_str[256];
-		snprintf(debug_str, 256, "Mouse: (%d, %d)\n", gameInput->mouse.x, gameInput->mouse.y);
-		//DebugPrint(debug_str);
+		snprintf(gameDebugText, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\n", camera->pos.x, camera->pos.y, camera->pos.z, gameInput->mouse.x, gameInput->mouse.y);
 	}
 }
