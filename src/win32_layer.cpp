@@ -75,7 +75,7 @@ static void win32_ProcessKeyboardMessage(ButtonState* newState, b32 isDown) {
 	newState->transitionCount += 1;
 }
 
-static void win32_UpdateInput(Input* gameInput) {
+static void win32_UpdateInput(Input* gameInput, HWND window) {
 	MSG message;
 	while (PeekMessage(&message, 0, 0, 0, PM_REMOVE)) {
 		switch (message.message) {
@@ -173,8 +173,10 @@ static void win32_UpdateInput(Input* gameInput) {
 	}
 	POINT cursorPoint;
 	if (GetCursorPos(&cursorPoint)) {
-		gameInput->mouse.x = cursorPoint.x;
-		gameInput->mouse.y = cursorPoint.y;
+		if (ScreenToClient(window, &cursorPoint)) {
+			gameInput->mouse.x = cursorPoint.x;
+			gameInput->mouse.y = cursorPoint.y;
+		}
 	}
 }
 
@@ -708,7 +710,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					for (int i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
 						newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
 					}
-					win32_UpdateInput(newInput);
+					win32_UpdateInput(newInput, window);
 				}
 
 				// Update Game
