@@ -395,6 +395,10 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	*/
 	renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 7, 1 };
 
+	for (int i = 0; i < gs->numLocations; i++) {
+		renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
+	}
+
 	renderData->num_entities = iter;
 }
 
@@ -504,6 +508,8 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 }
 
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
+	srand(0);
+	
 	win32_LoadXInput();
 	
 	stbi_set_flip_vertically_on_load(1);

@@ -489,7 +489,15 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gs->terrainMap.elevation = (f32*)gs->resourceAllocator.Allocate(sizeof(f32) * gs->terrainMap.width * gs->terrainMap.height);
 	GenerateTerrainMap(&gs->terrainMap);
 
-	gs->numEntities = 15;
+	gs->locations = (Location*)gs->resourceAllocator.Allocate(sizeof(Location) * gs->numLocations);
+	for (int i = 0; i < gs->numLocations; i++) {
+		int x = rand() % 1000;
+		int y = rand() % 1000;
+		int r = rand() % 360;
+		gs->locations[i].ent = { Vec3((f32)x, 1.0f, (f32)y), Vec3(1.0f, 1.0f, 1.0f), UpVec(), (f32)r };
+	}
+
+	gs->numEntities = 15 + gs->numLocations;
 
 	gs->mainCamera.pos = Vec3(18.0f, 14.0f, 22.0f);
 	gs->mainCamera.dir = Vec3(1.0f, 0.0f, 0.0f);

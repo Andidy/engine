@@ -1,0 +1,1 @@
+1: added new thing called Location to game module, this will be used for things like pathfinding algorithm tests

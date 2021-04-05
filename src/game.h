@@ -106,6 +106,11 @@ struct TerrainMap {
 	f32* elevation;
 };
 
+struct Location {
+	float range = 10.0f;
+	Entity ent;
+};
+
 struct GameState {
 	i32 numEntities;
 	Entity blackGuyHead;
@@ -117,6 +122,10 @@ struct GameState {
 	Entity waterQuad;
 
 	TerrainMap terrainMap;
+	
+	static const int numLocations = 1024;
+	Location* locations;
+
 	GameMap gameMap;
 	Camera mainCamera;
 
