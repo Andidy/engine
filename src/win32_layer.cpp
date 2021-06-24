@@ -359,45 +359,13 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	for (int i = 0; i < 7; i++) {
 		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
 	}
-	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
+	// renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
 
-	/*
-	renderData->entities[iter++] = { gs->gameMap.ent.renderPos, gs->gameMap.ent.renderScale, gs->gameMap.ent.renderRotAxis, gs->gameMap.ent.renderRotAngle, 6, 1 };
-	renderData->entities[iter++] = { gs->waterQuad.renderPos, gs->waterQuad.renderScale, gs->waterQuad.renderRotAxis, gs->waterQuad.renderRotAngle, 5, 8 };
-	int width = gs->gameMap.mapWidth;
-	int height = gs->gameMap.mapHeight;
-	for (int y = 0; y < height; y++) {
-		for (int x = 0; x < width; x++) {
-			Tile t = gs->gameMap.tiles[x + y * width];
-			if (t.feature == TileFeatures::FOREST) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, OneVec(), UpVec(), 0.0f, 3, 1 };
-			}
-			if (t.resources[0] == TileResource::GRAINS) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 5 };
-			}
-			if (t.resources[0] == TileResource::FRUITS) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 3 };
-			}
-			if (t.resources[0] == TileResource::STONE) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 9 };
-			}
-			if (t.resources[0] == TileResource::VEGETABLES) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 4, 6 };
-			}
-			if (t.resources[0] == TileResource::SMALL_GAME) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f, 2, 2 };
-			}
-			if (t.resources[0] == TileResource::LARGE_GAME) {
-				renderData->entities[iter++] = { { (f32)x + 0.5f, (f32)t.elevation, (f32)y + 0.5f }, Vec3(0.5f, 0.5f, 0.5f), UpVec(), 0.0f, 1, 0 };
-			}
-		}
-	}
-	*/
-	renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 7, 1 };
+	//renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 6, 1 };
 
-	for (int i = 0; i < gs->numLocations; i++) {
-		renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
-	}
+	//for (int i = 0; i < gs->numLocations; i++) {
+	//	renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
+	//}
 
 	renderData->num_entities = iter;
 }
@@ -570,7 +538,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 
-			GenerateTerrainModel(&((GameState*)gameMemory.data)->gameMap, &vertex_buffer, &index_buffer, &model_buffer);
 			GenerateTerrainMapModel(&((GameState*)gameMemory.data)->terrainMap, &vertex_buffer, &index_buffer, &model_buffer);
 			
 			char gameDebugText[1024];
@@ -686,8 +653,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			}
 
 			RenderData renderData = {};
-			const int dynamicEntitiesMax = 1000000;
-			renderData.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)gameMemory.data)->numEntities + dynamicEntitiesMax));
+			renderData.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)gameMemory.data)->numEntities));
 
 			while (win32_running) {
 				// Timing

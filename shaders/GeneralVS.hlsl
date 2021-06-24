@@ -16,7 +16,7 @@ cbuffer ConstantBuffer : register(b0) {
 
 VS_OUTPUT main(VS_INPUT input) {
 	VS_OUTPUT output;
-	output.pos = mul(float4(input.pos, 1), mvp);
+	output.pos = mul(mvp, float4(input.pos, 1));
 	output.normal = input.normal;
 	output.texcoord = input.texcoord;
 	return output;

@@ -23,82 +23,6 @@ struct Entity {
 	f32 renderRotAngle;
 };
 
-enum class TileNeighbor {
-	NORTHWEST,
-	NORTH,
-	NORTHEAST,
-	EAST,
-	SOUTHEAST,
-	SOUTH,
-	SOUTHWEST,
-	WEST
-};
-
-enum class TileTerrain {
-	WATER,
-	FLATLAND,
-	HILLS,
-	LOWMOUNTAINS,
-	HIGHMOUNTAINS
-};
-
-enum class TileFeatures {
-	NONE,
-	FOREST,
-	MARSH,
-	TUNDRA,
-	GLACIER,
-	DESERT,
-	COAST,
-	RIVER,
-	OCEAN
-};
-
-enum class TileWeather {
-	NONE,
-	FLOODED,
-	SNOW,
-	DROUGHT
-};
-
-enum class TileResource {
-	NONE,
-	GRAINS, // wheat, rice, barley, etc. 
-	FRUITS, // apples, grapes, oranges, etc.
-	VEGETABLES, // lettuce, onions, tomatoes, roots, etc.
-	SPICES, // pepper, cumin, paprika, etc.
-	TEXTILES, // cotton, flax, hemp, dyes, etc.
-	SMALL_GAME, // rabbits, rats, raccoons, beavers, etc.
-	LARGE_GAME, // deer, horse, moose, etc.
-	PREDATORS, // bears, wolves, big cats, etc.
-	CLAY, // earth and clay used for building or pottery
-	STONE, // for building stuff: limestone, sandstone, marble, etc.
-	SURFACE_ORE, // both ores have the same types of resources, its just how they're extracted:
-	DEEP_ORE // copper, tin, iron, silver, gold, gems, coal?, nickel?, 
-};
- 
-struct Tile {
-	f32 elevation;
-	TileTerrain terrain;
-	TileFeatures feature;
-	TileWeather weather;
-	TileResource resources[3];
-};
-
-struct GameMap {
-	bool wrapHorizontal;
-	bool wrapVertical;
-	Entity ent;
-	int32_t mapWidth;
-	int32_t mapHeight;
-	Tile* tiles;
-};
-
-ivec2 GetNeighborPosition(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction);
-ivec2 GetNeighborPosition(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction);
-int32_t GetNeighborIndex(GameMap* gameMap, int32_t x, int32_t y, TileNeighbor direction);
-int32_t GetNeighborIndex(GameMap* gameMap, int32_t tileIndex, TileNeighbor direction);
-
 struct TerrainMap {
 	Entity ent;
 	int32_t width;
@@ -110,6 +34,11 @@ struct Location {
 	float range = 10.0f;
 	Entity ent;
 };
+
+
+
+
+
 
 struct GameState {
 	i32 numEntities;
@@ -126,7 +55,6 @@ struct GameState {
 	static const int numLocations = 1024;
 	Location* locations;
 
-	GameMap gameMap;
 	Camera mainCamera;
 
 	PermanentResourceAllocator resourceAllocator;
