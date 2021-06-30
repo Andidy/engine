@@ -25,9 +25,9 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gs->numEntities = 0;
 
 	gs->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gs->deerTest = { Vec3(-5.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->blackGuyHead2 = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 90.0f };
 	gs->bunnyTest = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gs->treeTest = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
+	gs->bunnyTest2 = { Vec3(-4.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 180.0f };
 
 	gs->cubes[0] = { Vec3(-1.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
 	gs->cubes[1] = { Vec3(-2.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
@@ -54,7 +54,7 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 		gs->locations[i].ent = { Vec3((f32)x, 1.0f, (f32)y), Vec3(1.0f, 1.0f, 1.0f), UpVec(), (f32)r };
 	}
 
-	gs->numEntities = 15 + gs->numLocations;
+	gs->numEntities = 16 + gs->numLocations;
 
 	gs->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
 	gs->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);
@@ -75,7 +75,14 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 
 	Camera* camera = &gameState->mainCamera;
 
-	const f32 cameraSpeed = 0.05f;
+	const f32 baseCameraSpeed = 0.0025f;
+	const f32 speedMultiplier = 50.0f;
+	f32 cameraSpeed = baseCameraSpeed;
+
+	if (keyDown(gameInput->keyboard.space)) {
+		cameraSpeed *= speedMultiplier;
+	}
+
 	const f32 rotateSpeed = 0.05f;
 	
 	vec3 dir = NormVec(camera->dir);

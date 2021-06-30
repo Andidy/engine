@@ -962,11 +962,13 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			scale = ScaleMat(re.scale);
 			rotate = RotateMat(re.rot_angle, re.rot_axis);
 
+			mat4 world = MulMat(translate, MulMat(rotate, scale));
+
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 			Constants* constants = (Constants*)(mappedSubresource.pData);
-			constants->mvp = MulMat(proj, MulMat(view, MulMat(translate, MulMat(rotate, scale))));
-			//constants->mvp = MulMat(scale, MulMat(rotate, MulMat(translate, MulMat(view, proj))));
+			constants->m = world;
+			constants->mvp = MulMat(proj, MulMat(view, world));
 			context->Unmap(constantBuffer, 0);
 
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);

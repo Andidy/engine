@@ -43,9 +43,11 @@ struct Location {
 struct GameState {
 	i32 numEntities;
 	Entity blackGuyHead;
-	Entity deerTest;
+	Entity blackGuyHead2;
+
 	Entity bunnyTest;
-	Entity treeTest;
+	Entity bunnyTest2;
+
 	Entity cubes[7];
 	Entity quad;
 	Entity waterQuad;

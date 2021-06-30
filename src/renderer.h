@@ -88,6 +88,7 @@ void GenerateTerrainMapModel(TerrainMap* terrMap, VertexBuffer* v_buf, IndexBuff
 #include <d3dcompiler.h>
 
 struct Constants {
+	mat4 m;
 	mat4 mvp;
 };
 

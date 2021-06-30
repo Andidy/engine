@@ -353,19 +353,21 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 
 	int iter = 0;
 	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, gs->blackGuyHead.renderRotAxis, gs->blackGuyHead.renderRotAngle, 0, 0 };
+	renderData->entities[iter++] = { gs->blackGuyHead2.renderPos, gs->blackGuyHead2.renderScale, gs->blackGuyHead2.renderRotAxis, gs->blackGuyHead2.renderRotAngle, 0, 0 };
+	
 	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, gs->bunnyTest.renderRotAxis, gs->bunnyTest.renderRotAngle, 2, 2 };
-	renderData->entities[iter++] = { gs->treeTest.renderPos, gs->treeTest.renderScale, gs->treeTest.renderRotAxis, gs->treeTest.renderRotAngle, 3, 1 };
-	renderData->entities[iter++] = { gs->deerTest.renderPos, gs->deerTest.renderScale, gs->deerTest.renderRotAxis, gs->deerTest.renderRotAngle, 1, 0 };
+	renderData->entities[iter++] = { gs->bunnyTest2.renderPos, gs->bunnyTest2.renderScale, gs->bunnyTest2.renderRotAxis, gs->bunnyTest2.renderRotAngle, 2, 2 };
+	
 	for (int i = 0; i < 7; i++) {
 		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
 	}
-	// renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
+	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
 
-	//renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 6, 1 };
+	renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 6, 1 };
 
-	//for (int i = 0; i < gs->numLocations; i++) {
-	//	renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
-	//}
+	for (int i = 0; i < gs->numLocations; i++) {
+		renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
+	}
 
 	renderData->num_entities = iter;
 }
@@ -418,10 +420,10 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 		vd.y0 = -(vd.y0 * 2.0f - 1.0f);
 		vd.y1 = -(vd.y1 * 2.0f - 1.0f);
 		
-		verts[vi + 0] = { vd.x0, vd.y1, 0, 1, 1, 1, 1, vd.s0, vd.t1 };
-		verts[vi + 1] = { vd.x1, vd.y1, 0, 1, 1, 1, 1, vd.s1, vd.t1 };
-		verts[vi + 2] = { vd.x0, vd.y0, 0, 1, 1, 1, 1, vd.s0, vd.t0 };
-		verts[vi + 3] = { vd.x1, vd.y0, 0, 1, 1, 1, 1, vd.s1, vd.t0 };
+		verts[vi + 0] = { vd.x0, vd.y0, 0, 1, 1, 1, 1, vd.s0, vd.t0 };
+		verts[vi + 1] = { vd.x1, vd.y0, 0, 1, 1, 1, 1, vd.s1, vd.t0 };
+		verts[vi + 2] = { vd.x0, vd.y1, 0, 1, 1, 1, 1, vd.s0, vd.t1 };
+		verts[vi + 3] = { vd.x1, vd.y1, 0, 1, 1, 1, 1, vd.s1, vd.t1 };
 		vi += 4;
 		
 		//font->char_count += 1;
