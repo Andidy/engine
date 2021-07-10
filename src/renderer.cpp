@@ -969,6 +969,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			Constants* constants = (Constants*)(mappedSubresource.pData);
 			constants->m = world;
 			constants->mvp = MulMat(proj, MulMat(view, world));
+			constants->camera_pos = gameState->mainCamera.pos;
 			context->Unmap(constantBuffer, 0);
 
 			context->VSSetConstantBuffers(0, 1, &constantBuffer);

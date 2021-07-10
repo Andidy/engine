@@ -90,6 +90,7 @@ void GenerateTerrainMapModel(TerrainMap* terrMap, VertexBuffer* v_buf, IndexBuff
 struct Constants {
 	mat4 m;
 	mat4 mvp;
+	vec3 camera_pos;
 };
 
 struct Renderer {
