@@ -92,6 +92,17 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 
 				if (isDown != wasDown) {
 					switch (vkCode) {
+						case 0x30: win32_ProcessKeyboardMessage(&gameInput->keyboard.zero, isDown); break;
+						case 0x31: win32_ProcessKeyboardMessage(&gameInput->keyboard.one, isDown); break;
+						case 0x32: win32_ProcessKeyboardMessage(&gameInput->keyboard.two, isDown); break;
+						case 0x33: win32_ProcessKeyboardMessage(&gameInput->keyboard.three, isDown); break;
+						case 0x34: win32_ProcessKeyboardMessage(&gameInput->keyboard.four, isDown); break;
+						case 0x35: win32_ProcessKeyboardMessage(&gameInput->keyboard.five, isDown); break;
+						case 0x36: win32_ProcessKeyboardMessage(&gameInput->keyboard.six, isDown); break;
+						case 0x37: win32_ProcessKeyboardMessage(&gameInput->keyboard.seven, isDown); break;
+						case 0x38: win32_ProcessKeyboardMessage(&gameInput->keyboard.eight, isDown); break;
+						case 0x39: win32_ProcessKeyboardMessage(&gameInput->keyboard.nine, isDown); break;
+
 						case 'A': win32_ProcessKeyboardMessage(&gameInput->keyboard.a, isDown); break;
 						case 'B': win32_ProcessKeyboardMessage(&gameInput->keyboard.b, isDown); break;
 						case 'C': win32_ProcessKeyboardMessage(&gameInput->keyboard.c, isDown); break;
@@ -138,6 +149,61 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 				b32 altKeyDown = ((message.lParam & (1 << 29)) != 0);
 				if ((vkCode == VK_F4) && altKeyDown) {
 					win32_running = false;
+				}
+			} break;
+
+			case WM_LBUTTONDOWN:
+			{
+				gameInput->mouse.left.endedDown = 1;
+				gameInput->mouse.left.transitionCount = 1;
+			} break;
+			case WM_LBUTTONUP:
+			{
+				gameInput->mouse.left.endedDown = 0;
+				gameInput->mouse.left.transitionCount = 1;
+			} break;
+			case WM_MBUTTONDOWN:
+			{
+				gameInput->mouse.middle.endedDown = 1;
+				gameInput->mouse.middle.transitionCount = 1;
+			} break;
+			case WM_MBUTTONUP:
+			{
+				gameInput->mouse.middle.endedDown = 0;
+				gameInput->mouse.middle.transitionCount = 1;
+			} break;
+			case WM_RBUTTONDOWN:
+			{
+				gameInput->mouse.right.endedDown = 1;
+				gameInput->mouse.right.transitionCount = 1;
+			} break;
+			case WM_RBUTTONUP:
+			{
+				gameInput->mouse.right.endedDown = 0;
+				gameInput->mouse.right.transitionCount = 1;
+			} break;
+			case WM_XBUTTONDOWN:
+			{
+				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
+				if (fwButton == XBUTTON1) {
+					gameInput->mouse.x1.endedDown = 1;
+					gameInput->mouse.x1.transitionCount = 1;
+				}
+				else {
+					gameInput->mouse.x2.endedDown = 1;
+					gameInput->mouse.x2.transitionCount = 1;
+				}
+			} break;
+			case WM_XBUTTONUP:
+			{
+				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
+				if (fwButton == XBUTTON1) {
+					gameInput->mouse.x1.endedDown = 0;
+					gameInput->mouse.x1.transitionCount = 1;
+				}
+				else {
+					gameInput->mouse.x2.endedDown = 0;
+					gameInput->mouse.x2.transitionCount = 1;
 				}
 			} break;
 
