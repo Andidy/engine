@@ -154,6 +154,21 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 	
 	// end Camera Update
 	// ========================================================================
+	// Object Picking
+
+	// viewport width and height are needed for this calculation
+	// m11 = cotan(fovy / 2) / aspect_ratio
+	// m22 = cotan(fovy / 2)
+	// vec3 mouse_vector = Vec3((f32)gameInput->mouse.x, (f32)gameInput->mouse.y, 1.0f);
+	// vec3 camera_space_vector = Vec3((2.0f * mouse_vector.x / viewport_width - 1.0f) / m11,
+	//								  (-2.0f * mouse_vector.y / viewport_height + 1.0f) / m22,
+	//								  -1.0f
+	//								);
+
+	// 
+
+	// end Object Picking
+	// ========================================================================
 
 	// Debug Text to draw to screen
 	{

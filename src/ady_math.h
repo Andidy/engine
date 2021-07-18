@@ -329,6 +329,32 @@ inline mat4 LookAtMat(vec3 eye, vec3 target, vec3 up) {
 	return result;
 }
 
+inline mat4 InverseViewMat(mat4 view_mat) {
+	mat4 result = {};
+
+	result.data[0][0] = view_mat.data[0][0];
+	result.data[0][1] = view_mat.data[1][0];
+	result.data[0][2] = view_mat.data[2][0];
+	result.data[0][3] = -view_mat.data[0][3];
+
+	result.data[1][0] = view_mat.data[0][1];
+	result.data[1][1] = view_mat.data[1][1];
+	result.data[1][2] = view_mat.data[2][1];
+	result.data[1][3] = -view_mat.data[1][3];
+
+	result.data[2][0] = view_mat.data[0][2];
+	result.data[2][1] = view_mat.data[1][2];
+	result.data[2][2] = view_mat.data[2][2];
+	result.data[2][3] = -view_mat.data[2][3];
+
+	result.data[3][0] = view_mat.data[3][0];
+	result.data[3][1] = view_mat.data[3][1];
+	result.data[3][2] = view_mat.data[3][2];
+	result.data[3][3] = view_mat.data[3][3];
+
+	return result;
+}
+
 // Note: fov asks for an angle in degrees
 inline mat4 PerspectiveMat(f32 fov, f32 aspect_ratio, f32 znear, f32 zfar) {
 	mat4 result = {};
