@@ -134,6 +134,18 @@ inline vec3 NormVec(vec3 v) {
 	return ScaleVec(v, len);
 }
 
+// Vector 4 ----------------------------------------------------------------
+
+union vec4 {
+	struct { f32 x; f32 y; f32 z; f32 w; };
+	struct { f32 r; f32 g; f32 b; f32 a; };
+	f32 data[4];
+};
+
+inline vec4 Vec4(f32 x, f32 y, f32 z, f32 w) {
+	return { x, y, z, w };
+}
+
 // Matrix ------------------------------------------------------------------
 // Originally styled after raysan5's raymath, and HandmadeMath
 
@@ -152,6 +164,21 @@ inline vec3 NormVec(vec3 v) {
 struct mat4 {
 	f32 data[4][4];
 };
+
+// needs verification of correctness
+inline vec4 MulMatVec(mat4 m, vec4 v) {
+	vec4 result = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+	for (int row = 0; row < 4; row++) {
+		f32 sum = 0.0f;
+		for (int col = 0; col < 4; col++) {
+			sum += m.data[row][col] * v.data[col];
+		}
+		result.data[row] = sum;
+	}
+
+	return result;
+}
 
 inline mat4 MulMat(mat4 m2, mat4 m1) {
 	mat4 result = {};
