@@ -360,4 +360,32 @@ inline mat4 OrthographicMat(f32 left, f32 right, f32 bot, f32 top, f32 znear, f3
 	return result;
 }
 
+inline mat4 ViewportMat(f32 width, f32 height) {
+	mat4 result = {};
+
+	result.data[0][0] = width / 2.0f;
+	result.data[0][3] = width / 2.0f;
+	result.data[1][1] = -height / 2.0f;
+	result.data[1][3] = height / 2.0f;
+	result.data[2][2] = 1.0f;
+	result.data[2][3] = 0.0f;
+	result.data[3][3] = 1.0f;
+
+	return result;
+}
+
+inline mat4 ViewportPartialMat(f32 width, f32 height, f32 minX, f32 minY, f32 minZ, f32 maxZ) {
+	mat4 result = {};
+
+	result.data[0][0] = width / 2.0f;
+	result.data[0][3] = minX + width / 2.0f;
+	result.data[1][1] = -height / 2.0f;
+	result.data[1][3] = minY + height / 2.0f;
+	result.data[2][2] = maxZ - minZ;
+	result.data[2][3] = minZ;
+	result.data[3][3] = 1.0f;
+
+	return result;
+}
+
 #endif
