@@ -665,7 +665,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				stbtt_PackEnd(&spc);
 				/* done with the packing context -------------------------*/
 
-				font_image.data = (uchar*)malloc(4 * sizeof(uchar) * font_image.width * font_image.height);
+				font_image.data = (uchar*)calloc(font_image.width * font_image.height, 4 * sizeof(uchar));
 				for (i32 i = 0; i < font_image.width * font_image.height; i++) {
 					font_image.data[4 * i + 0] = 255;
 					font_image.data[4 * i + 1] = 255;
