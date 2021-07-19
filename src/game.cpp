@@ -160,12 +160,14 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 	// m11 = cotan(fovy / 2) / aspect_ratio
 	// m22 = cotan(fovy / 2)
 	// vec3 mouse_vector = Vec3((f32)gameInput->mouse.x, (f32)gameInput->mouse.y, 1.0f);
-	// vec3 camera_space_vector = Vec3((2.0f * mouse_vector.x / viewport_width - 1.0f) / m11,
+	// vec4 camera_space_vector = Vec4((2.0f * mouse_vector.x / viewport_width - 1.0f) / m11,
 	//								  (-2.0f * mouse_vector.y / viewport_height + 1.0f) / m22,
-	//								  -1.0f
+	//								  -1.0f,
+	//									0.0f
 	//								);
 
-	// 
+	// mat4 inv_view = InverseViewMat(gameState->mainCamera.view);
+	// vec4 direction_vector = MulMatVec(inv_view, camera_space_vector);
 
 	// end Object Picking
 	// ========================================================================
