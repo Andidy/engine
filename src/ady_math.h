@@ -165,7 +165,6 @@ struct mat4 {
 	f32 data[4][4];
 };
 
-// needs verification of correctness
 inline vec4 MulMatVec(mat4 m, vec4 v) {
 	vec4 result = Vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
