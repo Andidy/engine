@@ -357,63 +357,6 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 	return windowDimension;
 }
 
-/*
-struct win32_OffScreenBuffer {
-	// Pixels are alwasy 32-bits wide, Memory Order BB GG RR XX
-	BITMAPINFO info;
-	void* memory;
-	i32 width;
-	i32 height;
-	i32 pitch;
-	i32 bytesPerPixel;
-};
-win32_OffScreenBuffer globalBackBuffer;
-
-static void win32_ResizeDIBSection(win32_OffScreenBuffer* buffer, i32 width, i32 height) {
-	if (buffer->memory) {
-		VirtualFree(buffer->memory, 0, MEM_RELEASE);
-	}
-
-	buffer->width = width;
-	buffer->height = height;
-
-	int bytesPerPixel = 4;
-	buffer->bytesPerPixel = bytesPerPixel;
-
-	// NOTE(casey): When the biHeight field is negative, this is the clue to
-	// Windows to treat this bitmap as top-down, not bottom-up, meaning that
-	// the first three bytes of the image are the color for the top left pixel
-	// in the bitmap, not the bottom left!
-	buffer->info.bmiHeader.biSize = sizeof(buffer->info.bmiHeader);
-	buffer->info.bmiHeader.biWidth = buffer->width;
-	buffer->info.bmiHeader.biHeight = -buffer->height;
-	buffer->info.bmiHeader.biPlanes = 1;
-	buffer->info.bmiHeader.biBitCount = 32;
-	buffer->info.bmiHeader.biCompression = BI_RGB;
-
-	// NOTE(casey): Thank you to Chris Hecker of Spy Party fame
-	// for clarifying the deal with StretchDIBits and BitBlt!
-	// No more DC for us.
-	int bitmapMemorySize = (buffer->width * buffer->height) * bytesPerPixel;
-	buffer->memory = VirtualAlloc(0, bitmapMemorySize, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-	buffer->pitch = width * bytesPerPixel;
-}
-
-static void Win32DisplayBufferInWindow(win32_OffScreenBuffer* buffer,
-	HDC hdc, int window_wid, int window_hgt) {
-	// NOTE(casey): For prototyping purposes, we're going to always blit
-	// 1-to-1 pixels to make sure we don't introduce artifacts with
-	// stretching while we are learning to code the renderer!
-	StretchDIBits(hdc,
-		0, 0, buffer->width, buffer->height,
-		0, 0, buffer->width, buffer->height,
-		buffer->memory,
-		&buffer->info,
-		DIB_RGB_COLORS, SRCCOPY);
-}
-
-*/
-
 void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 	GameState* gs = (GameState*)gameMemory->data;
 
@@ -428,12 +371,6 @@ void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
 		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
 	}
 	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
-
-	renderData->entities[iter++] = { gs->terrainMap.ent.renderPos, gs->terrainMap.ent.renderScale, gs->terrainMap.ent.renderRotAxis, gs->terrainMap.ent.renderRotAngle, 6, 1 };
-
-	for (int i = 0; i < gs->numLocations; i++) {
-		renderData->entities[iter++] = { gs->locations[i].ent.renderPos, gs->locations[i].ent.renderScale, gs->locations[i].ent.renderRotAxis, gs->locations[i].ent.renderRotAngle, 4, 3 + (i % 7) };
-	}
 
 	renderData->num_entities = iter;
 }
@@ -605,8 +542,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/tree_default.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-
-			GenerateTerrainMapModel(&((GameState*)gameMemory.data)->terrainMap, &vertex_buffer, &index_buffer, &model_buffer);
 			
 			char gameDebugText[1024];
 			const i32 FONT_SIZE = 20;

@@ -1,22 +1,5 @@
 #include "game.h"
 
-void GenerateTerrainMap(TerrainMap* t) {
-	for (int y = 0; y < t->height; y++) {
-		for (int x = 0; x < t->width; x++) {
-			f32 nx = (f32)x / (f32)t->width - 0.5f;
-			f32 ny = (f32)y / (f32)t->height - 0.5f;
-			f32 e = 0;
-			f32 f = 0;
-
-			e = 1 * noise(nx, ny) + 0.5 * noise(2 * nx, 2 * ny) + 0.25 * noise(4 * nx, 4 * ny) + 0.125 * noise(8 * nx, 8 * ny) + 0.0625 * noise(16 * nx, 16 * ny) + 0.03 * noise(32 * nx, 32 * ny);
-			f = 1 + 0.5 + 0.25 + 0.125 + 0.0625 + 0.03;
-			e = e / f;
-			
-			t->elevation[x + y * t->width] = powf(e * 1.03f, 2.0f)*2.0f;
-		}
-	}
-}
-
 void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	GameState* gs = (GameState*)gameMemory->data;
 
@@ -38,23 +21,8 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 	gs->cubes[6] = { Vec3(-7.0f, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
 
 	gs->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
-	gs->waterQuad = { Vec3(100.0f, 1.75f, 50.0f), Vec3(200.0f, 100.0f, 1.0f), Vec3(-1.0f, 0.0f, 0.0f), 90.0f };
 
-	gs->terrainMap.ent = { Vec3(0.0f, 0.0f, 0.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gs->terrainMap.width = 1000;
-	gs->terrainMap.height = 1000;
-	gs->terrainMap.elevation = (f32*)gs->resourceAllocator.Allocate(sizeof(f32) * gs->terrainMap.width * gs->terrainMap.height);
-	GenerateTerrainMap(&gs->terrainMap);
-
-	gs->locations = (Location*)gs->resourceAllocator.Allocate(sizeof(Location) * gs->numLocations);
-	for (int i = 0; i < gs->numLocations; i++) {
-		int x = rand() % 1000;
-		int y = rand() % 1000;
-		int r = rand() % 360;
-		gs->locations[i].ent = { Vec3((f32)x, 1.0f, (f32)y), Vec3(1.0f, 1.0f, 1.0f), UpVec(), (f32)r };
-	}
-
-	gs->numEntities = 16 + gs->numLocations;
+	gs->numEntities = 12;
 
 	gs->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
 	gs->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);

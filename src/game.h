@@ -23,23 +23,6 @@ struct Entity {
 	f32 renderRotAngle;
 };
 
-struct TerrainMap {
-	Entity ent;
-	int32_t width;
-	int32_t height;
-	f32* elevation;
-};
-
-struct Location {
-	float range = 10.0f;
-	Entity ent;
-};
-
-
-
-
-
-
 struct GameState {
 	i32 numEntities;
 	Entity blackGuyHead;
@@ -50,12 +33,6 @@ struct GameState {
 
 	Entity cubes[7];
 	Entity quad;
-	Entity waterQuad;
-
-	TerrainMap terrainMap;
-	
-	static const int numLocations = 1024;
-	Location* locations;
 
 	Camera mainCamera;
 
