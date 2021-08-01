@@ -5,6 +5,12 @@
 
 #include "../libs/simplex.h"
 
+struct Viewport {
+	vec2 pos;
+	vec2 size;
+	vec2 depth; // x is min, y is max
+};
+
 struct Camera {
 	vec3 pos;
 	vec3 dir;
@@ -14,6 +20,9 @@ struct Camera {
 
 	mat4 proj;
 	mat4 view;
+	mat4 inv_view;
+
+	Viewport viewport;
 };
 
 struct Entity {
