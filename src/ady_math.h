@@ -355,28 +355,34 @@ inline mat4 LookAtMat(vec3 eye, vec3 target, vec3 up) {
 	return result;
 }
 
-inline mat4 InverseViewMat(mat4 view_mat) {
+inline mat4 InverseLookAtMat(vec3 eye, vec3 target, vec3 up) {
 	mat4 result = {};
 
-	result.data[0][0] = view_mat.data[0][0];
-	result.data[0][1] = view_mat.data[1][0];
-	result.data[0][2] = view_mat.data[2][0];
-	result.data[0][3] = -view_mat.data[0][3];
+	vec3 n = NormVec(SubVec(eye, target));
+	vec3 u = NormVec(Cross(up, n));
+	vec3 v = Cross(n, u);
 
-	result.data[1][0] = view_mat.data[0][1];
-	result.data[1][1] = view_mat.data[1][1];
-	result.data[1][2] = view_mat.data[2][1];
-	result.data[1][3] = -view_mat.data[1][3];
+	//vec3 neg_eye = NegVec(eye);
 
-	result.data[2][0] = view_mat.data[0][2];
-	result.data[2][1] = view_mat.data[1][2];
-	result.data[2][2] = view_mat.data[2][2];
-	result.data[2][3] = -view_mat.data[2][3];
+	result.data[0][0] = u.x;
+	result.data[0][1] = v.x;
+	result.data[0][2] = n.x;
+	result.data[0][3] = eye.x;
 
-	result.data[3][0] = view_mat.data[3][0];
-	result.data[3][1] = view_mat.data[3][1];
-	result.data[3][2] = view_mat.data[3][2];
-	result.data[3][3] = view_mat.data[3][3];
+	result.data[1][0] = u.y;
+	result.data[1][1] = v.y;
+	result.data[1][2] = n.y;
+	result.data[1][3] = eye.y;
+
+	result.data[2][0] = u.z;
+	result.data[2][1] = v.z;
+	result.data[2][2] = n.z;
+	result.data[2][3] = eye.z;
+
+	result.data[3][0] = 0.0f;
+	result.data[3][1] = 0.0f;
+	result.data[3][2] = 0.0f;
+	result.data[3][3] = 1.0f;
 
 	return result;
 }
