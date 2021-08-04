@@ -15,11 +15,3 @@ and gameplay code (the primary user) to get keyboard and mouse input with.
 
 
 Currently the project is focused on features and developed on Win32 and DirectX11.
-
-
-## Renderer Design
-TODO
-
-
-## Game Design
-TODO
