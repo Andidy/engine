@@ -21,9 +21,6 @@
     <ClInclude Include="libs\simplex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\ady_math.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\ady_types.h">
       <Filter>Header Files</Filter>
     </ClInclude>

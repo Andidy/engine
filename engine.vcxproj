@@ -277,7 +277,6 @@
     <ClInclude Include="libs\stb\stb_image_write.h" />
     <ClInclude Include="libs\stb\stb_rect_pack.h" />
     <ClInclude Include="libs\stb\stb_truetype.h" />
-    <ClInclude Include="src\ady_math.h" />
     <ClInclude Include="src\ady_types.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\renderer.h" />

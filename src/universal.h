@@ -2,7 +2,7 @@
 #define UNIVERSAL_H
 
 #include "ady_types.h"
-#include "ady_math.h"
+#include "../libs/ady_math/ady_math.h"
 
 #include <assert.h>
 #include <stdio.h>
