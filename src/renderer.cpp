@@ -804,7 +804,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData, TextVertex* textVertBuffer) {
+void Renderer::RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderData* render_data, TextVertex* text_vert_buffer) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -832,12 +832,12 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		GameState* gs = (GameState*)gameMemory->data;
+		GameState* gs = (GameState*)game_memory->data;
 		mat4 view = gs->main_camera.view;
 		mat4 proj = gs->main_camera.proj;
 
-		for (int i = 0; i < renderData->num_entities; i++) {
-			RenderEntity re = renderData->entities[i];
+		for (int i = 0; i < render_data->num_entities; i++) {
+			RenderEntity re = render_data->entities[i];
 			
 			context->PSSetShaderResources(0, 1, &texture_views[re.texture_index]);
 			
@@ -868,7 +868,7 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 
 		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 		context->Map(text_vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
-		memcpy(mappedSubresource.pData, textVertBuffer, sizeof(TextVertex) * Renderer::MAX_NUM_TEXT_CHARS * 4);
+		memcpy(mappedSubresource.pData, text_vert_buffer, sizeof(TextVertex) * Renderer::MAX_NUM_TEXT_CHARS * 4);
 		context->Unmap(text_vertex_buffer, 0);
 
 		stride = sizeof(TextVertex);
