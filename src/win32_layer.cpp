@@ -373,6 +373,10 @@ void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	render_data->entities[iter++] = { gs->quad.render_pos, gs->quad.render_scale, gs->quad.render_rot_axis, gs->quad.render_rot_angle, 5, 0 };
 
 	render_data->num_entities = iter;
+
+	for (int i = 0; i < render_data->num_entities; i++) {
+		render_data->entities[i].texture_index = 10;
+	}
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -631,6 +635,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].data = stbi_load((char*)"test_assets/blue.png", &images[iter].width, &images[iter].height, &n, 4);
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
+			iter += 1;
+			images[iter].data = stbi_load((char*)"test_assets/no_tex.png", &images[iter].width, &images[iter].height, &n, 4);
 			iter += 1;
 			images[iter].data = font_image.data;
 			images[iter].width = font_image.width;
