@@ -1,11 +1,11 @@
 #include "game.h"
 
-void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
-	GameState* gs = (GameState*)gameMemory->data;
+void InitGameState(Memory* game_memory, vec2 window_dimensions) {
+	GameState* gs = (GameState*)game_memory->data;
 
-	gs->resourceAllocator = PermanentResourceAllocator(Megabytes(64));
+	gs->resource_allocator = PermanentResourceAllocator(Megabytes(64));
 
-	gs->numEntities = 0;
+	gs->num_entities = 0;
 
 	gs->blackGuyHead = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
 	gs->blackGuyHead2 = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 90.0f };
@@ -22,39 +22,39 @@ void InitGameState(Memory* gameMemory, vec2 windowDimensions) {
 
 	gs->quad = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
 
-	gs->numEntities = 12;
+	gs->num_entities = 12;
 
-	gs->mainCamera.pos = Vec3(0.0f, 0.0f, 1.0f);
-	gs->mainCamera.dir = Vec3(0.0f, 0.0f, -1.0f);
-	gs->mainCamera.up = Vec3(0.0, 1.0, 0.0f);
+	gs->main_camera.pos = Vec3(0.0f, 0.0f, 1.0f);
+	gs->main_camera.dir = Vec3(0.0f, 0.0f, -1.0f);
+	gs->main_camera.up = Vec3(0.0, 1.0, 0.0f);
 
-	gs->mainCamera.pitch = 0.0f;
-	gs->mainCamera.yaw = 0.0f;
+	gs->main_camera.pitch = 0.0f;
+	gs->main_camera.yaw = 0.0f;
 
-	gs->mainCamera.view = LookAtMat(gs->mainCamera.pos, AddVec(gs->mainCamera.pos, gs->mainCamera.dir), gs->mainCamera.up);
-	gs->mainCamera.inv_view = InverseLookAtMat(gs->mainCamera.pos, AddVec(gs->mainCamera.pos, gs->mainCamera.dir), gs->mainCamera.up);
-	gs->mainCamera.proj = PerspectiveMat(90.0f, windowDimensions.x / windowDimensions.y, 0.1f, 1000.0f);
+	gs->main_camera.view = LookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
+	gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
+	gs->main_camera.proj = PerspectiveMat(90.0f, window_dimensions.x / window_dimensions.y, 0.1f, 1000.0f);
 
 	Viewport viewport = {};
 	viewport.pos = Vec2(0.0f, 0.0f);
-	viewport.size = Vec2(windowDimensions.x, windowDimensions.y);
+	viewport.size = Vec2(window_dimensions.x, window_dimensions.y);
 	viewport.depth = Vec2(0.0f, 1.0f);
-	gs->mainCamera.viewport = viewport;
+	gs->main_camera.viewport = viewport;
 }
 
-void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugText) {
-	GameState* gameState = (GameState*)gameMemory->data;
+void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text) {
+	GameState* gameState = (GameState*)game_memory->data;
 
 	// ========================================================================
 	// Camera Update
-	Camera* camera = &gameState->mainCamera;
+	Camera* camera = &gameState->main_camera;
 	{
-		const f32 baseCameraSpeed = 0.0025f;
-		const f32 speedMultiplier = 50.0f;
-		f32 cameraSpeed = baseCameraSpeed;
+		const f32 base_camera_speed = 0.0025f;
+		const f32 speed_multiplier = 50.0f;
+		f32 camera_speed = base_camera_speed;
 
-		if (keyDown(gameInput->keyboard.space)) {
-			cameraSpeed *= speedMultiplier;
+		if (keyDown(game_input->keyboard.space)) {
+			camera_speed *= speed_multiplier;
 		}
 
 		const f32 rotateSpeed = 0.05f;
@@ -62,51 +62,51 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 		vec3 dir = NormVec(camera->dir);
 		vec3 right = NormVec(Cross(camera->up, dir));
 
-		if (keyDown(gameInput->keyboard.w)) {
+		if (keyDown(game_input->keyboard.w)) {
 			vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
-			temp_dir = ScaleVec(NormVec(temp_dir), cameraSpeed * dt);
+			temp_dir = ScaleVec(NormVec(temp_dir), camera_speed * dt);
 			camera->pos = AddVec(camera->pos, temp_dir);
 		}
-		else if (keyDown(gameInput->keyboard.s)) {
+		else if (keyDown(game_input->keyboard.s)) {
 			vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
-			temp_dir = ScaleVec(NormVec(temp_dir), cameraSpeed * dt);
+			temp_dir = ScaleVec(NormVec(temp_dir), camera_speed * dt);
 			camera->pos = AddVec(camera->pos, NegVec(temp_dir));
 		}
-		else if (keyDown(gameInput->keyboard.up)) {
-			dir = ScaleVec(dir, cameraSpeed * dt);
-			gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
+		else if (keyDown(game_input->keyboard.up)) {
+			dir = ScaleVec(dir, camera_speed * dt);
+			gameState->main_camera.pos = AddVec(gameState->main_camera.pos, dir);
 		}
-		else if (keyDown(gameInput->keyboard.down)) {
-			dir = NegVec(ScaleVec(dir, cameraSpeed * dt));
-			gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, dir);
-		}
-
-		if (keyDown(gameInput->keyboard.t)) {
-			camera->pos = AddVec(camera->pos, ScaleVec(UpVec(), cameraSpeed * dt));
-		}
-		else if (keyDown(gameInput->keyboard.g)) {
-			camera->pos = AddVec(camera->pos, NegVec(ScaleVec(UpVec(), cameraSpeed * dt)));
+		else if (keyDown(game_input->keyboard.down)) {
+			dir = NegVec(ScaleVec(dir, camera_speed * dt));
+			gameState->main_camera.pos = AddVec(gameState->main_camera.pos, dir);
 		}
 
-		if (keyDown(gameInput->keyboard.left) || keyDown(gameInput->keyboard.a)) {
-			right = ScaleVec(right, cameraSpeed * dt);
-			gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
+		if (keyDown(game_input->keyboard.t)) {
+			camera->pos = AddVec(camera->pos, ScaleVec(UpVec(), camera_speed * dt));
 		}
-		else if (keyDown(gameInput->keyboard.right) || keyDown(gameInput->keyboard.d)) {
-			right = NegVec(ScaleVec(right, cameraSpeed * dt));
-			gameState->mainCamera.pos = AddVec(gameState->mainCamera.pos, right);
+		else if (keyDown(game_input->keyboard.g)) {
+			camera->pos = AddVec(camera->pos, NegVec(ScaleVec(UpVec(), camera_speed * dt)));
 		}
 
-		if (keyDown(gameInput->keyboard.q)) {
+		if (keyDown(game_input->keyboard.left) || keyDown(game_input->keyboard.a)) {
+			right = ScaleVec(right, camera_speed * dt);
+			gameState->main_camera.pos = AddVec(gameState->main_camera.pos, right);
+		}
+		else if (keyDown(game_input->keyboard.right) || keyDown(game_input->keyboard.d)) {
+			right = NegVec(ScaleVec(right, camera_speed * dt));
+			gameState->main_camera.pos = AddVec(gameState->main_camera.pos, right);
+		}
+
+		if (keyDown(game_input->keyboard.q)) {
 			camera->yaw -= rotateSpeed * dt;
 		}
-		else if (keyDown(gameInput->keyboard.e)) {
+		else if (keyDown(game_input->keyboard.e)) {
 			camera->yaw += rotateSpeed * dt;
 		}
-		if (keyDown(gameInput->keyboard.r)) {
+		if (keyDown(game_input->keyboard.r)) {
 			camera->pitch += rotateSpeed * dt;
 		}
-		else if (keyDown(gameInput->keyboard.f)) {
+		else if (keyDown(game_input->keyboard.f)) {
 			camera->pitch -= rotateSpeed * dt;
 		}
 
@@ -124,8 +124,8 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 		);
 		camera->dir = NormVec(dir);
 
-		gameState->mainCamera.view = LookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
-		gameState->mainCamera.inv_view = InverseLookAtMat(gameState->mainCamera.pos, AddVec(gameState->mainCamera.pos, gameState->mainCamera.dir), gameState->mainCamera.up);
+		gameState->main_camera.view = LookAtMat(gameState->main_camera.pos, AddVec(gameState->main_camera.pos, gameState->main_camera.dir), gameState->main_camera.up);
+		gameState->main_camera.inv_view = InverseLookAtMat(gameState->main_camera.pos, AddVec(gameState->main_camera.pos, gameState->main_camera.dir), gameState->main_camera.up);
 	}
 	// end Camera Update
 	// ========================================================================
@@ -133,27 +133,27 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 
 	bool hit_object = false;
 
-	if (keyPressed(gameInput->mouse.left)) {
+	if (keyPressed(game_input->mouse.left)) {
 		// calculate the start point and direction vector of the picking ray
-		float m00 = gameState->mainCamera.proj.data[0][0];
-		float m11 = gameState->mainCamera.proj.data[1][1];
+		float m00 = gameState->main_camera.proj.data[0][0];
+		float m11 = gameState->main_camera.proj.data[1][1];
 		vec4 camera_space_vector = {
-			(2.0f * ((f32)gameInput->mouse.x) / gameState->mainCamera.viewport.size.x - 1.0f) / m00,
-			-(2.0f * ((f32)gameInput->mouse.y) / gameState->mainCamera.viewport.size.y - 1.0f) / m11,
+			(2.0f * ((f32)game_input->mouse.x) / gameState->main_camera.viewport.size.x - 1.0f) / m00,
+			-(2.0f * ((f32)game_input->mouse.y) / gameState->main_camera.viewport.size.y - 1.0f) / m11,
 			-1.0f,
 			0.0f
 		};
 
-		vec4 dir = MulMatVec(gameState->mainCamera.inv_view, camera_space_vector);
+		vec4 dir = MulMatVec(gameState->main_camera.inv_view, camera_space_vector);
 		vec3 direction_vector = NormVec({ dir.x, dir.y, dir.z });
 		vec3 start_vector = { 
-			gameState->mainCamera.inv_view.data[0][3],
-			gameState->mainCamera.inv_view.data[1][3],
-			gameState->mainCamera.inv_view.data[2][3]
+			gameState->main_camera.inv_view.data[0][3],
+			gameState->main_camera.inv_view.data[1][3],
+			gameState->main_camera.inv_view.data[2][3]
 		};
 		
 		// now compare the picking ray against the hitboxes of the models in the scene
-		vec3 pos = gameState->quad.renderPos;
+		vec3 pos = gameState->quad.render_pos;
 		float radius = 1.0f;
 		
 		vec3 pos_to_start = SubVec(start_vector, pos);
@@ -192,7 +192,7 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 	}
 
 	if (hit_object) {
-		gameState->quad.renderPos.y += 1.0f;
+		gameState->quad.render_pos.y += 1.0f;
 	}
 
 	// end Object Picking
@@ -200,6 +200,6 @@ void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugTex
 
 	// Debug Text to draw to screen
 	{
-		snprintf(gameDebugText, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\n", camera->pos.x, camera->pos.y, camera->pos.z, gameInput->mouse.x, gameInput->mouse.y);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\n", camera->pos.x, camera->pos.y, camera->pos.z, game_input->mouse.x, game_input->mouse.y);
 	}
 }

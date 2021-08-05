@@ -244,7 +244,7 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mode
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages, TextVertex* textVertBuffer, int numTextVerts) {
+void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vert_buffer, int num_text_verts) {
 	HRESULT hr;
 
 	// device
@@ -277,24 +277,24 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 			__debugbreak();
 		}
 
-		DXGI_SWAP_CHAIN_DESC1 swapchainDesc = {};
-		swapchainDesc.Width = swapchainWidth;
-		swapchainDesc.Height = swapchainHeight;
-		swapchainDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-		swapchainDesc.BufferCount = 2;
-		swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-		swapchainDesc.SampleDesc.Count = 1;
-		swapchainDesc.Scaling = DXGI_SCALING_STRETCH;
-		swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-		swapchainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+		DXGI_SWAP_CHAIN_DESC1 swapchain_desc = {};
+		swapchain_desc.Width = swapchain_width;
+		swapchain_desc.Height = swapchain_height;
+		swapchain_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+		swapchain_desc.BufferCount = 2;
+		swapchain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+		swapchain_desc.SampleDesc.Count = 1;
+		swapchain_desc.Scaling = DXGI_SCALING_STRETCH;
+		swapchain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+		swapchain_desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 
 		IDXGISwapChain1* swapchain1;
-		if (FAILED(factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchainDesc, NULL, NULL, &swapchain1))) {
+		if (FAILED(factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchain_desc, NULL, NULL, &swapchain1))) {
 			// Windows 8.1
-			swapchainDesc.BufferCount = 2;
-			swapchainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-			swapchainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
-			hr = factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchainDesc, NULL, NULL, &swapchain1);
+			swapchain_desc.BufferCount = 2;
+			swapchain_desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+			swapchain_desc.Flags = DXGI_SWAP_CHAIN_FLAG_FRAME_LATENCY_WAITABLE_OBJECT;
+			hr = factory->CreateSwapChainForHwnd((IUnknown*)device, window, &swapchain_desc, NULL, NULL, &swapchain1);
 			if (FAILED(hr)) { __debugbreak(); }
 		}
 		swapchain = (IDXGISwapChain3*)swapchain1;
@@ -315,7 +315,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		desc.MultisampleEnable = 0;
 		desc.AntialiasedLineEnable = FALSE;
 
-		hr = device->CreateRasterizerState(&desc, &rasterizerState);
+		hr = device->CreateRasterizerState(&desc, &rasterizer_state);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -328,47 +328,47 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		desc.StencilEnable = FALSE;
 		desc.StencilReadMask = 0;
 		desc.StencilWriteMask = 0;
-		hr = device->CreateDepthStencilState(&desc, &depthStencilState);
+		hr = device->CreateDepthStencilState(&desc, &depth_stencil_state);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
 	// blend state
 	{
-		D3D11_RENDER_TARGET_BLEND_DESC blendDesc = {};
-		blendDesc.BlendEnable = FALSE;
-		blendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-		blendDesc.BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-		blendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		D3D11_RENDER_TARGET_BLEND_DESC blend_desc = {};
+		blend_desc.BlendEnable = FALSE;
+		blend_desc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blend_desc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOp = D3D11_BLEND_OP_ADD;
+		blend_desc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		blend_desc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 		D3D11_BLEND_DESC desc = {};
 		desc.AlphaToCoverageEnable = FALSE;
 		desc.IndependentBlendEnable = FALSE;
-		desc.RenderTarget[0] = blendDesc;
+		desc.RenderTarget[0] = blend_desc;
 
-		hr = device->CreateBlendState(&desc, &blendState);
+		hr = device->CreateBlendState(&desc, &blend_state);
 		if (FAILED(hr)) { __debugbreak(); }
 		
 
-		blendDesc = {};
-		blendDesc.BlendEnable = TRUE;
-		blendDesc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
-		blendDesc.BlendOp = D3D11_BLEND_OP_ADD;
-		blendDesc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
-		blendDesc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
-		blendDesc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-		blendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+		blend_desc = {};
+		blend_desc.BlendEnable = TRUE;
+		blend_desc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+		blend_desc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOp = D3D11_BLEND_OP_ADD;
+		blend_desc.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+		blend_desc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
 
 		desc = {};
 		desc.AlphaToCoverageEnable = FALSE;
 		desc.IndependentBlendEnable = FALSE;
-		desc.RenderTarget[0] = blendDesc;
+		desc.RenderTarget[0] = blend_desc;
 
-		hr = device->CreateBlendState(&desc, &transparencyBlendState);
+		hr = device->CreateBlendState(&desc, &transparency_blend_state);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -403,11 +403,11 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		#else
 		*/
 
-		ID3DBlob* errorBuff;
+		ID3DBlob* error_buffer;
 		hr = D3DCompileFromFile(L"shaders/GeneralVS.hlsl", 0, 0, "main", "vs_5_0",
-			shader_flags, 0, &code, &errorBuff);
+			shader_flags, 0, &code, &error_buffer);
 		if (FAILED(hr)) { 
-			DebugPrint((char*)errorBuff->GetBufferPointer());
+			DebugPrint((char*)error_buffer->GetBufferPointer());
 			__debugbreak();
 		}
 		vshader = code->GetBufferPointer();
@@ -415,10 +415,10 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 
 		//#endif
 
-		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &vertexShader);
+		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &vertex_shader);
 		if (FAILED(hr)) { __debugbreak(); }
 
-		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &inputLayout);
+		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &input_layout);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -435,11 +435,11 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		#else
 		*/
 
-		ID3DBlob* errorBuff;
+		ID3DBlob* error_buffer;
 		hr = D3DCompileFromFile(L"shaders/GeneralPS.hlsl", 0, 0, "main", "ps_5_0",
-			shader_flags, 0, &code, &errorBuff);
+			shader_flags, 0, &code, &error_buffer);
 		if (FAILED(hr)) { 
-			DebugPrint((char*)errorBuff->GetBufferPointer());
+			DebugPrint((char*)error_buffer->GetBufferPointer());
 			__debugbreak(); 
 		}
 		pshader = code->GetBufferPointer();
@@ -447,7 +447,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 
 		//#endif
 
-		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &pixelShader);
+		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &pixel_shader);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -461,7 +461,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		D3D11_SUBRESOURCE_DATA data = {};
 		data.pSysMem = v_buf->vertices;
 
-		hr = device->CreateBuffer(&desc, &data, &vertexBuffer);
+		hr = device->CreateBuffer(&desc, &data, &vertex_buffer);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -475,7 +475,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		D3D11_SUBRESOURCE_DATA data = {};
 		data.pSysMem = i_buf->indices;
 
-		hr = device->CreateBuffer(&desc, &data, &indexBuffer);
+		hr = device->CreateBuffer(&desc, &data, &index_buffer);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -487,42 +487,42 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		desc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
-		device->CreateBuffer(&desc, NULL, &constantBuffer);
+		device->CreateBuffer(&desc, NULL, &constant_buffer);
 	}
 
 	// textures
 	{
-		for (int i = 0; i < numImages; i++) {
-			D3D11_TEXTURE2D_DESC textureDesc = {};
-			textureDesc.Width = images[i].width;
-			textureDesc.Height = images[i].height;
-			textureDesc.MipLevels = 1;
-			textureDesc.ArraySize = 1;
-			textureDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-			textureDesc.SampleDesc.Count = 1;
-			textureDesc.Usage = D3D11_USAGE_IMMUTABLE;
-			textureDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
+		for (int i = 0; i < num_images; i++) {
+			D3D11_TEXTURE2D_DESC texture_desc = {};
+			texture_desc.Width = images[i].width;
+			texture_desc.Height = images[i].height;
+			texture_desc.MipLevels = 1;
+			texture_desc.ArraySize = 1;
+			texture_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
+			texture_desc.SampleDesc.Count = 1;
+			texture_desc.Usage = D3D11_USAGE_IMMUTABLE;
+			texture_desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
 
-			D3D11_SUBRESOURCE_DATA textureData = {};
-			textureData.pSysMem = images[i].data;
-			textureData.SysMemPitch = images[i].width * 4; // 4 bytes per pixel
+			D3D11_SUBRESOURCE_DATA texture_data = {};
+			texture_data.pSysMem = images[i].data;
+			texture_data.SysMemPitch = images[i].width * 4; // 4 bytes per pixel
 
-			device->CreateTexture2D(&textureDesc, &textureData, &textures[i]);
-			device->CreateShaderResourceView(textures[i], nullptr, &textureViews[i]);
+			device->CreateTexture2D(&texture_desc, &texture_data, &textures[i]);
+			device->CreateShaderResourceView(textures[i], nullptr, &texture_views[i]);
 		}
 	}
 
 	// sampler
 	{
-		D3D11_SAMPLER_DESC samplerDesc = {};
-		samplerDesc.Filter = D3D11_FILTER_ANISOTROPIC;
-		samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-		samplerDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-		samplerDesc.MaxAnisotropy = 16;
+		D3D11_SAMPLER_DESC sampler_desc = {};
+		sampler_desc.Filter = D3D11_FILTER_ANISOTROPIC;
+		sampler_desc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_desc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_desc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+		sampler_desc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+		sampler_desc.MaxAnisotropy = 16;
 
-		device->CreateSamplerState(&samplerDesc, &samplerState);
+		device->CreateSamplerState(&sampler_desc, &sampler_state);
 	}
 
 	// text vertex shader
@@ -544,11 +544,11 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		#else
 		*/
 
-		ID3DBlob* errorBuff;
+		ID3DBlob* error_buffer;
 		hr = D3DCompileFromFile(L"shaders/TextVS.hlsl", 0, 0, "main", "vs_5_0",
-			shader_flags, 0, &code, &errorBuff);
+			shader_flags, 0, &code, &error_buffer);
 		if (FAILED(hr)) {
-			DebugPrint((char*)errorBuff->GetBufferPointer());
+			DebugPrint((char*)error_buffer->GetBufferPointer());
 			__debugbreak();
 		}
 		vshader = code->GetBufferPointer();
@@ -556,10 +556,10 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 
 		//#endif
 
-		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &textVS);
+		hr = device->CreateVertexShader(vshader, vshader_size, NULL, &text_vs);
 		if (FAILED(hr)) { __debugbreak(); }
 
-		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &textIL);
+		hr = device->CreateInputLayout(layout, _countof(layout), vshader, vshader_size, &text_il);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -576,11 +576,11 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		#else
 		*/
 
-		ID3DBlob* errorBuff;
+		ID3DBlob* error_buffer;
 		hr = D3DCompileFromFile(L"shaders/TextPS.hlsl", 0, 0, "main", "ps_5_0",
-			shader_flags, 0, &code, &errorBuff);
+			shader_flags, 0, &code, &error_buffer);
 		if (FAILED(hr)) {
-			DebugPrint((char*)errorBuff->GetBufferPointer());
+			DebugPrint((char*)error_buffer->GetBufferPointer());
 			__debugbreak();
 		}
 		pshader = code->GetBufferPointer();
@@ -588,7 +588,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 
 		//#endif
 
-		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &textPS);
+		hr = device->CreatePixelShader(pshader, pshader_size, NULL, &text_ps);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -601,9 +601,9 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
 
 		D3D11_SUBRESOURCE_DATA data = {};
-		data.pSysMem = textVertBuffer;
+		data.pSysMem = text_vert_buffer;
 
-		hr = device->CreateBuffer(&desc, &data, &textVertexBuffer);
+		hr = device->CreateBuffer(&desc, &data, &text_vertex_buffer);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -629,7 +629,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		D3D11_SUBRESOURCE_DATA data = {};
 		data.pSysMem = indices;
 
-		hr = device->CreateBuffer(&desc, &data, &textIndexBuffer);
+		hr = device->CreateBuffer(&desc, &data, &text_index_buffer);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -649,14 +649,14 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&windowBuffer);
 	if (FAILED(hr)) { __debugbreak(); }
 
-	hr = device->CreateRenderTargetView((ID3D11Resource*)windowBuffer, NULL, &windowRTView);
+	hr = device->CreateRenderTargetView((ID3D11Resource*)windowBuffer, NULL, &window_rt_view);
 	windowBuffer->Release();
 	if (FAILED(hr)) { __debugbreak(); }
 
 	{
 		D3D11_TEXTURE2D_DESC desc = {};
-		desc.Width = swapchainWidth;
-		desc.Height = swapchainHeight;
+		desc.Width = swapchain_width;
+		desc.Height = swapchain_height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -669,7 +669,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
 		if (FAILED(hr)) { __debugbreak(); }
 
-		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &windowDPView);
+		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_dp_view);
 		depthStencil->Release();
 		if (FAILED(hr)) { __debugbreak(); }
 	}
@@ -677,32 +677,32 @@ void Renderer::InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, V
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = (f32)swapchainWidth;
-	viewport.Height = (f32)swapchainHeight;
+	viewport.Width = (f32)swapchain_width;
+	viewport.Height = (f32)swapchain_height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
 	context->RSSetViewports(1, &viewport);
 }
 
-HRESULT Renderer::RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight) {
-	if (swapchainWidth == 0 || swapchainHeight == 0) {
+HRESULT Renderer::RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height) {
+	if (swapchain_width == 0 || swapchain_height == 0) {
 		return S_OK;
 	}
 
-	if (windowRTView) {
+	if (window_rt_view) {
 		context->OMSetRenderTargets(0, NULL, NULL);
-		windowRTView->Release();
-		windowRTView = NULL;
+		window_rt_view->Release();
+		window_rt_view = NULL;
 	}
 
-	if (windowDPView) {
-		windowDPView->Release();
-		windowDPView = NULL;
+	if (window_dp_view) {
+		window_dp_view->Release();
+		window_dp_view = NULL;
 	}
 
 	UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-	HRESULT hr = swapchain->ResizeBuffers(0, swapchainWidth, swapchainHeight, DXGI_FORMAT_UNKNOWN, flags);
+	HRESULT hr = swapchain->ResizeBuffers(0, swapchain_width, swapchain_height, DXGI_FORMAT_UNKNOWN, flags);
 	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR) {
 		// if (failed (recreate device()) )
 		__debugbreak();
@@ -711,18 +711,18 @@ HRESULT Renderer::RendererResize(HWND window, i32 swapchainWidth, i32 swapchainH
 		__debugbreak();
 	}
 
-	ID3D11Texture2D* windowBuffer;
-	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&windowBuffer);
+	ID3D11Texture2D* window_buffer;
+	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&window_buffer);
 	if (FAILED(hr)) { __debugbreak(); }
 
-	hr = device->CreateRenderTargetView((ID3D11Resource*)windowBuffer, NULL, &windowRTView);
-	windowBuffer->Release();
+	hr = device->CreateRenderTargetView((ID3D11Resource*)window_buffer, NULL, &window_rt_view);
+	window_buffer->Release();
 	if (FAILED(hr)) { __debugbreak(); }
 
 	{
 		D3D11_TEXTURE2D_DESC desc = {};
-		desc.Width = swapchainWidth;
-		desc.Height = swapchainHeight;
+		desc.Width = swapchain_width;
+		desc.Height = swapchain_height;
 		desc.MipLevels = 1;
 		desc.ArraySize = 1;
 		desc.Format = DXGI_FORMAT_D32_FLOAT;
@@ -735,7 +735,7 @@ HRESULT Renderer::RendererResize(HWND window, i32 swapchainWidth, i32 swapchainH
 		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
 		if (FAILED(hr)) { __debugbreak(); }
 
-		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &windowDPView);
+		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_dp_view);
 		depthStencil->Release();
 		if (FAILED(hr)) { __debugbreak(); }
 	}
@@ -743,8 +743,8 @@ HRESULT Renderer::RendererResize(HWND window, i32 swapchainWidth, i32 swapchainH
 	D3D11_VIEWPORT viewport = {};
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
-	viewport.Width = (f32)swapchainWidth;
-	viewport.Height = (f32)swapchainHeight;
+	viewport.Width = (f32)swapchain_width;
+	viewport.Height = (f32)swapchain_height;
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
@@ -797,7 +797,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	}
 	else {
 		if (context1) {
-			context1->DiscardView((ID3D11View*)windowRTView);
+			context1->DiscardView((ID3D11View*)window_rt_view);
 		}
 	}
 
@@ -810,36 +810,36 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
 		//}
 
-		context->OMSetRenderTargets(1, &windowRTView, windowDPView);
-		context->OMSetDepthStencilState(depthStencilState, 0);
-		context->ClearDepthStencilView(windowDPView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->OMSetRenderTargets(1, &window_rt_view, window_dp_view);
+		context->OMSetDepthStencilState(depth_stencil_state, 0);
+		context->ClearDepthStencilView(window_dp_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		// clear background
 		FLOAT clear_color[] = { 100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f };
-		context->ClearRenderTargetView(windowRTView, clear_color);
+		context->ClearRenderTargetView(window_rt_view, clear_color);
 
-		context->RSSetState(rasterizerState);
-		context->OMSetBlendState(blendState, NULL, ~0U);
+		context->RSSetState(rasterizer_state);
+		context->OMSetBlendState(blend_state, NULL, ~0U);
 		
-		context->VSSetShader(vertexShader, NULL, 0);
-		context->PSSetShader(pixelShader, NULL, 0);
-		context->PSSetSamplers(0, 1, &samplerState);
+		context->VSSetShader(vertex_shader, NULL, 0);
+		context->PSSetShader(pixel_shader, NULL, 0);
+		context->PSSetSamplers(0, 1, &sampler_state);
 		
 		UINT stride = sizeof(Vertex);
 		UINT offset = 0;
-		context->IASetInputLayout(inputLayout);
-		context->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
+		context->IASetInputLayout(input_layout);
+		context->IASetVertexBuffers(0, 1, &vertex_buffer, &stride, &offset);
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		context->IASetIndexBuffer(index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		GameState* gameState = (GameState*)gameMemory->data;
-		mat4 view = gameState->mainCamera.view;
-		mat4 proj = gameState->mainCamera.proj;
+		GameState* gs = (GameState*)gameMemory->data;
+		mat4 view = gs->main_camera.view;
+		mat4 proj = gs->main_camera.proj;
 
 		for (int i = 0; i < renderData->num_entities; i++) {
 			RenderEntity re = renderData->entities[i];
 			
-			context->PSSetShaderResources(0, 1, &textureViews[re.texture_index]);
+			context->PSSetShaderResources(0, 1, &texture_views[re.texture_index]);
 			
 			mat4 translate, scale, rotate;
 			translate = TranslateMat(re.pos);
@@ -849,36 +849,36 @@ void Renderer::RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData
 			mat4 world = MulMat(translate, MulMat(rotate, scale));
 
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-			context->Map(constantBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+			context->Map(constant_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 			Constants* constants = (Constants*)(mappedSubresource.pData);
 			constants->m = world;
 			constants->mvp = MulMat(proj, MulMat(view, world));
-			constants->camera_pos = gameState->mainCamera.pos;
-			context->Unmap(constantBuffer, 0);
+			constants->camera_pos = gs->main_camera.pos;
+			context->Unmap(constant_buffer, 0);
 
-			context->VSSetConstantBuffers(0, 1, &constantBuffer);
+			context->VSSetConstantBuffers(0, 1, &constant_buffer);
 			context->DrawIndexed(m_buffer->models[re.model_index].length, m_buffer->models[re.model_index].start_index, 0);
 		}
 
-		context->OMSetBlendState(transparencyBlendState, NULL, ~0U);
+		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);
 
-		context->VSSetShader(textVS, NULL, 0);
-		context->PSSetShader(textPS, NULL, 0);
-		context->PSSetSamplers(0, 1, &samplerState);
+		context->VSSetShader(text_vs, NULL, 0);
+		context->PSSetShader(text_ps, NULL, 0);
+		context->PSSetSamplers(0, 1, &sampler_state);
 
 		D3D11_MAPPED_SUBRESOURCE mappedSubresource;
-		context->Map(textVertexBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+		context->Map(text_vertex_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 		memcpy(mappedSubresource.pData, textVertBuffer, sizeof(TextVertex) * Renderer::MAX_NUM_TEXT_CHARS * 4);
-		context->Unmap(textVertexBuffer, 0);
+		context->Unmap(text_vertex_buffer, 0);
 
 		stride = sizeof(TextVertex);
 		offset = 0;
-		context->IASetInputLayout(textIL);
-		context->IASetVertexBuffers(0, 1, &textVertexBuffer, &stride, &offset);
+		context->IASetInputLayout(text_il);
+		context->IASetVertexBuffers(0, 1, &text_vertex_buffer, &stride, &offset);
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		context->IASetIndexBuffer(textIndexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		context->IASetIndexBuffer(text_index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		context->PSSetShaderResources(0, 1, &textureViews[10]);
+		context->PSSetShaderResources(0, 1, &texture_views[10]);
 		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
 }

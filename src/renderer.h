@@ -96,44 +96,44 @@ struct Renderer {
 	ID3D11DeviceContext* context;
 	ID3D11DeviceContext1* context1;
 
-	ID3D11RasterizerState* rasterizerState;
-	ID3D11DepthStencilState* depthStencilState;
-	ID3D11BlendState* blendState;
-	ID3D11BlendState* transparencyBlendState;
+	ID3D11RasterizerState* rasterizer_state;
+	ID3D11DepthStencilState* depth_stencil_state;
+	ID3D11BlendState* blend_state;
+	ID3D11BlendState* transparency_blend_state;
 
 	IDXGISwapChain3* swapchain;
 
-	ID3D11VertexShader* vertexShader;
-	ID3D11PixelShader* pixelShader;
-	ID3D11InputLayout* inputLayout;
+	ID3D11VertexShader* vertex_shader;
+	ID3D11PixelShader* pixel_shader;
+	ID3D11InputLayout* input_layout;
 
-	ID3D11Buffer* vertexBuffer;
-	ID3D11Buffer* indexBuffer;
-	ID3D11Buffer* constantBuffer;
+	ID3D11Buffer* vertex_buffer;
+	ID3D11Buffer* index_buffer;
+	ID3D11Buffer* constant_buffer;
 	
 	int NUM_CHARS_TO_RENDER = 0;
 	static const int MAX_NUM_TEXT_CHARS = 1024;
-	ID3D11VertexShader* textVS;
-	ID3D11PixelShader* textPS;
-	ID3D11InputLayout* textIL;
+	ID3D11VertexShader* text_vs;
+	ID3D11PixelShader* text_ps;
+	ID3D11InputLayout* text_il;
 
-	ID3D11Buffer* textVertexBuffer;
-	ID3D11Buffer* textIndexBuffer;
+	ID3D11Buffer* text_vertex_buffer;
+	ID3D11Buffer* text_index_buffer;
 
-	ID3D11RenderTargetView* windowRTView;
-	ID3D11DepthStencilView* windowDPView;
+	ID3D11RenderTargetView* window_rt_view;
+	ID3D11DepthStencilView* window_dp_view;
 
-	ID3D11SamplerState* samplerState;
+	ID3D11SamplerState* sampler_state;
 
 	ID3D11Texture2D* textures[16];
-	ID3D11ShaderResourceView* textureViews[16];
+	ID3D11ShaderResourceView* texture_views[16];
 
 	b32 renderer_occluded = 0;
 
-	void InitD3D11(HWND window, i32 swapchainWidth, i32 swapchainHeight, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int numImages, TextVertex* textVertBuffer, int numTextVerts);
-	HRESULT RendererResize(HWND window, i32 swapchainWidth, i32 swapchainHeight);
+	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts);
+	HRESULT RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* gameMemory, ModelBuffer* m_buffer, RenderData* renderData, TextVertex* verts);
+	void RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderData* render_data, TextVertex* verts);
 };
 
 #endif

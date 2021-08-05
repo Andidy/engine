@@ -65,14 +65,14 @@ static void win32_LoadXInput() {
 
 // // something for controllers?
 // internal void win32_ProcessXInputDigitalButton(ButtonState* oldstate, ButtonState* newstate, DWORD buttonBit, DWORD xinputButtonState) {
-//  newstate->endedDown = ((xinputButtonState & buttonBit) == buttonBit);
-//  newstate->transitionCount = (oldstate->endedDown != newstate->endedDown) ? 1 : 0;
+//  newstate->ended_down = ((xinputButtonState & buttonBit) == buttonBit);
+//  newstate->transition_count = (oldstate->ended_down != newstate->ended_down) ? 1 : 0;
 //}
 
 static void win32_ProcessKeyboardMessage(ButtonState* newState, b32 isDown) {
-	assert(newState->endedDown != isDown);
-	newState->endedDown = isDown;
-	newState->transitionCount += 1;
+	assert(newState->ended_down != isDown);
+	newState->ended_down = isDown;
+	newState->transition_count += 1;
 }
 
 static void win32_UpdateInput(Input* gameInput, HWND window) {
@@ -154,56 +154,56 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 
 			case WM_LBUTTONDOWN:
 			{
-				gameInput->mouse.left.endedDown = 1;
-				gameInput->mouse.left.transitionCount = 1;
+				gameInput->mouse.left.ended_down = 1;
+				gameInput->mouse.left.transition_count = 1;
 			} break;
 			case WM_LBUTTONUP:
 			{
-				gameInput->mouse.left.endedDown = 0;
-				gameInput->mouse.left.transitionCount = 1;
+				gameInput->mouse.left.ended_down = 0;
+				gameInput->mouse.left.transition_count = 1;
 			} break;
 			case WM_MBUTTONDOWN:
 			{
-				gameInput->mouse.middle.endedDown = 1;
-				gameInput->mouse.middle.transitionCount = 1;
+				gameInput->mouse.middle.ended_down = 1;
+				gameInput->mouse.middle.transition_count = 1;
 			} break;
 			case WM_MBUTTONUP:
 			{
-				gameInput->mouse.middle.endedDown = 0;
-				gameInput->mouse.middle.transitionCount = 1;
+				gameInput->mouse.middle.ended_down = 0;
+				gameInput->mouse.middle.transition_count = 1;
 			} break;
 			case WM_RBUTTONDOWN:
 			{
-				gameInput->mouse.right.endedDown = 1;
-				gameInput->mouse.right.transitionCount = 1;
+				gameInput->mouse.right.ended_down = 1;
+				gameInput->mouse.right.transition_count = 1;
 			} break;
 			case WM_RBUTTONUP:
 			{
-				gameInput->mouse.right.endedDown = 0;
-				gameInput->mouse.right.transitionCount = 1;
+				gameInput->mouse.right.ended_down = 0;
+				gameInput->mouse.right.transition_count = 1;
 			} break;
 			case WM_XBUTTONDOWN:
 			{
 				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
 				if (fwButton == XBUTTON1) {
-					gameInput->mouse.x1.endedDown = 1;
-					gameInput->mouse.x1.transitionCount = 1;
+					gameInput->mouse.x1.ended_down = 1;
+					gameInput->mouse.x1.transition_count = 1;
 				}
 				else {
-					gameInput->mouse.x2.endedDown = 1;
-					gameInput->mouse.x2.transitionCount = 1;
+					gameInput->mouse.x2.ended_down = 1;
+					gameInput->mouse.x2.transition_count = 1;
 				}
 			} break;
 			case WM_XBUTTONUP:
 			{
 				DWORD fwButton = GET_XBUTTON_WPARAM(message.wParam);
 				if (fwButton == XBUTTON1) {
-					gameInput->mouse.x1.endedDown = 0;
-					gameInput->mouse.x1.transitionCount = 1;
+					gameInput->mouse.x1.ended_down = 0;
+					gameInput->mouse.x1.transition_count = 1;
 				}
 				else {
-					gameInput->mouse.x2.endedDown = 0;
-					gameInput->mouse.x2.transitionCount = 1;
+					gameInput->mouse.x2.ended_down = 0;
+					gameInput->mouse.x2.transition_count = 1;
 				}
 			} break;
 
@@ -237,11 +237,11 @@ static void win32_UpdateInput(Input* gameInput, HWND window) {
 			} break;
 		}
 	}
-	POINT cursorPoint;
-	if (GetCursorPos(&cursorPoint)) {
-		if (ScreenToClient(window, &cursorPoint)) {
-			gameInput->mouse.x = cursorPoint.x;
-			gameInput->mouse.y = cursorPoint.y;
+	POINT cursor_point;
+	if (GetCursorPos(&cursor_point)) {
+		if (ScreenToClient(window, &cursor_point)) {
+			gameInput->mouse.x = cursor_point.x;
+			gameInput->mouse.y = cursor_point.y;
 		}
 	}
 }
@@ -348,31 +348,31 @@ struct win32_WindowDimension {
 };
 
 static win32_WindowDimension win32_GetWindowDimension(HWND window) {
-	RECT clientRect;
-	GetClientRect(window, &clientRect);
+	RECT client_rect;
+	GetClientRect(window, &client_rect);
 
-	win32_WindowDimension windowDimension = {};
-	windowDimension.width = clientRect.right - clientRect.left;
-	windowDimension.height = clientRect.bottom - clientRect.top;
-	return windowDimension;
+	win32_WindowDimension window_dimension = {};
+	window_dimension.width = client_rect.right - client_rect.left;
+	window_dimension.height = client_rect.bottom - client_rect.top;
+	return window_dimension;
 }
 
-void PrepareRenderData(Memory* gameMemory, RenderData* renderData) {
-	GameState* gs = (GameState*)gameMemory->data;
+void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
+	GameState* gs = (GameState*)game_memory->data;
 
 	int iter = 0;
-	renderData->entities[iter++] = { gs->blackGuyHead.renderPos, gs->blackGuyHead.renderScale, gs->blackGuyHead.renderRotAxis, gs->blackGuyHead.renderRotAngle, 0, 0 };
-	renderData->entities[iter++] = { gs->blackGuyHead2.renderPos, gs->blackGuyHead2.renderScale, gs->blackGuyHead2.renderRotAxis, gs->blackGuyHead2.renderRotAngle, 0, 0 };
+	render_data->entities[iter++] = { gs->blackGuyHead.render_pos, gs->blackGuyHead.render_scale, gs->blackGuyHead.render_rot_axis, gs->blackGuyHead.render_rot_angle, 0, 0 };
+	render_data->entities[iter++] = { gs->blackGuyHead2.render_pos, gs->blackGuyHead2.render_scale, gs->blackGuyHead2.render_rot_axis, gs->blackGuyHead2.render_rot_angle, 0, 0 };
 	
-	renderData->entities[iter++] = { gs->bunnyTest.renderPos, gs->bunnyTest.renderScale, gs->bunnyTest.renderRotAxis, gs->bunnyTest.renderRotAngle, 2, 2 };
-	renderData->entities[iter++] = { gs->bunnyTest2.renderPos, gs->bunnyTest2.renderScale, gs->bunnyTest2.renderRotAxis, gs->bunnyTest2.renderRotAngle, 2, 2 };
+	render_data->entities[iter++] = { gs->bunnyTest.render_pos, gs->bunnyTest.render_scale, gs->bunnyTest.render_rot_axis, gs->bunnyTest.render_rot_angle, 2, 2 };
+	render_data->entities[iter++] = { gs->bunnyTest2.render_pos, gs->bunnyTest2.render_scale, gs->bunnyTest2.render_rot_axis, gs->bunnyTest2.render_rot_angle, 2, 2 };
 	
 	for (int i = 0; i < 7; i++) {
-		renderData->entities[iter++] = { gs->cubes[i].renderPos, gs->cubes[i].renderScale, gs->cubes[i].renderRotAxis, gs->cubes[i].renderRotAngle, 4, 3 + i };
+		render_data->entities[iter++] = { gs->cubes[i].render_pos, gs->cubes[i].render_scale, gs->cubes[i].render_rot_axis, gs->cubes[i].render_rot_angle, 4, 3 + i };
 	}
-	renderData->entities[iter++] = { gs->quad.renderPos, gs->quad.renderScale, gs->quad.renderRotAxis, gs->quad.renderRotAngle, 5, 0 };
+	render_data->entities[iter++] = { gs->quad.render_pos, gs->quad.render_scale, gs->quad.render_rot_axis, gs->quad.render_rot_angle, 5, 0 };
 
-	renderData->num_entities = iter;
+	render_data->num_entities = iter;
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -517,16 +517,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			QueryPerformanceCounter(&lasttimer);
 			u64 lastcyclecount = __rdtsc();
 
-			Input gameInput[2] = {};
-			Input* newInput = &gameInput[0];
-			Input* oldInput = &gameInput[1];
+			Input game_input[2] = {};
+			Input* new_input = &game_input[0];
+			Input* old_input = &game_input[1];
 
-			Memory gameMemory = {};
-			gameMemory.isInitialized = 0;
-			gameMemory.size = Kilobytes((u64)1);
-			gameMemory.data = VirtualAlloc(0, (SIZE_T)gameMemory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			Memory game_memory = {};
+			game_memory.is_initialized = 0;
+			game_memory.size = Kilobytes((u64)1);
+			game_memory.data = VirtualAlloc(0, (SIZE_T)game_memory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-			InitGameState(&gameMemory, Vec2((f32)dim.width, (f32)dim.height));
+			InitGameState(&game_memory, Vec2((f32)dim.width, (f32)dim.height));
 
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
@@ -543,7 +543,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
 			
-			char gameDebugText[1024];
+			char game_debug_text[1024];
 			const i32 FONT_SIZE = 20;
 			Image font_image;
 			Font font;
@@ -655,8 +655,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				stbi_image_free(images[iter].data);
 			}
 
-			RenderData renderData = {};
-			renderData.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)gameMemory.data)->numEntities));
+			RenderData render_data = {};
+			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)game_memory.data)->num_entities));
 
 			while (win32_running) {
 				// Timing
@@ -683,26 +683,26 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Update Input
 				{
-					*newInput = {};
+					*new_input = {};
 					for (int i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
-						newInput->keyboard.buttons[i].endedDown = oldInput->keyboard.buttons[i].endedDown;
+						new_input->keyboard.buttons[i].ended_down = old_input->keyboard.buttons[i].ended_down;
 					}
-					win32_UpdateInput(newInput, window);
+					win32_UpdateInput(new_input, window);
 				}
 
 				// Update Game
 				{
-					GameUpdate(&gameMemory, newInput, dt, gameDebugText);
+					GameUpdate(&game_memory, new_input, dt, game_debug_text);
 				}
 
 				// Render Game
 				{
-					PrepareRenderData(&gameMemory, &renderData);
+					PrepareRenderData(&game_memory, &render_data);
 					PrepareText(
-						gameDebugText, strlen(gameDebugText), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
+						game_debug_text, strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
 						&font, verts, win32_GetWindowDimension(window)
 					);
-					renderer.RenderFrame(&gameMemory, &model_buffer, &renderData, verts);
+					renderer.RenderFrame(&game_memory, &model_buffer, &render_data, verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}
@@ -710,9 +710,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 				// Swap Input structs
 				{
-					Input* temp = newInput;
-					newInput = oldInput;
-					oldInput = temp;
+					Input* temp = new_input;
+					new_input = old_input;
+					old_input = temp;
 				}
 			}
 		}

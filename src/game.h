@@ -26,14 +26,14 @@ struct Camera {
 };
 
 struct Entity {
-	vec3 renderPos;
-	vec3 renderScale;
-	vec3 renderRotAxis;
-	f32 renderRotAngle;
+	vec3 render_pos;
+	vec3 render_scale;
+	vec3 render_rot_axis;
+	f32 render_rot_angle;
 };
 
 struct GameState {
-	i32 numEntities;
+	i32 num_entities;
 	Entity blackGuyHead;
 	Entity blackGuyHead2;
 
@@ -43,12 +43,12 @@ struct GameState {
 	Entity cubes[7];
 	Entity quad;
 
-	Camera mainCamera;
+	Camera main_camera;
 
-	PermanentResourceAllocator resourceAllocator;
+	PermanentResourceAllocator resource_allocator;
 };
 
-void InitGameState(Memory* gameMemory, vec2 windowDimensions);
-void GameUpdate(Memory* gameMemory, Input* gameInput, f32 dt, char* gameDebugText);
+void InitGameState(Memory* game_memory, vec2 window_dimensions);
+void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text);
 
 #endif

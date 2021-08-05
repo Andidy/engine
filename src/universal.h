@@ -27,7 +27,7 @@ void DebugPrint(char* str);
 // Memory
 
 struct Memory {
-	b32 isInitialized;
+	b32 is_initialized;
 	u64 size;
 	void* data;
 };
@@ -56,12 +56,12 @@ typedef PermanentResourceAllocator FrameAllocator;
 // Input
 
 struct ButtonState {
-	i32 transitionCount;
-	b32 endedDown;
+	i32 transition_count;
+	b32 ended_down;
 };
 
 struct ControllerState {
-	b32 isAnalog;
+	b32 is_analog;
 	f32 lstartx, lstarty;
 	f32 lmaxx, lmaxy;
 	f32 lminx, lminy;
@@ -119,15 +119,15 @@ struct Input {
 // ------------ Functions -----------------
 
 inline b32 keyPressed(ButtonState button) {
-	return (button.endedDown) && (button.transitionCount > 0);
+	return (button.ended_down) && (button.transition_count > 0);
 }
 
 inline b32 keyReleased(ButtonState button) {
-	return !(button.endedDown) && (button.transitionCount > 0);
+	return !(button.ended_down) && (button.transition_count > 0);
 }
 
 inline b32 keyDown(ButtonState button) {
-	return (button.endedDown) && (button.transitionCount == 0);
+	return (button.ended_down) && (button.transition_count == 0);
 }
 
 // end Input
@@ -140,7 +140,7 @@ struct debug_ReadFileResult {
 };
 
 debug_ReadFileResult debug_ReadFile(char* filename);
-b32 debug_WriteFile(char* filename, u32 memorySize, void* memory);
+b32 debug_WriteFile(char* filename, u32 memory_size, void* memory);
 void debug_FreeFile(void* memory);
 
 // end FILE IO
