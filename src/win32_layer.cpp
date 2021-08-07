@@ -18,7 +18,7 @@
 #define UNICODE
 #endif 
 
-int window_width = 1200;
+int window_width = 1600;
 int window_height = 900;
 
 int win32_running = 0;
@@ -432,13 +432,11 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 		verts[vi + 2] = { vd.x0, vd.y1, 0, 1, 1, 1, 1, vd.s0, vd.t1 };
 		verts[vi + 3] = { vd.x1, vd.y1, 0, 1, 1, 1, 1, vd.s1, vd.t1 };
 		vi += 4;
-		
-		//font->char_count += 1;
 
 		// --------------------------------------- 
 		// TODO: re add kerning? 
-		//i32 kern = stbtt_GetCodepointKernAdvance(&(font->info), str[i], str[i + 1]);
-		//horz_pos += kern * scale;
+		i32 kern = stbtt_GetCodepointKernAdvance(&(font->info), str[i], str[i + 1]);
+		horz_pos += (f32)kern * scale;
 	}
 
 	*num_chars_visible = vi / 4;
@@ -484,6 +482,20 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 	return result;
 }
 
+
+/*
+struct AppThreadInput {
+	HWND window;
+};
+
+DWORD WINAPI AppThread(LPVOID param) {
+	// AppThreadInput* input = (AppThreadInput*)param;
+	
+	OutputDebugStringA((char*)"APP THREAD REPORTING IN\n");
+	
+	return 0;
+}
+*/
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	srand(0);
 	
@@ -512,6 +524,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 		);
 
 		if (window) {
+			//DWORD app_thread_handle;
+			//AppThreadInput app_thread_input = {};
+			//HANDLE handle = CreateThread(NULL, 0, AppThread, &app_thread_input, 0, &app_thread_handle);
+			
+			//WaitForSingleObject(handle, INFINITE);
+
+			//CloseHandle(handle);
+
 			win32_WindowDimension dim = win32_GetWindowDimension(window);
 			// win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 			
@@ -574,7 +594,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				/* Packing fonts ---------------------------------------*/
 				/* packed font bitmap init */
 				font_image.width = 256, font_image.height = 128;
-				uchar* pack_font_1bpp = (uchar*)malloc(sizeof(uchar) * font_image.width * font_image.height);
+				uchar* pack_font_1bpp = (uchar*)calloc(font_image.width * font_image.height, sizeof(uchar));
 
 				/* stride is 0 because we are tightly packed */
 				/* 1 for padding because filtering */
@@ -646,16 +666,16 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			stbi_write_png("test.png", font_image.width, font_image.height, 4, font_image.data, 0);
 
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
-			TextVertex verts[NUM_TEXT_VERTS];
+			TextVertex text_verts[NUM_TEXT_VERTS];
 			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
-				verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, 0, 0 };
-				verts[i + 1] = { 1, 0, 0, 1, 1, 1, 1, 1, 0 };
-				verts[i + 2] = { 0, 1, 0, 1, 1, 1, 1, 0, 1 };
-				verts[i + 3] = { 1, 1, 0, 1, 1, 1, 1, 1, 1 };
+				text_verts[i + 0] = { 0, 0, 0, 1, 1, 1, 1, 0, 0 };
+				text_verts[i + 1] = { 1, 0, 0, 1, 1, 1, 1, 1, 0 };
+				text_verts[i + 2] = { 0, 1, 0, 1, 1, 1, 1, 0, 1 };
+				text_verts[i + 3] = { 1, 1, 0, 1, 1, 1, 1, 1, 1 };
 			}
 
 			Renderer renderer = {};
-			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter, verts, NUM_TEXT_VERTS);
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter, text_verts, NUM_TEXT_VERTS);
 
 			for (int i = 0; i < iter; i++) {
 				stbi_image_free(images[iter].data);
@@ -663,6 +683,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			RenderData render_data = {};
 			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)game_memory.data)->num_entities));
+
+			win32_WindowDimension old_dim = dim;
+			bool client_area_updated = false;
 
 			while (win32_running) {
 				// Timing
@@ -696,23 +719,48 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					win32_UpdateInput(new_input, window);
 				}
 
+				{
+					// Check if the window has been resized since last frame.
+					// if it has been resized, signal to the game and renderer that
+					// they need to update their client area size dependencies
+
+					dim = win32_GetWindowDimension(window);
+					if (dim.width != old_dim.width || dim.height != old_dim.height) {
+						client_area_updated = true;
+					}
+				}
+
 				// Update Game
 				{
+					if (client_area_updated) {
+						UpdateCamera(&game_memory, dim.width, dim.height);
+					}
+
 					GameUpdate(&game_memory, new_input, dt, game_debug_text);
 				}
 
 				// Render Game
 				{
+					if (client_area_updated) {
+						renderer.RendererResize(window, dim.width, dim.height, old_dim.width, old_dim.height);
+					}
+
+					GameState* gs = (GameState*)game_memory.data;
+					renderer.UpdateViewport(gs->main_camera.viewport);
+
 					PrepareRenderData(&game_memory, &render_data);
 					PrepareText(
 						game_debug_text, strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
-						&font, verts, win32_GetWindowDimension(window)
+						&font, text_verts, dim
 					);
-					renderer.RenderFrame(&game_memory, &model_buffer, &render_data, verts);
+					renderer.RenderFrame(&game_memory, &model_buffer, &render_data, text_verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}
 				}
+
+				client_area_updated = false;
+				old_dim = dim;
 
 				// Swap Input structs
 				{

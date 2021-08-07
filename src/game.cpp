@@ -1,5 +1,13 @@
 #include "game.h"
 
+void UpdateCamera(Memory* game_memory, float width, float height) {
+	GameState* gs = (GameState*)game_memory->data;
+
+	gs->main_camera.viewport.size.x = width;
+	gs->main_camera.viewport.size.y = height;
+	gs->main_camera.proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
+}
+
 void InitGameState(Memory* game_memory, vec2 window_dimensions) {
 	GameState* gs = (GameState*)game_memory->data;
 

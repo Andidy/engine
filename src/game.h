@@ -50,5 +50,6 @@ struct GameState {
 
 void InitGameState(Memory* game_memory, vec2 window_dimensions);
 void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text);
+void UpdateCamera(Memory* game_memory, float x, float y);
 
 #endif

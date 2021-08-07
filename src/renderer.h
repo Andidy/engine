@@ -121,7 +121,7 @@ struct Renderer {
 	ID3D11Buffer* text_index_buffer;
 
 	ID3D11RenderTargetView* window_rt_view;
-	ID3D11DepthStencilView* window_dp_view;
+	ID3D11DepthStencilView* window_ds_view;
 
 	ID3D11SamplerState* sampler_state;
 
@@ -131,9 +131,10 @@ struct Renderer {
 	b32 renderer_occluded = 0;
 
 	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts);
-	HRESULT RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height);
+	void RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height);
 	HRESULT RenderPresent(HWND window);
 	void RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderData* render_data, TextVertex* verts);
+	void UpdateViewport(Viewport viewport);
 };
 
 #endif

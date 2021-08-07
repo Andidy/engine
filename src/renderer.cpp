@@ -633,18 +633,6 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
-	/*
-	UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-	hr = swapchain->ResizeBuffers(0, swapchainWidth, swapchainHeight, DXGI_FORMAT_UNKNOWN, flags);
-	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR) {
-		// if (failed (recreate device()) )
-		__debugbreak();
-	}
-	else {
-		__debugbreak();
-	}
-	*/
-
 	ID3D11Texture2D* windowBuffer = {};
 	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&windowBuffer);
 	if (FAILED(hr)) { __debugbreak(); }
@@ -669,7 +657,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
 		if (FAILED(hr)) { __debugbreak(); }
 
-		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_dp_view);
+		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_ds_view);
 		depthStencil->Release();
 		if (FAILED(hr)) { __debugbreak(); }
 	}
@@ -685,71 +673,59 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 	context->RSSetViewports(1, &viewport);
 }
 
-HRESULT Renderer::RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height) {
-	if (swapchain_width == 0 || swapchain_height == 0) {
-		return S_OK;
+void Renderer::RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height) {
+	if (window_rt_view == NULL || swapchain_width != old_width || swapchain_height != old_height) {
+		if (window_rt_view) {
+			context->OMSetRenderTargets(0, NULL, NULL);
+			context->ClearState();
+			window_rt_view->Release();
+			window_rt_view = NULL;
+			window_ds_view->Release();
+			window_ds_view = NULL;
+		}
+
+		if (swapchain_width != 0 && swapchain_height != 0) {
+			UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
+			HRESULT hr = swapchain->ResizeBuffers(0, swapchain_width, swapchain_height, DXGI_FORMAT_UNKNOWN, flags);
+			if (FAILED(hr)) {
+				OutputDebugStringA((char*)"Failed to Resize the Swapchain\n");
+				__debugbreak();
+			}
+
+			D3D11_RENDER_TARGET_VIEW_DESC rtv_desc = {};
+			rtv_desc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+			rtv_desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+
+			ID3D11Texture2D* window_buffer;
+			hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&window_buffer);
+			if (FAILED(hr)) { __debugbreak(); }
+
+			hr = device->CreateRenderTargetView((ID3D11Resource*)window_buffer, &rtv_desc, &window_rt_view);
+			if (FAILED(hr)) { __debugbreak(); }
+			window_buffer->Release();
+
+			{
+				D3D11_TEXTURE2D_DESC desc = {};
+				desc.Width = swapchain_width;
+				desc.Height = swapchain_height;
+				desc.MipLevels = 1;
+				desc.ArraySize = 1;
+				desc.Format = DXGI_FORMAT_D32_FLOAT;
+				desc.SampleDesc.Count = 1;
+				desc.SampleDesc.Quality = 0;
+				desc.Usage = D3D11_USAGE_DEFAULT;
+				desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+				ID3D11Texture2D* depthStencil = {};
+				hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
+				if (FAILED(hr)) { __debugbreak(); }
+
+				hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_ds_view);
+				if (FAILED(hr)) { __debugbreak(); }
+				depthStencil->Release();
+			}
+		}
 	}
-
-	if (window_rt_view) {
-		context->OMSetRenderTargets(0, NULL, NULL);
-		window_rt_view->Release();
-		window_rt_view = NULL;
-	}
-
-	if (window_dp_view) {
-		window_dp_view->Release();
-		window_dp_view = NULL;
-	}
-
-	UINT flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING;
-	HRESULT hr = swapchain->ResizeBuffers(0, swapchain_width, swapchain_height, DXGI_FORMAT_UNKNOWN, flags);
-	if (hr == DXGI_ERROR_DEVICE_REMOVED || hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DRIVER_INTERNAL_ERROR) {
-		// if (failed (recreate device()) )
-		__debugbreak();
-	}
-	else {
-		__debugbreak();
-	}
-
-	ID3D11Texture2D* window_buffer;
-	hr = swapchain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&window_buffer);
-	if (FAILED(hr)) { __debugbreak(); }
-
-	hr = device->CreateRenderTargetView((ID3D11Resource*)window_buffer, NULL, &window_rt_view);
-	window_buffer->Release();
-	if (FAILED(hr)) { __debugbreak(); }
-
-	{
-		D3D11_TEXTURE2D_DESC desc = {};
-		desc.Width = swapchain_width;
-		desc.Height = swapchain_height;
-		desc.MipLevels = 1;
-		desc.ArraySize = 1;
-		desc.Format = DXGI_FORMAT_D32_FLOAT;
-		desc.SampleDesc.Count = 1;
-		desc.SampleDesc.Quality = 0;
-		desc.Usage = D3D11_USAGE_DEFAULT;
-		desc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-
-		ID3D11Texture2D* depthStencil = {};
-		hr = device->CreateTexture2D(&desc, NULL, &depthStencil);
-		if (FAILED(hr)) { __debugbreak(); }
-
-		hr = device->CreateDepthStencilView((ID3D11Resource*)depthStencil, NULL, &window_dp_view);
-		depthStencil->Release();
-		if (FAILED(hr)) { __debugbreak(); }
-	}
-
-	D3D11_VIEWPORT viewport = {};
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-	viewport.Width = (f32)swapchain_width;
-	viewport.Height = (f32)swapchain_height;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-
-	context->RSSetViewports(1, &viewport);
-	return S_OK;
 }
 
 HRESULT Renderer::RenderPresent(HWND window) {
@@ -766,30 +742,8 @@ HRESULT Renderer::RenderPresent(HWND window) {
 		hr = swapchain->Present(1, 0);
 	}
 
-	if (hr == DXGI_ERROR_DEVICE_RESET || hr == DXGI_ERROR_DEVICE_REMOVED) {
-		//if (FAILED(RecreateDevice(wnd))) {
-		//	return FatalDeviceLostError();
-		//}
-
-		//RECT rect;
-		//if (!GetClientRect(wnd, &rect)) {
-		//	LogWin32LastError("GetClientRect failed");
-		//}
-		//else {
-		//	RenderResize(wnd, rect.right - rect.left, rect.bottom - rect.top);
-		//}
-		__debugbreak();
-	}
-	else if (hr == DXGI_STATUS_OCCLUDED) {
-		// DXGI window is occluded, skipping rendering
+	if (hr == DXGI_STATUS_OCCLUDED) {
 		renderer_occluded = 1;
-	}
-	else if (hr == S_OK) {
-		// do nothing because its not an error
-	}
-	else {
-		__debugbreak();
-		// LOG_AND_RETURN_ERROR(hr, "IDXGISwapChain::Present failed");
 	}
 
 	if (renderer_occluded) {
@@ -810,9 +764,9 @@ void Renderer::RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderDat
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
 		//}
 
-		context->OMSetRenderTargets(1, &window_rt_view, window_dp_view);
+		context->OMSetRenderTargets(1, &window_rt_view, window_ds_view);
 		context->OMSetDepthStencilState(depth_stencil_state, 0);
-		context->ClearDepthStencilView(window_dp_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+		context->ClearDepthStencilView(window_ds_view, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 		// clear background
 		FLOAT clear_color[] = { 100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 1.0f };
@@ -881,4 +835,16 @@ void Renderer::RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderDat
 		context->PSSetShaderResources(0, 1, &texture_views[11]);
 		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
+}
+
+void Renderer::UpdateViewport(Viewport game_viewport) {
+	D3D11_VIEWPORT viewport = {};
+	viewport.TopLeftX = game_viewport.pos.x;
+	viewport.TopLeftY = game_viewport.pos.y;
+	viewport.Width = game_viewport.size.x;
+	viewport.Height = game_viewport.size.y;
+	viewport.MinDepth = game_viewport.depth.x;
+	viewport.MaxDepth = game_viewport.depth.y;
+
+	context->RSSetViewports(1, &viewport);
 }
