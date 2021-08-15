@@ -11,8 +11,6 @@
 
 #include <windows.h>
 #include <windowsx.h>
-#include <xinput.h>
-
 
 #ifndef UNICODE
 #define UNICODE
@@ -25,49 +23,6 @@ int win32_running = 0;
 
 // ============================================================================
 // USER INPUT
-
-#define X_INPUT_GET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_STATE* pState)
-#define X_INPUT_SET_STATE(name) DWORD WINAPI name(DWORD dwUserIndex, XINPUT_VIBRATION* pVibration)
-typedef X_INPUT_GET_STATE(x_input_get_state);
-typedef X_INPUT_SET_STATE(x_input_set_state);
-
-X_INPUT_GET_STATE(XInputGetStateStub) {
-	return ERROR_DEVICE_NOT_CONNECTED;
-}
-X_INPUT_SET_STATE(XInputSetStateStub) {
-	return ERROR_DEVICE_NOT_CONNECTED;
-}
-
-// The assigments are in win32_LoadXInput because C doesn't like the assignments
-static x_input_get_state* XInputGetState_; // = XInputGetStateStub;
-static x_input_set_state* XInputSetState_; // = XInputSetStateStub;
-#define XInputGetState XInputGetState_
-#define XInputSetState XInputSetState_
-
-static void win32_LoadXInput() {
-	XInputGetState_ = XInputGetStateStub;
-	XInputSetState_ = XInputSetStateStub;
-
-	// If we don't have xinput1.4 check for xinput1.3
-	HMODULE XInputLibrary;
-	XInputLibrary = LoadLibraryA("xinput1_4.dll");
-	if (!XInputLibrary) {
-		XInputLibrary = LoadLibraryA("xinput9_1_0.dll");
-	}
-	if (!XInputLibrary) {
-		XInputLibrary = LoadLibraryA("xinput1_3.dll");
-	}
-	if (XInputLibrary) {
-		XInputGetState = (x_input_get_state*)GetProcAddress(XInputLibrary, "XInputGetState");
-		XInputSetState = (x_input_set_state*)GetProcAddress(XInputLibrary, "XInputSetState");
-	}
-}
-
-// // something for controllers?
-// internal void win32_ProcessXInputDigitalButton(ButtonState* oldstate, ButtonState* newstate, DWORD buttonBit, DWORD xinputButtonState) {
-//  newstate->ended_down = ((xinputButtonState & buttonBit) == buttonBit);
-//  newstate->transition_count = (oldstate->ended_down != newstate->ended_down) ? 1 : 0;
-//}
 
 static void win32_ProcessKeyboardMessage(ButtonState* newState, b32 isDown) {
 	assert(newState->ended_down != isDown);
@@ -484,8 +439,6 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	srand(0);
-	
-	win32_LoadXInput();
 	
 	stbi_set_flip_vertically_on_load(1);
 
