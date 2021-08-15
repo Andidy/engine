@@ -482,21 +482,6 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 	return result;
 }
 
-
-/*
-struct AppThreadInput {
-	HWND window;
-};
-
-DWORD WINAPI AppThread(LPVOID param) {
-	// AppThreadInput* input = (AppThreadInput*)param;
-	
-	OutputDebugStringA((char*)"APP THREAD REPORTING IN\n");
-	
-	return 0;
-}
-*/
-
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	srand(0);
 	
@@ -525,14 +510,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 		);
 
 		if (window) {
-			//DWORD app_thread_handle;
-			//AppThreadInput app_thread_input = {};
-			//HANDLE handle = CreateThread(NULL, 0, AppThread, &app_thread_input, 0, &app_thread_handle);
-			
-			//WaitForSingleObject(handle, INFINITE);
-
-			//CloseHandle(handle);
-
 			win32_WindowDimension dim = win32_GetWindowDimension(window);
 			
 			win32_running = 1;
