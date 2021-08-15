@@ -496,6 +496,7 @@ DWORD WINAPI AppThread(LPVOID param) {
 	return 0;
 }
 */
+
 int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, _In_ LPWSTR pCmdLine, _In_ int nCmdShow) {
 	srand(0);
 	
@@ -533,7 +534,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			//CloseHandle(handle);
 
 			win32_WindowDimension dim = win32_GetWindowDimension(window);
-			// win32_ResizeDIBSection(&globalBackBuffer, dim.width, dim.height);
 			
 			win32_running = 1;
 
