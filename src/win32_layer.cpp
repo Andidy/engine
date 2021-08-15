@@ -18,7 +18,7 @@
 #define UNICODE
 #endif 
 
-int window_width = 1600;
+int window_width = 1200;
 int window_height = 900;
 
 int win32_running = 0;
@@ -716,7 +716,42 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					for (int i = 0; i < NUM_KEYBOARD_BUTTONS; i++) {
 						new_input->keyboard.buttons[i].ended_down = old_input->keyboard.buttons[i].ended_down;
 					}
+					for (int i = 0; i < NUM_MOUSE_BUTTONS; i++) {
+						new_input->mouse.buttons[i].ended_down = old_input->mouse.buttons[i].ended_down;
+					}
 					win32_UpdateInput(new_input, window);
+				}
+
+				{
+					if (keyDown(new_input->mouse.left)) {
+						OutputDebugStringA((char*)"Left Down\n");
+					}
+					if (keyPressed(new_input->mouse.left)) {
+						OutputDebugStringA((char*)"Left Pressed\n");
+					}
+					if (keyReleased(new_input->mouse.left)) {
+						OutputDebugStringA((char*)"Left Released\n");
+					}
+
+					if (keyDown(new_input->mouse.right)) {
+						OutputDebugStringA((char*)"Right Down\n");
+					}
+					if (keyPressed(new_input->mouse.right)) {
+						OutputDebugStringA((char*)"Right Pressed\n");
+					}
+					if (keyReleased(new_input->mouse.right)) {
+						OutputDebugStringA((char*)"Right Released\n");
+					}
+
+					if (keyDown(new_input->mouse.middle)) {
+						OutputDebugStringA((char*)"Middle Down\n");
+					}
+					if (keyPressed(new_input->mouse.middle)) {
+						OutputDebugStringA((char*)"Middle Pressed\n");
+					}
+					if (keyReleased(new_input->mouse.middle)) {
+						OutputDebugStringA((char*)"Middle Released\n");
+					}
 				}
 
 				{
