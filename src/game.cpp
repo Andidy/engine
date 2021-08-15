@@ -250,6 +250,6 @@ void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug
 
 	// Debug Text to draw to screen
 	{
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\n", camera->pos.x, camera->pos.y, camera->pos.z, game_input->mouse.x, game_input->mouse.y);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.2f, FPS: %.2f\n", camera->pos.x, camera->pos.y, camera->pos.z, game_input->mouse.x, game_input->mouse.y, dt / 1000.0f, 1.0f / (dt / 1000.0f));
 	}
 }
