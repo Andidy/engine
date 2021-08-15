@@ -388,8 +388,6 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 		verts[vi + 3] = { vd.x1, vd.y1, 0, 1, 1, 1, 1, vd.s1, vd.t1 };
 		vi += 4;
 
-		// --------------------------------------- 
-		// TODO: re add kerning? 
 		i32 kern = stbtt_GetCodepointKernAdvance(&(font->info), str[i], str[i + 1]);
 		horz_pos += (f32)kern * scale;
 	}
@@ -411,9 +409,6 @@ LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LP
 		} break;
 		case WM_SIZE: 
 		{
-			//if (FAILED(renderer.RendererResize(hwnd, LOWORD(lParam), HIWORD(lParam)))) {
-			//	DestroyWindow(hwnd);
-			//}
 			OutputDebugStringW(L"WM_SIZE\n");
 		} break;
 		case WM_DESTROY: { win32_running = 0; OutputDebugStringW(L"WM_DESTROY\n"); } break;
@@ -650,38 +645,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						new_input->mouse.buttons[i].ended_down = old_input->mouse.buttons[i].ended_down;
 					}
 					win32_UpdateInput(new_input, window);
-				}
-
-				{
-					if (keyDown(new_input->mouse.left)) {
-						OutputDebugStringA((char*)"Left Down\n");
-					}
-					if (keyPressed(new_input->mouse.left)) {
-						OutputDebugStringA((char*)"Left Pressed\n");
-					}
-					if (keyReleased(new_input->mouse.left)) {
-						OutputDebugStringA((char*)"Left Released\n");
-					}
-
-					if (keyDown(new_input->mouse.right)) {
-						OutputDebugStringA((char*)"Right Down\n");
-					}
-					if (keyPressed(new_input->mouse.right)) {
-						OutputDebugStringA((char*)"Right Pressed\n");
-					}
-					if (keyReleased(new_input->mouse.right)) {
-						OutputDebugStringA((char*)"Right Released\n");
-					}
-
-					if (keyDown(new_input->mouse.middle)) {
-						OutputDebugStringA((char*)"Middle Down\n");
-					}
-					if (keyPressed(new_input->mouse.middle)) {
-						OutputDebugStringA((char*)"Middle Pressed\n");
-					}
-					if (keyReleased(new_input->mouse.middle)) {
-						OutputDebugStringA((char*)"Middle Released\n");
-					}
 				}
 
 				{
