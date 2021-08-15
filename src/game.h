@@ -34,16 +34,23 @@ struct Entity {
 
 struct GameState {
 	i32 num_entities;
-	Entity blackGuyHead;
-	Entity blackGuyHead2;
+	int blackGuyHead;
+	int blackGuyHead2;
 
-	Entity bunnyTest;
-	Entity bunnyTest2;
+	int bunnyTest;
+	int bunnyTest2;
 
-	Entity cubes[7];
-	Entity quad;
+	int cubes[7];
+	int quad;
+
+	int MAX_ENTITIES;
+	Entity* entities;
 
 	Camera main_camera;
+
+	int picked_object;
+	vec3 picking_dir;
+	float picking_dist;
 
 	PermanentResourceAllocator resource_allocator;
 };

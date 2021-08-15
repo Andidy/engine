@@ -316,21 +316,31 @@ void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	GameState* gs = (GameState*)game_memory->data;
 
 	int iter = 0;
-	render_data->entities[iter++] = { gs->blackGuyHead.render_pos, gs->blackGuyHead.render_scale, gs->blackGuyHead.render_rot_axis, gs->blackGuyHead.render_rot_angle, 0, 0 };
-	render_data->entities[iter++] = { gs->blackGuyHead2.render_pos, gs->blackGuyHead2.render_scale, gs->blackGuyHead2.render_rot_axis, gs->blackGuyHead2.render_rot_angle, 0, 0 };
+	Entity e = gs->entities[gs->blackGuyHead];
+	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
+	e = gs->entities[gs->blackGuyHead2];
+	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
 	
-	render_data->entities[iter++] = { gs->bunnyTest.render_pos, gs->bunnyTest.render_scale, gs->bunnyTest.render_rot_axis, gs->bunnyTest.render_rot_angle, 2, 2 };
-	render_data->entities[iter++] = { gs->bunnyTest2.render_pos, gs->bunnyTest2.render_scale, gs->bunnyTest2.render_rot_axis, gs->bunnyTest2.render_rot_angle, 2, 2 };
+	e = gs->entities[gs->bunnyTest];
+	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 };
+	e = gs->entities[gs->bunnyTest2];
+	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 };
 	
 	for (int i = 0; i < 7; i++) {
-		render_data->entities[iter++] = { gs->cubes[i].render_pos, gs->cubes[i].render_scale, gs->cubes[i].render_rot_axis, gs->cubes[i].render_rot_angle, 4, 3 + i };
+		e = gs->entities[gs->cubes[i]];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 4, 3 + i };
 	}
-	render_data->entities[iter++] = { gs->quad.render_pos, gs->quad.render_scale, gs->quad.render_rot_axis, gs->quad.render_rot_angle, 5, 0 };
+	e = gs->entities[gs->quad];
+	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 5, 0 };
 
 	render_data->num_entities = iter;
 
-	for (int i = 0; i < render_data->num_entities; i++) {
-		render_data->entities[i].texture_index = 10;
+	// set this to 1 to make all models just have a white texture
+	// set to 0 for actual textures
+	if (1) {
+		for (int i = 0; i < render_data->num_entities; i++) {
+			render_data->entities[i].texture_index = 10;
+		}
 	}
 }
 
