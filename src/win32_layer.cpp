@@ -598,8 +598,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].height = font_image.height;
 			iter += 1;
 
-			stbi_write_png("test.png", font_image.width, font_image.height, 4, font_image.data, 0);
-
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
 			TextVertex text_verts[NUM_TEXT_VERTS];
 			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
