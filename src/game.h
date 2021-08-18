@@ -30,6 +30,8 @@ struct Entity {
 	vec3 render_scale;
 	vec3 render_rot_axis;
 	f32 render_rot_angle;
+	AssetHandle h_mesh;
+	AssetHandle h_texture;
 };
 
 struct GameState {
@@ -55,7 +57,7 @@ struct GameState {
 	PermanentResourceAllocator resource_allocator;
 };
 
-void InitGameState(Memory* game_memory, vec2 window_dimensions);
+void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles);
 void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text);
 void UpdateCamera(Memory* game_memory, float x, float y);
 

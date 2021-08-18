@@ -1,0 +1,22 @@
+[
+  {
+    "name": "african_head",
+    "mesh": "african_head.obj",
+    "texture": "african_head.png"
+  },
+  {
+    "name": "bunny",
+    "mesh": "bunny.obj",
+    "texture": "bunny.png"
+  },
+  {
+    "name": "cube",
+    "mesh": "cube.obj",
+    "texture": "no_tex.png"
+  },
+  {
+    "name": "quad",
+    "mesh": "quad.obj",
+    "texture": "no_tex.png"
+  }
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "name": "blackGuyHead",
+    "pos": [-1.0, 0.0, -1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "african_head"
+  },
+  {
+    "name": "blackGuyHead2",
+    "pos": [-2.0, 0.0, -1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 90.0,
+    "model": "african_head"
+  },
+  {
+    "name": "bunny",
+    "pos": [-3.0, 0.0, -1.0],
+    "scale": [0.1, 0.1, 0.1],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "bunny"
+  },
+  {
+    "name": "bunny2",
+    "pos": [-4.0, 0.0, -1.0],
+    "scale": [0.1, 0.1, 0.1],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 180.0,
+    "model": "bunny"
+  },
+  {
+    "name": "cube",
+    "pos": [0.0, 5.0, -1.0],
+    "scale": [0.1, 0.1, 0.1],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "cube"
+  },
+  {
+    "name": "quad",
+    "pos": [-5.0, 5.0, -1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "quad"
+  }
+]

@@ -1,5 +1,7 @@
 #include "game.h"
 
+#include "../libs/json11-master/json11.hpp"
+
 struct MouseRayReturn {
 	vec3 start;
 	vec3 direction;
@@ -87,7 +89,7 @@ void UpdateCamera(Memory* game_memory, float width, float height) {
 	gs->main_camera.proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
 }
 
-void InitGameState(Memory* game_memory, vec2 window_dimensions) {
+void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles) {
 	GameState* gs = (GameState*)game_memory->data;
 
 	gs->resource_allocator = PermanentResourceAllocator(Megabytes(64));
@@ -97,17 +99,53 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions) {
 
 	gs->num_entities = 0;
 
-	gs->entities[gs->blackGuyHead = gs->num_entities++] = { Vec3(-1.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 0.0f };
-	gs->entities[gs->blackGuyHead2 = gs->num_entities++] = { Vec3(-2.0f, 0.0f, -1.0f), Vec3(1.0f, 1.0f, 1.0f), UpVec(), 90.0f };
-	
-	gs->entities[gs->bunnyTest = gs->num_entities++] = { Vec3(-3.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
-	gs->entities[gs->bunnyTest2 = gs->num_entities++] = { Vec3(-4.0f, 0.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 180.0f };
+	// Experimental asset loading
 
-	for (int i = 0; i < 7; i++) {
-		gs->entities[gs->cubes[i] = gs->num_entities++] = { Vec3((float)-i, 5.0f, -1.0f), Vec3(0.1f, 0.1f, 0.1f), UpVec(), 0.0f };
+	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities.json");
+	if (file.data != NULL && file.size >= 0) {
+		std::string json_err_str;
+		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
+
+		int entity_index = 0;
+		while (json[entity_index].is_object()) {
+			json11::Json::object je = json[entity_index].object_items();
+			
+			Entity e = {};
+
+			auto pos = je["pos"].array_items();
+			e.render_pos = Vec3(pos[0].number_value(), pos[1].number_value(), pos[2].number_value());
+
+			auto scale = je["scale"].array_items();
+			e.render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
+
+			auto rotation_axis = je["rotation_axis"].array_items();
+			e.render_rot_axis = Vec3(rotation_axis[0].number_value(), rotation_axis[1].number_value(), rotation_axis[2].number_value());
+
+			auto rotation_angle = je["rotation_angle"].number_value();
+			e.render_rot_angle = (float)rotation_angle;
+
+			auto asset_name = je["model"].string_value();
+			asset_name.append(".obj");
+			for (int i = 0; i < 1024; i++) {
+				if (asset_name.compare(asset_handles[i].name) == 0) {
+					e.h_mesh = asset_handles[i];
+				}
+			}
+
+			asset_name = je["model"].string_value();
+			asset_name.append(".png");
+			for (int i = 0; i < 1024; i++) {
+				if (asset_name.compare(asset_handles[i].name) == 0) {
+					e.h_texture = asset_handles[i];
+				}
+			}
+
+			gs->entities[gs->num_entities++] = e;
+			entity_index++;
+		}
 	}
 
-	gs->entities[gs->quad = gs->num_entities++] = { Vec3(-5.0f, 3.0f, -3.0f), OneVec(), UpVec(), 0.0f };
+	// end Experimental asset loading
 
 	gs->picked_object = -1;
 	gs->picking_dir = ZeroVec();

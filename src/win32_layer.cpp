@@ -315,31 +315,41 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	GameState* gs = (GameState*)game_memory->data;
 
-	int iter = 0;
-	Entity e = gs->entities[gs->blackGuyHead];
-	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
-	e = gs->entities[gs->blackGuyHead2];
-	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
-	
-	e = gs->entities[gs->bunnyTest];
-	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 };
-	e = gs->entities[gs->bunnyTest2];
-	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 };
-	
-	for (int i = 0; i < 7; i++) {
-		e = gs->entities[gs->cubes[i]];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 4, 3 + i };
+	if (1) {
+		for (int iter = 0; iter < gs->num_entities;) {
+			Entity e = gs->entities[iter];
+			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_mesh.handle, e.h_texture.handle };
+			render_data->num_entities = iter;
+		}	
 	}
-	e = gs->entities[gs->quad];
-	render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 5, 0 };
 
-	render_data->num_entities = iter;
+	if (0) {
+		int iter = 0;
+		Entity e = gs->entities[gs->blackGuyHead];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
+		e = gs->entities[gs->blackGuyHead2];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
+
+		e = gs->entities[gs->bunnyTest];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 1, 1 };
+		e = gs->entities[gs->bunnyTest2];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 1, 1 };
+
+		for (int i = 0; i < 7; i++) {
+			e = gs->entities[gs->cubes[i]];
+			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 + i };
+		}
+		e = gs->entities[gs->quad];
+		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 3, 0 };
+
+		render_data->num_entities = iter;
+	}
 
 	// set this to 1 to make all models just have a white texture
 	// set to 0 for actual textures
-	if (1) {
+	if (0) {
 		for (int i = 0; i < render_data->num_entities; i++) {
-			render_data->entities[i].texture_index = 10;
+			render_data->entities[i].texture_index = 9;
 		}
 	}
 }
@@ -485,8 +495,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			game_memory.size = Kilobytes((u64)1);
 			game_memory.data = VirtualAlloc(0, (SIZE_T)game_memory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
 
-			InitGameState(&game_memory, Vec2((f32)dim.width, (f32)dim.height));
-
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
 			ModelBuffer model_buffer;
@@ -495,12 +503,17 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
+			AssetHandle asset_handles[1024];
+			int asset_index = 0;
+
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/deer.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			asset_handles[asset_index++] = { "african_head.obj", AssetType::MESH, model_buffer.num_models - 1 };
 			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			LoadOBJ((char*)"test_assets/tree_default.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			asset_handles[asset_index++] = { "bunny.obj", AssetType::MESH, model_buffer.num_models - 1 };
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			asset_handles[asset_index++] = { "cube.obj", AssetType::MESH, model_buffer.num_models - 1 };
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+			asset_handles[asset_index++] = { "quad.obj", AssetType::MESH, model_buffer.num_models - 1 };
 			
 			char game_debug_text[1024];
 			const i32 FONT_SIZE = 20;
@@ -571,27 +584,35 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			int n, iter = 0;
 			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
 
-			images[iter].data = stbi_load((char*)"test_assets/african_head_diffuse.tga", &images[iter].width, &images[iter].height, &n, 4);
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/grass.png", &images[iter].width, &images[iter].height, &n, 4);
+			images[iter].data = stbi_load((char*)"test_assets/african_head.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "african_head.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/bunny.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "bunny.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/red.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "red.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/orange.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "orange.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/yellow.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "yellow.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/green.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "green.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/cyan.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "cyan.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/blue.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "blue.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "gray.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = stbi_load((char*)"test_assets/no_tex.png", &images[iter].width, &images[iter].height, &n, 4);
+			asset_handles[asset_index++] = { "no_tex.png", AssetType::TEXTURE, iter };
 			iter += 1;
 			images[iter].data = font_image.data;
 			images[iter].width = font_image.width;
@@ -613,6 +634,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			for (int i = 0; i < iter; i++) {
 				stbi_image_free(images[iter].data);
 			}
+
+			InitGameState(&game_memory, Vec2((f32)dim.width, (f32)dim.height), asset_handles);
 
 			RenderData render_data = {};
 			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)game_memory.data)->num_entities));

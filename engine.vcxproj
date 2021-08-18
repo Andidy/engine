@@ -272,17 +272,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="libs\json11-master\json11.hpp" />
     <ClInclude Include="libs\simplex.h" />
     <ClInclude Include="libs\stb\stb_image.h" />
     <ClInclude Include="libs\stb\stb_image_write.h" />
     <ClInclude Include="libs\stb\stb_rect_pack.h" />
     <ClInclude Include="libs\stb\stb_truetype.h" />
     <ClInclude Include="src\ady_types.h" />
+    <ClInclude Include="src\asset_loading.h" />
     <ClInclude Include="src\game.h" />
     <ClInclude Include="src\renderer.h" />
     <ClInclude Include="src\universal.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="libs\json11-master\json11.cpp" />
     <ClCompile Include="src\game.cpp" />
     <ClCompile Include="src\renderer.cpp" />
     <ClCompile Include="src\win32_layer.cpp" />

@@ -145,5 +145,11 @@ void debug_FreeFile(void* memory);
 
 // end FILE IO
 // ============================================================================
+// Asset System
+
+#include "asset_loading.h"
+
+//	end Asset System
+// ============================================================================
 
 #endif // !UNIVERSAL_H
