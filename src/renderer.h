@@ -52,13 +52,19 @@ struct RenderEntity {
 	vec3 rot_axis;
 	f32 rot_angle;
 
-	int32_t mesh_index;
-	int32_t texture_index;
+	int32_t model_index;
 };
 
 struct RenderData {
 	int32_t num_entities;
 	RenderEntity* entities;
+};
+
+struct Model {
+	std::string name;
+	AssetHandle h_mesh;
+	AssetHandle h_texture;
+	// AssetHandle h_normal_map;
 };
 
 struct Font {
@@ -133,7 +139,7 @@ struct Renderer {
 	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts);
 	void RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData* render_data, TextVertex* verts);
+	void RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* verts);
 	void UpdateViewport(Viewport viewport);
 };
 

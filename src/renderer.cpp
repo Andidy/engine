@@ -758,7 +758,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData* render_data, TextVertex* text_vert_buffer) {
+void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* text_vert_buffer) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -793,7 +793,9 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData
 		for (int i = 0; i < render_data->num_entities; i++) {
 			RenderEntity re = render_data->entities[i];
 			
-			context->PSSetShaderResources(0, 1, &texture_views[re.texture_index]);
+			Model m = models[re.model_index];
+
+			context->PSSetShaderResources(0, 1, &texture_views[m.h_texture.handle]);
 			
 			mat4 translate, scale, rotate;
 			translate = TranslateMat(re.pos);
@@ -811,7 +813,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData
 			context->Unmap(constant_buffer, 0);
 
 			context->VSSetConstantBuffers(0, 1, &constant_buffer);
-			context->DrawIndexed(m_buffer->meshes[re.mesh_index].length, m_buffer->meshes[re.mesh_index].start_index, 0);
+			context->DrawIndexed(m_buffer->meshes[m.h_mesh.handle].length, m_buffer->meshes[m.h_mesh.handle].start_index, 0);
 		}
 
 		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);

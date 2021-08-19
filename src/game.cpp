@@ -1,7 +1,5 @@
 #include "game.h"
 
-#include "../libs/json11-master/json11.hpp"
-
 struct MouseRayReturn {
 	vec3 start;
 	vec3 direction;
@@ -125,24 +123,15 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 			e.render_rot_angle = (float)rotation_angle;
 
 			auto asset_name = je["model"].string_value();
-			asset_name.append(".obj");
-			for (int i = 0; i < 1024; i++) {
+			for (int i = 0; i < 64; i++) {
 				if (asset_name.compare(asset_handles[i].name) == 0) {
-					e.h_mesh = asset_handles[i];
+					e.h_model = asset_handles[i];
 				}
 			}
 
-			asset_name = je["model"].string_value();
-			asset_name.append(".png");
-			for (int i = 0; i < 1024; i++) {
-				if (asset_name.compare(asset_handles[i].name) == 0) {
-					e.h_texture = asset_handles[i];
-				}
-			}
-
-			gs->entities[gs->num_entities++] = e;
-			entity_index++;
+			gs->entities[entity_index++] = e;
 		}
+		gs->num_entities = entity_index;
 	}
 
 	// end Experimental asset loading

@@ -318,11 +318,12 @@ void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	if (1) {
 		for (int iter = 0; iter < gs->num_entities;) {
 			Entity e = gs->entities[iter];
-			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_mesh.handle, e.h_texture.handle };
+			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
 			render_data->num_entities = iter;
 		}	
 	}
 
+	/*
 	if (0) {
 		int iter = 0;
 		Entity e = gs->entities[gs->blackGuyHead];
@@ -352,6 +353,7 @@ void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 			render_data->entities[i].texture_index = 9;
 		}
 	}
+	*/
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -503,7 +505,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
-			AssetHandle asset_handles[1024];
+			AssetHandle asset_handles[64];
 			int asset_index = 0;
 
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
@@ -619,6 +621,39 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].height = font_image.height;
 			iter += 1;
 
+			const int MAX_MODELS = 64;
+			Model models[MAX_MODELS];
+			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
+			if (file.data != NULL && file.size >= 0) {
+				std::string json_err_str;
+				json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
+
+				int model_index = 0;
+				while (json[model_index].is_object()) {
+					json11::Json::object jm = json[model_index].object_items();
+
+					Model m = {};
+
+					auto model_name = jm["name"].string_value();
+					m.name = model_name;
+
+					auto mesh_name = jm["mesh"].string_value();
+					for (int i = 0; i < MAX_MODELS; i++) {
+						if (mesh_name.compare(asset_handles[i].name) == 0) {
+							m.h_mesh = asset_handles[i];
+						}
+					}
+					auto texture_name = jm["texture"].string_value();
+					for (int i = 0; i < MAX_MODELS; i++) {
+						if (texture_name.compare(asset_handles[i].name) == 0) {
+							m.h_texture = asset_handles[i];
+						}
+					}
+					asset_handles[asset_index++] = { model_name, AssetType::MODEL, model_index };
+					models[model_index++] = m;
+				}
+			}
+
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
 			TextVertex text_verts[NUM_TEXT_VERTS];
 			for (int i = 0; i < NUM_TEXT_VERTS; i += 4) {
@@ -712,7 +747,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						game_debug_text, strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
 						&font, text_verts, dim
 					);
-					renderer.RenderFrame(&game_memory, &model_buffer, &render_data, text_verts);
+					renderer.RenderFrame(&game_memory, &model_buffer, models, &render_data, text_verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}

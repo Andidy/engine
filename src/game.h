@@ -30,8 +30,7 @@ struct Entity {
 	vec3 render_scale;
 	vec3 render_rot_axis;
 	f32 render_rot_angle;
-	AssetHandle h_mesh;
-	AssetHandle h_texture;
+	AssetHandle h_model;
 };
 
 struct GameState {
