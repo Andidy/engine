@@ -16,7 +16,7 @@ Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex) {
 	return result;
 }
 
-void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, PermanentResourceAllocator* allocator) {
+void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, MeshBuffer* meshes, PermanentResourceAllocator* allocator) {
 	v_buf->buffer_length = 100000000;
 	v_buf->num_vertices = 0;
 	v_buf->vertices = (Vertex*)allocator->Allocate(sizeof(Vertex) * v_buf->buffer_length);
@@ -25,9 +25,9 @@ void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, 
 	i_buf->num_indices = 0;
 	i_buf->indices = (i32*)allocator->Allocate(sizeof(i32) * i_buf->buffer_length);
 
-	models->buffer_length = 100;
-	models->num_models = 0;
-	models->models = (Model*)allocator->Allocate(sizeof(Model) * models->buffer_length);
+	meshes->buffer_length = 100;
+	meshes->num_meshes = 0;
+	meshes->meshes = (Mesh*)allocator->Allocate(sizeof(Mesh) * meshes->buffer_length);
 }
 
 b32 VertexCompare(Vertex v1, Vertex v2) {
@@ -52,12 +52,12 @@ struct Face {
 	FaceInt3 f[3];
 };
 
-void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator) {
+void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, MeshBuffer* m_buffer, PermanentResourceAllocator* allocator) {
 	// load obj
 	debug_ReadFileResult obj_file = debug_ReadFile(filename);
 	uchar* ptr = (uchar*)obj_file.data;
 
-	// find out how many faces and indices we will need for temp storage and model data
+	// find out how many faces and indices we will need for temp storage and mesh data
 	i32 num_indices = 0;
 	i32 num_faces = 0;
 	u64 i = 0;
@@ -71,9 +71,9 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mode
 	num_indices = 3 * num_faces;
 
 	// set this model's information to model buffer
-	m_buffer->models[m_buffer->num_models].start_index = i_buffer->num_indices;
-	m_buffer->models[m_buffer->num_models].length = num_indices;
-	m_buffer->num_models += 1;
+	m_buffer->meshes[m_buffer->num_meshes].start_index = i_buffer->num_indices;
+	m_buffer->meshes[m_buffer->num_meshes].length = num_indices;
+	m_buffer->num_meshes += 1;
 
 
 	// allocate temporary space
@@ -758,7 +758,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderData* render_data, TextVertex* text_vert_buffer) {
+void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData* render_data, TextVertex* text_vert_buffer) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -811,7 +811,7 @@ void Renderer::RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderDat
 			context->Unmap(constant_buffer, 0);
 
 			context->VSSetConstantBuffers(0, 1, &constant_buffer);
-			context->DrawIndexed(m_buffer->models[re.model_index].length, m_buffer->models[re.model_index].start_index, 0);
+			context->DrawIndexed(m_buffer->meshes[re.mesh_index].length, m_buffer->meshes[re.mesh_index].start_index, 0);
 		}
 
 		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);

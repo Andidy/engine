@@ -35,15 +35,15 @@ struct IndexBuffer {
 	i32* indices;
 };
 
-struct Model {
+struct Mesh {
 	i32 start_index;
 	i32 length;
 };
 
-struct ModelBuffer {
+struct MeshBuffer {
 	i32 buffer_length;
-	i32 num_models;
-	Model* models;
+	i32 num_meshes;
+	Mesh* meshes;
 };
 
 struct RenderEntity {
@@ -52,7 +52,7 @@ struct RenderEntity {
 	vec3 rot_axis;
 	f32 rot_angle;
 
-	int32_t model_index;
+	int32_t mesh_index;
 	int32_t texture_index;
 };
 
@@ -77,9 +77,9 @@ struct Image {
 	uchar* data;
 };
 
-void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, ModelBuffer* models, PermanentResourceAllocator* allocator);
+void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, MeshBuffer* meshes, PermanentResourceAllocator* allocator);
 
-void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, ModelBuffer* m_buffer, PermanentResourceAllocator* allocator);
+void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, MeshBuffer* m_buffer, PermanentResourceAllocator* allocator);
 
 #include <d3d11_1.h>
 #include <dxgi1_6.h>
@@ -133,7 +133,7 @@ struct Renderer {
 	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts);
 	void RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* game_memory, ModelBuffer* m_buffer, RenderData* render_data, TextVertex* verts);
+	void RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, RenderData* render_data, TextVertex* verts);
 	void UpdateViewport(Viewport viewport);
 };
 

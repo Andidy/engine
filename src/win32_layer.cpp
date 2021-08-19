@@ -497,7 +497,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
-			ModelBuffer model_buffer;
+			MeshBuffer model_buffer;
 			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)4));
 			FrameAllocator frame_allocator(Megabytes((u64)64));
 
@@ -507,13 +507,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			int asset_index = 0;
 
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "african_head.obj", AssetType::MESH, model_buffer.num_models - 1 };
+			asset_handles[asset_index++] = { "african_head.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
 			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "bunny.obj", AssetType::MESH, model_buffer.num_models - 1 };
+			asset_handles[asset_index++] = { "bunny.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
 			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "cube.obj", AssetType::MESH, model_buffer.num_models - 1 };
+			asset_handles[asset_index++] = { "cube.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
 			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "quad.obj", AssetType::MESH, model_buffer.num_models - 1 };
+			asset_handles[asset_index++] = { "quad.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
 			
 			char game_debug_text[1024];
 			const i32 FONT_SIZE = 20;
