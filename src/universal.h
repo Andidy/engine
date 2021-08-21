@@ -147,7 +147,6 @@ void debug_FreeFile(void* memory);
 // ============================================================================
 // Asset System
 
-#include "../libs/json11-master/json11.hpp"
 #include "asset_loading.h"
 
 //	end Asset System

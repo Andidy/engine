@@ -9,6 +9,8 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "../libs/stb/stb_image_write.h"
 
+#include "../libs/json11-master/json11.hpp"
+
 #include <windows.h>
 #include <windowsx.h>
 
