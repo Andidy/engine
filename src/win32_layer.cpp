@@ -21,6 +21,10 @@ int window_height = 900;
 
 int win32_running = 0;
 
+void DebugPrint(char* str) {
+	OutputDebugStringA(str);
+}
+
 // ============================================================================
 // USER INPUT
 
@@ -292,10 +296,7 @@ void PermanentResourceAllocator::FreeBackingBuffer() {
 
 // end Memory
 // ============================================================================
-
-void DebugPrint(char* str) {
-	OutputDebugStringA(str);
-}
+// Rendering
 
 struct win32_WindowDimension {
 	i32 width;
@@ -417,8 +418,49 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 	*num_chars_visible = vi / 4;
 }
 
+// end Rendering
 // ============================================================================
+// Game
 
+void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
+	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities.json");
+	if (file.data != NULL && file.size >= 0) {
+		std::string json_err_str;
+		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
+
+		int entity_index = 0;
+		while (json[entity_index].is_object()) {
+			json11::Json::object je = json[entity_index].object_items();
+
+			Entity e = {};
+
+			auto pos = je["pos"].array_items();
+			e.render_pos = Vec3(pos[0].number_value(), pos[1].number_value(), pos[2].number_value());
+
+			auto scale = je["scale"].array_items();
+			e.render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
+
+			auto rotation_axis = je["rotation_axis"].array_items();
+			e.render_rot_axis = Vec3(rotation_axis[0].number_value(), rotation_axis[1].number_value(), rotation_axis[2].number_value());
+
+			auto rotation_angle = je["rotation_angle"].number_value();
+			e.render_rot_angle = (float)rotation_angle;
+
+			auto asset_name = je["model"].string_value();
+			for (int i = 0; i < 64; i++) {
+				if (asset_name.compare(asset_handles[i].name) == 0) {
+					e.h_model = asset_handles[i];
+				}
+			}
+
+			gs->entities[entity_index++] = e;
+		}
+		gs->num_entities = entity_index;
+	}
+}
+
+// end Game
+// ============================================================================
 
 LRESULT CALLBACK win32_WindowCallback(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
 	LRESULT result = 0;
