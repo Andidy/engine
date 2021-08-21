@@ -35,15 +35,6 @@ struct Entity {
 
 struct GameState {
 	i32 num_entities;
-	int blackGuyHead;
-	int blackGuyHead2;
-
-	int bunnyTest;
-	int bunnyTest2;
-
-	int cubes[7];
-	int quad;
-
 	int MAX_ENTITIES;
 	Entity* entities;
 
