@@ -1,6 +1,6 @@
 [
   {
-    "name": "blackGuyHead",
+    "name": "african_head",
     "pos": [-1.0, 0.0, -1.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
@@ -8,7 +8,7 @@
     "model": "african_head"
   },
   {
-    "name": "blackGuyHead2",
+    "name": "african_head2",
     "pos": [-2.0, 0.0, -1.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
