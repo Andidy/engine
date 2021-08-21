@@ -549,19 +549,79 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
+			// experimental Asset Loading
+
+			int n, iter = 0;
+			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
+
 			const int MAX_ASSET_HANDLES = 64;
 			AssetHandle asset_handles[MAX_ASSET_HANDLES];
 			int asset_index = 0;
 
-			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "african_head.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
-			LoadOBJ((char*)"test_assets/bunny.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "bunny.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
-			LoadOBJ((char*)"test_assets/cube.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "cube.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
-			LoadOBJ((char*)"test_assets/quad.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
-			asset_handles[asset_index++] = { "quad.obj", AssetType::MESH, model_buffer.num_meshes - 1 };
-			
+			std::string asset_folder_path = "test_assets/";
+			std::string asset_path = "";
+			const int MAX_MODELS = 64;
+			Model models[MAX_MODELS];
+			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
+			if (file.data != NULL && file.size >= 0) {
+				std::string json_err_str;
+				json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
+
+				int model_index = 0;
+				while (json[model_index].is_object()) {
+					json11::Json::object jm = json[model_index].object_items();
+
+					Model m = {};
+
+					auto model_name = jm["name"].string_value();
+					m.name = model_name;
+
+					auto mesh_name = jm["mesh"].string_value();
+					bool found_mesh = false;
+					for (int i = 0; i < asset_index; i++) {
+						if (mesh_name.compare(asset_handles[i].name) == 0) {
+							m.h_mesh = asset_handles[i];
+							found_mesh = true;
+							break;
+						}
+					}
+					if (!found_mesh) {
+						// generate asset handle
+						asset_handles[asset_index] = { mesh_name, AssetType::MESH, model_buffer.num_meshes };
+						// load the mesh
+						asset_path = asset_folder_path;
+						LoadOBJ((char*)asset_path.append(mesh_name).c_str(), &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
+						asset_path.clear();
+						// assign asset handle to model
+						m.h_mesh = asset_handles[asset_index++];
+					}
+
+					auto texture_name = jm["texture"].string_value();
+					bool found_texture = false;
+					for (int i = 0; i < asset_index; i++) {
+						if (texture_name.compare(asset_handles[i].name) == 0) {
+							m.h_texture = asset_handles[i];
+							found_texture = true;
+							break;
+						}
+					}
+					if (!found_texture) {
+						// load the texture
+						asset_path = asset_folder_path;
+						images[iter].data = stbi_load((char*)asset_path.append(texture_name).c_str(), &images[iter].width, &images[iter].height, &n, 4);
+						asset_path.clear();
+						// generate asset handle
+						asset_handles[asset_index] = { texture_name.c_str(), AssetType::TEXTURE, iter };
+						iter += 1;
+						// assign asset handle to model
+						m.h_texture = asset_handles[asset_index++];
+					}
+
+					asset_handles[asset_index++] = { model_name, AssetType::MODEL, model_index };
+					models[model_index++] = m;
+				}
+			}
+
 			char game_debug_text[1024];
 			const i32 FONT_SIZE = 20;
 			Image font_image;
@@ -627,77 +687,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					font_image.data[4 * i + 3] = pack_font_1bpp[i];
 				}
 			}
-
-			int n, iter = 0;
-			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
-
-			images[iter].data = stbi_load((char*)"test_assets/african_head.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "african_head.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/bunny.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "bunny.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/red.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "red.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/orange.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "orange.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/yellow.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "yellow.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/green.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "green.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/cyan.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "cyan.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/blue.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "blue.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/gray.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "gray.png", AssetType::TEXTURE, iter };
-			iter += 1;
-			images[iter].data = stbi_load((char*)"test_assets/no_tex.png", &images[iter].width, &images[iter].height, &n, 4);
-			asset_handles[asset_index++] = { "no_tex.png", AssetType::TEXTURE, iter };
-			iter += 1;
+			
+			// put the font atlas into the images
 			images[iter].data = font_image.data;
 			images[iter].width = font_image.width;
 			images[iter].height = font_image.height;
 			iter += 1;
-
-			const int MAX_MODELS = 64;
-			Model models[MAX_MODELS];
-			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
-			if (file.data != NULL && file.size >= 0) {
-				std::string json_err_str;
-				json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
-
-				int model_index = 0;
-				while (json[model_index].is_object()) {
-					json11::Json::object jm = json[model_index].object_items();
-
-					Model m = {};
-
-					auto model_name = jm["name"].string_value();
-					m.name = model_name;
-
-					auto mesh_name = jm["mesh"].string_value();
-					for (int i = 0; i < MAX_ASSET_HANDLES; i++) {
-						if (mesh_name.compare(asset_handles[i].name) == 0) {
-							m.h_mesh = asset_handles[i];
-						}
-					}
-					auto texture_name = jm["texture"].string_value();
-					for (int i = 0; i < MAX_ASSET_HANDLES; i++) {
-						if (texture_name.compare(asset_handles[i].name) == 0) {
-							m.h_texture = asset_handles[i];
-						}
-					}
-					asset_handles[asset_index++] = { model_name, AssetType::MODEL, model_index };
-					models[model_index++] = m;
-				}
-			}
 
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
 			TextVertex text_verts[NUM_TEXT_VERTS];
@@ -716,6 +711,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			}
 
 			InitGameState(&game_memory, Vec2((f32)dim.width, (f32)dim.height), asset_handles);
+
+			// end experimental asset loading
 
 			RenderData render_data = {};
 			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)game_memory.data)->num_entities));
