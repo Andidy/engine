@@ -505,7 +505,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
 			
-			AssetHandle asset_handles[64];
+			const int MAX_ASSET_HANDLES = 64;
+			AssetHandle asset_handles[MAX_ASSET_HANDLES];
 			int asset_index = 0;
 
 			LoadOBJ((char*)"test_assets/african_head.obj", &vertex_buffer, &index_buffer, &model_buffer, &frame_allocator);
@@ -638,13 +639,13 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					m.name = model_name;
 
 					auto mesh_name = jm["mesh"].string_value();
-					for (int i = 0; i < MAX_MODELS; i++) {
+					for (int i = 0; i < MAX_ASSET_HANDLES; i++) {
 						if (mesh_name.compare(asset_handles[i].name) == 0) {
 							m.h_mesh = asset_handles[i];
 						}
 					}
 					auto texture_name = jm["texture"].string_value();
-					for (int i = 0; i < MAX_MODELS; i++) {
+					for (int i = 0; i < MAX_ASSET_HANDLES; i++) {
 						if (texture_name.compare(asset_handles[i].name) == 0) {
 							m.h_texture = asset_handles[i];
 						}
