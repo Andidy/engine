@@ -769,7 +769,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Update Game
 				{
 					if (client_area_updated) {
-						UpdateCamera(&game_memory, dim.width, dim.height);
+						SetMainCameraViewportAndProjMat(&game_memory, dim.width, dim.height);
 					}
 
 					GameUpdate(&game_memory, new_input, dt, game_debug_text);

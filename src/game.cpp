@@ -79,7 +79,7 @@ int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
 	return result;
 }
 
-void UpdateCamera(Memory* game_memory, float width, float height) {
+void SetMainCameraViewportAndProjMat(Memory* game_memory, float width, float height) {
 	GameState* gs = (GameState*)game_memory->data;
 
 	gs->main_camera.viewport.size.x = width;
