@@ -46,5 +46,29 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "quad"
+  },
+  {
+    "name": "borpa",
+    "pos": [0.0, 10.0, -1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "borpa"
+  },
+  {
+    "name": "quad2",
+    "pos": [0.0, 10.0, -2.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "quad"
+  },
+  {
+    "name": "quad3",
+    "pos": [0.0, 10.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "transparent_quad"
   }
 ]

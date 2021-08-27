@@ -773,8 +773,8 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->ClearRenderTargetView(window_rt_view, clear_color);
 
 		context->RSSetState(rasterizer_state);
-		context->OMSetBlendState(blend_state, NULL, ~0U);
-		
+		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);
+
 		context->VSSetShader(vertex_shader, NULL, 0);
 		context->PSSetShader(pixel_shader, NULL, 0);
 		context->PSSetSamplers(0, 1, &sampler_state);
@@ -790,13 +790,65 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		mat4 view = gs->main_camera.view;
 		mat4 proj = gs->main_camera.proj;
 
+		int distances_count = 0;
+		float distances[100];
+		int indexes[100];
+		for (int i = 0; i < 100; i++) {
+			distances[i] = -1.0f;
+			indexes[i] = -1;
+		}
+
 		for (int i = 0; i < render_data->num_entities; i++) {
 			RenderEntity re = render_data->entities[i];
-			
 			Model m = models[re.model_index];
 
-			context->PSSetShaderResources(0, 1, &texture_views[m.h_texture.handle]);
+			if (m.opaque) {
+				mat4 translate, scale, rotate;
+				translate = TranslateMat(re.pos);
+				scale = ScaleMat(re.scale);
+				rotate = RotateMat(re.rot_angle, re.rot_axis);
+
+				mat4 world = MulMat(translate, MulMat(rotate, scale));
+
+				D3D11_MAPPED_SUBRESOURCE mappedSubresource;
+				context->Map(constant_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
+				Constants* constants = (Constants*)(mappedSubresource.pData);
+				constants->m = world;
+				constants->mvp = MulMat(proj, MulMat(view, world));
+				constants->camera_pos = gs->main_camera.pos;
+				context->Unmap(constant_buffer, 0);
+				context->VSSetConstantBuffers(0, 1, &constant_buffer);
 			
+				context->PSSetShaderResources(0, 1, &texture_views[m.h_texture.handle]);
+			
+				context->DrawIndexed(m_buffer->meshes[m.h_mesh.handle].length, m_buffer->meshes[m.h_mesh.handle].start_index, 0);
+			}
+			else {
+				int current_index = i;
+				float distance_to_cam = Distance(gs->main_camera.pos, re.pos);
+				for (int j = 0; j < 100; j++) {
+					if (distance_to_cam > distances[j]) {
+						float temp = distances[j];
+						distances[j] = distance_to_cam;
+						distance_to_cam = temp;
+
+						int temp2 = indexes[j];
+						indexes[j] = current_index;
+						current_index = temp2;
+					}
+					else if (distance_to_cam == -1.0f && distances[j] == -1.0f) {
+						break;
+					}
+				}
+
+				distances_count += 1;
+			}
+		}
+
+		for (int i = 0; i < distances_count; i++) {
+			RenderEntity re = render_data->entities[indexes[i]];
+			Model m = models[re.model_index];
+
 			mat4 translate, scale, rotate;
 			translate = TranslateMat(re.pos);
 			scale = ScaleMat(re.scale);
@@ -811,12 +863,12 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 			constants->mvp = MulMat(proj, MulMat(view, world));
 			constants->camera_pos = gs->main_camera.pos;
 			context->Unmap(constant_buffer, 0);
-
 			context->VSSetConstantBuffers(0, 1, &constant_buffer);
+
+			context->PSSetShaderResources(0, 1, &texture_views[m.h_texture.handle]);
+
 			context->DrawIndexed(m_buffer->meshes[m.h_mesh.handle].length, m_buffer->meshes[m.h_mesh.handle].start_index, 0);
 		}
-
-		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);
 
 		context->VSSetShader(text_vs, NULL, 0);
 		context->PSSetShader(text_ps, NULL, 0);
@@ -834,7 +886,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(text_index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		context->PSSetShaderResources(0, 1, &texture_views[10]);
+		context->PSSetShaderResources(0, 1, &texture_views[5]);
 		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
 }

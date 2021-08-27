@@ -65,6 +65,7 @@ struct Model {
 	AssetHandle h_mesh;
 	AssetHandle h_texture;
 	// AssetHandle h_normal_map;
+	bool opaque;
 };
 
 struct Font {
