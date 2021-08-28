@@ -3,36 +3,42 @@
     "name": "african_head",
     "mesh": "african_head.obj",
     "texture": "african_head.png",
-    "opaque": true
+    "opaque": true,
+    "billboard": false
   },
   {
     "name": "bunny",
     "mesh": "bunny.obj",
     "texture": "bunny.png",
-    "opaque": true
+    "opaque": true,
+    "billboard": false
   },
   {
     "name": "cube",
     "mesh": "cube.obj",
     "texture": "no_tex.png",
-    "opaque": true
+    "opaque": true,
+    "billboard": false
   },
   {
     "name": "quad",
     "mesh": "quad.obj",
     "texture": "no_tex.png",
-    "opaque": true
+    "opaque": true,
+    "billboard": false
   },
   {
     "name": "borpa",
     "mesh": "quad.obj",
     "texture": "borpa.png",
-    "opaque": true
+    "opaque": true,
+    "billboard": true
   },
   {
     "name": "transparent_quad",
     "mesh": "quad.obj",
     "texture": "half_transparent_red.png",
-    "opaque": false
+    "opaque": false,
+    "billboard": false
   }
 ]

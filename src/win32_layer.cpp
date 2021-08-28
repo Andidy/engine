@@ -639,6 +639,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					bool opaque = jm["opaque"].bool_value();
 					m.opaque = opaque;
 
+					bool billboard = jm["billboard"].bool_value();
+					m.billboard = billboard;
+
 					asset_handles[asset_index++] = { model_name, AssetType::MODEL, model_index };
 					models[model_index++] = m;
 				}

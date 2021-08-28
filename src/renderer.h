@@ -66,6 +66,7 @@ struct Model {
 	AssetHandle h_texture;
 	// AssetHandle h_normal_map;
 	bool opaque;
+	bool billboard;
 };
 
 struct Font {

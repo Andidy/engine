@@ -835,6 +835,13 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 				scale = ScaleMat(re.scale);
 				rotate = RotateMat(re.rot_angle, re.rot_axis);
 
+				if (m.billboard) {
+					rotate = gs->main_camera.inv_view;
+					rotate.data[0][3] = 0.0f;
+					rotate.data[1][3] = 0.0f;
+					rotate.data[2][3] = 0.0f;
+				}
+
 				mat4 world = MulMat(translate, MulMat(rotate, scale));
 
 				D3D11_MAPPED_SUBRESOURCE mappedSubresource;
@@ -884,6 +891,13 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 			scale = ScaleMat(re.scale);
 			rotate = RotateMat(re.rot_angle, re.rot_axis);
 
+			if (m.billboard) {
+				rotate = gs->main_camera.inv_view;
+				rotate.data[0][3] = 0.0f;
+				rotate.data[1][3] = 0.0f;
+				rotate.data[2][3] = 0.0f;
+			}
+			
 			mat4 world = MulMat(translate, MulMat(rotate, scale));
 
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
