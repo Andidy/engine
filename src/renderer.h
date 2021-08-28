@@ -108,6 +108,7 @@ struct Renderer {
 	ID3D11DepthStencilState* no_depth_write_stencil_state;
 	ID3D11BlendState* blend_state;
 	ID3D11BlendState* transparency_blend_state;
+	ID3D11BlendState* text_blend_state;
 
 	IDXGISwapChain3* swapchain;
 

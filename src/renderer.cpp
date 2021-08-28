@@ -364,6 +364,24 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 
 		blend_desc = {};
 		blend_desc.BlendEnable = TRUE;
+		blend_desc.SrcBlend = D3D11_BLEND_ONE;
+		blend_desc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOp = D3D11_BLEND_OP_ADD;
+		blend_desc.SrcBlendAlpha = D3D11_BLEND_ONE;
+		blend_desc.DestBlendAlpha = D3D11_BLEND_INV_SRC_ALPHA;
+		blend_desc.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+		blend_desc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+		desc = {};
+		desc.AlphaToCoverageEnable = FALSE;
+		desc.IndependentBlendEnable = FALSE;
+		desc.RenderTarget[0] = blend_desc;
+
+		hr = device->CreateBlendState(&desc, &transparency_blend_state);
+		if (FAILED(hr)) { __debugbreak(); }
+
+		blend_desc = {};
+		blend_desc.BlendEnable = TRUE;
 		blend_desc.SrcBlend = D3D11_BLEND_SRC_ALPHA;
 		blend_desc.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
 		blend_desc.BlendOp = D3D11_BLEND_OP_ADD;
@@ -377,7 +395,7 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 		desc.IndependentBlendEnable = FALSE;
 		desc.RenderTarget[0] = blend_desc;
 
-		hr = device->CreateBlendState(&desc, &transparency_blend_state);
+		hr = device->CreateBlendState(&desc, &text_blend_state);
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
@@ -882,6 +900,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 			context->DrawIndexed(m_buffer->meshes[m.h_mesh.handle].length, m_buffer->meshes[m.h_mesh.handle].start_index, 0);
 		}
 
+		context->OMSetBlendState(text_blend_state, NULL, ~0U);
 		context->VSSetShader(text_vs, NULL, 0);
 		context->PSSetShader(text_ps, NULL, 0);
 		context->PSSetSamplers(0, 1, &sampler_state);

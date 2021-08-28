@@ -714,6 +714,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].data = font_image.data;
 			images[iter].width = font_image.width;
 			images[iter].height = font_image.height;
+			//PremultiplyAlpha(&images[iter]);
 			iter += 1;
 
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;

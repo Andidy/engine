@@ -68,12 +68,44 @@
     "pos": [0.0, 10.0, -1.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 45.0,
+    "rotation_angle": 0.0,
     "model": "transparent_quad"
   },
   {
     "name": "borpa2",
     "pos": [0.0, 10.0, -0.5],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "borpa"
+  },
+  {
+    "name": "bb0",
+    "pos": [0.0, 0.0, -0.5],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "borpa"
+  },
+  {
+    "name": "bb1",
+    "pos": [0.2, 0.2, -0.4],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "borpa"
+  },
+  {
+    "name": "bb2",
+    "pos": [0.3, 0.1, -0.3],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "borpa"
+  },
+  {
+    "name": "bb3",
+    "pos": [0.1, 0.15, -0.6],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
