@@ -68,7 +68,7 @@
     "pos": [0.0, 10.0, -1.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 90.0,
+    "rotation_angle": 45.0,
     "model": "transparent_quad"
   },
   {

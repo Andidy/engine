@@ -265,11 +265,17 @@ void debug_FreeFile(void* memory) {
 void PremultiplyAlpha(Image* image) {
 	for (int row = 0; row < image->height; row++) {
 		for (int col = 0; col < image->width; col++) {
-			if (image->data[4 * (col + row * image->width) + 3] == 0) {
-				image->data[4 * (col + row * image->width) + 0] = 0;
-				image->data[4 * (col + row * image->width) + 1] = 0;
-				image->data[4 * (col + row * image->width) + 2] = 0;
-			}
+			uchar alpha = image->data[4 * (col + row * image->width) + 3];
+			uchar red = image->data[4 * (col + row * image->width) + 0];
+			uchar green = image->data[4 * (col + row * image->width) + 1];
+			uchar blue = image->data[4 * (col + row * image->width) + 2];
+
+			float color = ((float)red / 255.0f) * ((float)alpha / 255.0f);
+			image->data[4 * (col + row * image->width) + 0] = (uchar)(color * 255.0f);
+			color = ((float)green / 255.0f) * ((float)alpha / 255.0f);
+			image->data[4 * (col + row * image->width) + 1] = (uchar)(color * 255.0f);
+			color = ((float)blue / 255.0f) * ((float)alpha / 255.0f);
+			image->data[4 * (col + row * image->width) + 2] = (uchar)(color * 255.0f);
 		}
 	}
 }
