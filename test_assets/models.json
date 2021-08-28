@@ -27,7 +27,7 @@
     "name": "borpa",
     "mesh": "quad.obj",
     "texture": "borpa.png",
-    "opaque": false
+    "opaque": true
   },
   {
     "name": "transparent_quad",

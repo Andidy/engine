@@ -105,6 +105,7 @@ struct Renderer {
 
 	ID3D11RasterizerState* rasterizer_state;
 	ID3D11DepthStencilState* depth_stencil_state;
+	ID3D11DepthStencilState* no_depth_write_stencil_state;
 	ID3D11BlendState* blend_state;
 	ID3D11BlendState* transparency_blend_state;
 

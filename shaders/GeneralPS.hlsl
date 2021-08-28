@@ -46,5 +46,9 @@ float4 main(VS_OUTPUT input) : SV_TARGET
 	// combine
 	float3 lighting_color = ambient + diffuse + specular + emissive;
 
-	return tex1.Sample(samp1, input.texcoord) * float4(lighting_color.xyz, 1);
+	float4 result = tex1.Sample(samp1, input.texcoord)* float4(lighting_color.xyz, 1);
+
+	if (result.w == 0.0) discard;
+
+	return result;
 }

@@ -262,6 +262,18 @@ void debug_FreeFile(void* memory) {
 	}
 }
 
+void PremultiplyAlpha(Image* image) {
+	for (int row = 0; row < image->height; row++) {
+		for (int col = 0; col < image->width; col++) {
+			if (image->data[4 * (col + row * image->width) + 3] == 0) {
+				image->data[4 * (col + row * image->width) + 0] = 0;
+				image->data[4 * (col + row * image->width) + 1] = 0;
+				image->data[4 * (col + row * image->width) + 2] = 0;
+			}
+		}
+	}
+}
+
 // end FILE IO
 // ============================================================================
 // Memory
@@ -609,6 +621,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						// load the texture
 						asset_path = asset_folder_path;
 						images[iter].data = stbi_load((char*)asset_path.append(texture_name).c_str(), &images[iter].width, &images[iter].height, &n, 4);
+						PremultiplyAlpha(&images[iter]);
 						asset_path.clear();
 						// generate asset handle
 						asset_handles[asset_index] = { texture_name.c_str(), AssetType::TEXTURE, iter };

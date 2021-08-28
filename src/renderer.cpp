@@ -330,6 +330,15 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 		desc.StencilWriteMask = 0;
 		hr = device->CreateDepthStencilState(&desc, &depth_stencil_state);
 		if (FAILED(hr)) { __debugbreak(); }
+
+		desc.DepthEnable = TRUE;
+		desc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+		desc.DepthFunc = D3D11_COMPARISON_LESS;
+		desc.StencilEnable = FALSE;
+		desc.StencilReadMask = 0;
+		desc.StencilWriteMask = 0;
+		hr = device->CreateDepthStencilState(&desc, &no_depth_write_stencil_state);
+		if (FAILED(hr)) { __debugbreak(); }
 	}
 
 	// blend state
@@ -773,7 +782,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->ClearRenderTargetView(window_rt_view, clear_color);
 
 		context->RSSetState(rasterizer_state);
-		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);
+		context->OMSetBlendState(blend_state, NULL, ~0U);
 
 		context->VSSetShader(vertex_shader, NULL, 0);
 		context->PSSetShader(pixel_shader, NULL, 0);
@@ -844,6 +853,9 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 				distances_count += 1;
 			}
 		}
+
+		context->OMSetBlendState(transparency_blend_state, NULL, ~0U);
+		//context->OMSetDepthStencilState(no_depth_write_stencil_state, 0);
 
 		for (int i = 0; i < distances_count; i++) {
 			RenderEntity re = render_data->entities[indexes[i]];
