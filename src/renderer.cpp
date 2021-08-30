@@ -931,7 +931,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(text_index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		context->PSSetShaderResources(0, 1, &texture_views[5]);
+		context->PSSetShaderResources(0, 1, &texture_views[6]);
 		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
 }

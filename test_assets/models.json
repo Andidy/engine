@@ -40,5 +40,12 @@
     "texture": "half_transparent_red.png",
     "opaque": false,
     "billboard": false
+  },
+  {
+    "name": "crate",
+    "mesh": "crate.obj",
+    "texture": "wood.png",
+    "opaque": true,
+    "billboard": false
   }
 ]
