@@ -12,7 +12,7 @@ struct VS_OUTPUT {
 
 float4 main(VS_OUTPUT input) : SV_TARGET
 {
-	const float3 sun_vector = { 1, 1, 1 };
+	const float3 sun_vector = { -1, 1, -1 };
 	const float3 sun_diff = { 1.0f, 1.0f, 1.0f };
 	const float3 sun_spec = { 1.0f, 1.0f, 1.0f };
 	const float3 sun_ambi = { 0.0f, 0.0f, 0.0f };

@@ -443,7 +443,7 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 // Game
 
 void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
-	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities.json");
+	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities2.json");
 	if (file.data != NULL && file.size >= 0) {
 		std::string json_err_str;
 		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
@@ -467,7 +467,7 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			e.render_rot_angle = (float)rotation_angle;
 
 			auto asset_name = je["model"].string_value();
-			for (int i = 0; i < 64; i++) {
+			for (int i = 0; i < 256; i++) {
 				if (asset_name.compare(asset_handles[i].name) == 0) {
 					e.h_model = asset_handles[i];
 				}
@@ -570,15 +570,15 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			// experimental Asset Loading
 
 			int n, iter = 0;
-			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 16);
+			Image* images = (Image*)renderer_allocator.Allocate(sizeof(Image) * 128);
 
-			const int MAX_ASSET_HANDLES = 64;
+			const int MAX_ASSET_HANDLES = 256;
 			AssetHandle asset_handles[MAX_ASSET_HANDLES];
 			int asset_index = 0;
 
 			std::string asset_folder_path = "test_assets/";
 			std::string asset_path = "";
-			const int MAX_MODELS = 64;
+			const int MAX_MODELS = 128;
 			Model models[MAX_MODELS];
 			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
 			if (file.data != NULL && file.size >= 0) {
@@ -718,6 +718,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].width = font_image.width;
 			images[iter].height = font_image.height;
 			//PremultiplyAlpha(&images[iter]);
+			int text_image_index = iter;
 			iter += 1;
 
 			const int NUM_TEXT_VERTS = Renderer::MAX_NUM_TEXT_CHARS * 4;
@@ -730,7 +731,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			}
 
 			Renderer renderer = {};
-			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter, text_verts, NUM_TEXT_VERTS);
+			renderer.InitD3D11(window, dim.width, dim.height, &vertex_buffer, &index_buffer, images, iter, text_verts, NUM_TEXT_VERTS, text_image_index);
 
 			for (int i = 0; i < iter; i++) {
 				stbi_image_free(images[iter].data);

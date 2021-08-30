@@ -244,7 +244,7 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mesh
 // ============================================================================
 // D3D11
 
-void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vert_buffer, int num_text_verts) {
+void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vert_buffer, int num_text_verts, int text_image_index) {
 	HRESULT hr;
 
 	// device
@@ -619,6 +619,9 @@ void Renderer::InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height,
 		if (FAILED(hr)) { __debugbreak(); }
 	}
 
+	// text image index
+	text_texture_view_index = text_image_index;
+
 	// text vertex buffer
 	{
 		D3D11_BUFFER_DESC desc = {};
@@ -931,7 +934,7 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(text_index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		context->PSSetShaderResources(0, 1, &texture_views[6]);
+		context->PSSetShaderResources(0, 1, &texture_views[text_texture_view_index]);
 		context->DrawIndexed(NUM_CHARS_TO_RENDER * 6, 0, 0);
 	}
 }

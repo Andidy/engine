@@ -1,0 +1,74 @@
+[
+  {
+    "name": "ground",
+    "pos": [0.0, 0.0, 0.0],
+    "scale": [100.0, 100.0, 100.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 270.0,
+    "model": "ground"
+  },
+  {
+    "name": "nomad",
+    "pos": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "nomad"
+  },
+  {
+    "name": "tree_0",
+    "pos": [3.0, 0.0, 3.5],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tree_0"
+  },
+  {
+    "name": "tree_1",
+    "pos": [4.0, 0.0, 3.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tree_1"
+  },
+  {
+    "name": "pine_tree_0",
+    "pos": [6.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "pine_tree_0"
+  },
+  {
+    "name": "pine_tree_1",
+    "pos": [5.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "pine_tree_1"
+  },
+  {
+    "name": "tower_0",
+    "pos": [10.0, 0.0, 2.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tower_0"
+  },
+  {
+    "name": "castle_1",
+    "pos": [0.0, 0.0, 7.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "castle_1"
+  },
+  {
+    "name": "church",
+    "pos": [0.0, 0.0, 8.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "church"
+  }
+]

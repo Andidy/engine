@@ -47,5 +47,250 @@
     "texture": "wood.png",
     "opaque": true,
     "billboard": false
+  },
+  {
+    "name": "bar",
+    "mesh": "quad.obj",
+    "texture": "buildings/bar.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "castle_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/castle_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "castle_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/castle_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "church",
+    "mesh": "quad.obj",
+    "texture": "buildings/church.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "fort_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/fort_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "fort_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/fort_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "gree_building_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/green_building_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "green_building_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/green_building_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "house_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/house_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "house_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/house_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "house_2",
+    "mesh": "quad.obj",
+    "texture": "buildings/house_2.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "house_3",
+    "mesh": "quad.obj",
+    "texture": "buildings/house_3.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "house_4",
+    "mesh": "quad.obj",
+    "texture": "buildings/house_4.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "red_house_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/red_house_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "red_house_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/red_house_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "red_house_2",
+    "mesh": "quad.obj",
+    "texture": "buildings/red_house_2.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "red_house_3",
+    "mesh": "quad.obj",
+    "texture": "buildings/red_house_3.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "shack",
+    "mesh": "quad.obj",
+    "texture": "buildings/shack.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tent",
+    "mesh": "quad.obj",
+    "texture": "buildings/tent.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tower_0",
+    "mesh": "quad.obj",
+    "texture": "buildings/tower_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tower_1",
+    "mesh": "quad.obj",
+    "texture": "buildings/tower_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tower_2",
+    "mesh": "quad.obj",
+    "texture": "buildings/tower_2.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tree_0",
+    "mesh": "quad.obj",
+    "texture": "foliage/tree_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tree_1",
+    "mesh": "quad.obj",
+    "texture": "foliage/tree_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tree_2",
+    "mesh": "quad.obj",
+    "texture": "foliage/tree_2.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tree_3",
+    "mesh": "quad.obj",
+    "texture": "foliage/tree_3.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "tree_4",
+    "mesh": "quad.obj",
+    "texture": "foliage/tree_4.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "pine_tree_0",
+    "mesh": "quad.obj",
+    "texture": "foliage/pine_tree_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "pine_tree_1",
+    "mesh": "quad.obj",
+    "texture": "foliage/pine_tree_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "grass",
+    "mesh": "quad.obj",
+    "texture": "foliage/grass.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "flag_0",
+    "mesh": "quad.obj",
+    "texture": "structures/flag_0.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "flag_1",
+    "mesh": "quad.obj",
+    "texture": "structures/flag_1.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "fire",
+    "mesh": "quad.obj",
+    "texture": "structures/fire.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "nomad",
+    "mesh": "quad.obj",
+    "texture": "units/nomad.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
+    "name": "ground",
+    "mesh": "quad.obj",
+    "texture": "green.png",
+    "opaque": true,
+    "billboard": false
   }
 ]

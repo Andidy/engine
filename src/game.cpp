@@ -107,8 +107,8 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	gs->picking_dir = ZeroVec();
 	gs->picking_dist = 0.0f;
 
-	gs->main_camera.pos = Vec3(0.0f, 0.0f, 1.0f);
-	gs->main_camera.dir = Vec3(0.0f, 0.0f, -1.0f);
+	gs->main_camera.pos = Vec3(0.0f, 0.0f, -1.0f);
+	gs->main_camera.dir = Vec3(0.0f, 0.0f, 1.0f);
 	gs->main_camera.up = Vec3(0.0, 1.0, 0.0f);
 
 	gs->main_camera.pitch = 0.0f;

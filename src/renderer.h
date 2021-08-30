@@ -121,6 +121,7 @@ struct Renderer {
 	ID3D11Buffer* index_buffer;
 	ID3D11Buffer* constant_buffer;
 	
+	int text_texture_view_index;
 	int NUM_CHARS_TO_RENDER = 0;
 	static const int MAX_NUM_TEXT_CHARS = 1024;
 	ID3D11VertexShader* text_vs;
@@ -135,12 +136,12 @@ struct Renderer {
 
 	ID3D11SamplerState* sampler_state;
 
-	ID3D11Texture2D* textures[16];
-	ID3D11ShaderResourceView* texture_views[16];
+	ID3D11Texture2D* textures[256];
+	ID3D11ShaderResourceView* texture_views[256];
 
 	b32 renderer_occluded = 0;
 
-	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts);
+	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts, int text_image_index);
 	void RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height);
 	HRESULT RenderPresent(HWND window);
 	void RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* verts);
