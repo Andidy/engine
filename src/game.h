@@ -26,6 +26,7 @@ struct Camera {
 };
 
 struct Entity {
+	std::string name;
 	vec3 render_pos;
 	vec3 render_scale;
 	vec3 render_rot_axis;
@@ -34,11 +35,18 @@ struct Entity {
 };
 
 struct GameState {
+	int64_t game_tick;
+	float ticks_per_second;
+	float tick_accumulator;
+	bool game_ticked;
+	
 	i32 num_entities;
 	int MAX_ENTITIES;
 	Entity* entities;
 
 	Camera main_camera;
+
+	int crosshair_entity;
 
 	int picked_object;
 	vec3 picking_dir;

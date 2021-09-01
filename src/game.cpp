@@ -79,6 +79,20 @@ int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
 	return result;
 }
 
+// The return type is the point on the plane intersected with, Vec3(INF, INF, INF) means the ray cast is parallel to the plane.
+vec3 RayPlaneCollisionCheck(GameState* gs, vec3 ray_start, vec3 ray_dir, vec3 plane_point, vec3 plane_normal) {
+	vec3 result = { INFINITY, INFINITY, INFINITY };
+
+	float d = Dot(plane_point, NegVec(plane_normal));
+	float t = -(d + Dot(ray_start, plane_normal)) / Dot(ray_dir, plane_normal);
+	if (t > 0.00001f) {
+		return AddVec(ray_start, ScaleVec(ray_dir, t));
+	}
+	else {
+		return result;
+	}
+}
+
 void SetMainCameraViewportAndProjMat(Memory* game_memory, float width, float height) {
 	GameState* gs = (GameState*)game_memory->data;
 
@@ -93,7 +107,8 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	gs->resource_allocator = PermanentResourceAllocator(Megabytes(64));
 
 	gs->MAX_ENTITIES = 1024;
-	gs->entities = (Entity*)gs->resource_allocator.Allocate((i64)(gs->MAX_ENTITIES * sizeof(Entity)));
+	//gs->entities = (Entity*)gs->resource_allocator.Allocate((i64)(gs->MAX_ENTITIES * sizeof(Entity)));
+	gs->entities = (Entity*)calloc(gs->MAX_ENTITIES, sizeof(Entity));
 
 	gs->num_entities = 0;
 
@@ -102,6 +117,16 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	LoadGameAssets(gs, asset_handles);
 
 	// end Experimental asset loading
+
+	for (int i = 0; i < gs->num_entities; i++) {
+		if (gs->entities[i].name.compare((char*)"crosshair_0") == 0) {
+			gs->crosshair_entity = i;
+			break;
+		}
+	}
+
+	gs->game_tick = 0;
+	gs->ticks_per_second = 1.0f;
 
 	gs->picked_object = -1;
 	gs->picking_dir = ZeroVec();
@@ -127,6 +152,13 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 
 void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text) {
 	GameState* gs = (GameState*)game_memory->data;
+
+	gs->tick_accumulator += dt;
+	if (gs->tick_accumulator > (1.0f / gs->ticks_per_second)) {
+		gs->tick_accumulator = 0.0f;
+		gs->game_tick += 1;
+		gs->game_ticked = true;
+	}
 
 	// ========================================================================
 	// Camera Update
@@ -240,6 +272,16 @@ void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug
 	}
 
 	// end Object Picking
+	// ========================================================================
+	// Game Updates
+	
+	if (keyPressed(game_input->mouse.middle)) {
+		MouseRayReturn mrr = MouseRay(gs, game_input);
+		vec3 clicked_point = RayPlaneCollisionCheck(gs, mrr.start, mrr.direction, ZeroVec(), UpVec());
+		gs->entities[gs->crosshair_entity].render_pos = clicked_point;
+	}
+
+	// end Game Updates
 	// ========================================================================
 
 	// Debug Text to draw to screen

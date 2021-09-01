@@ -292,5 +292,12 @@
     "texture": "green.png",
     "opaque": true,
     "billboard": false
+  },
+  {
+    "name": "crosshair_0",
+    "mesh": "quad.obj",
+    "texture": "ui/crosshair_0.png",
+    "opaque": true,
+    "billboard": false
   }
 ]

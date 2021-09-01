@@ -1,8 +1,6 @@
 #ifndef ASSET_LOADING_H
 #define ASSET_LOADING_H
 
-#include <string>
-
 enum class AssetType {
 	UNKNOWN,
 	MODEL,

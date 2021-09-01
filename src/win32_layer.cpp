@@ -454,6 +454,9 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 
 			Entity e = {};
 
+			std::string name = je["name"].string_value();
+			e.name = name;
+
 			auto pos = je["pos"].array_items();
 			e.render_pos = Vec3(pos[0].number_value(), pos[1].number_value(), pos[2].number_value());
 
@@ -466,14 +469,24 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			auto rotation_angle = je["rotation_angle"].number_value();
 			e.render_rot_angle = (float)rotation_angle;
 
-			auto asset_name = je["model"].string_value();
+			std::string asset_name = je["model"].string_value();
 			for (int i = 0; i < 256; i++) {
 				if (asset_name.compare(asset_handles[i].name) == 0) {
 					e.h_model = asset_handles[i];
+					break;
 				}
 			}
 
-			gs->entities[entity_index++] = e;
+			gs->entities[entity_index] = e;
+
+			// this makes the name string not garbage
+			//gs->entities[entity_index].name = e.name;
+
+			entity_index++;
+
+			char c = gs->entities[entity_index - 1].name.at(3);
+			DebugPrint(&c);
+			DebugPrint((char *)gs->entities[entity_index - 1].name.c_str());
 		}
 		gs->num_entities = entity_index;
 	}
@@ -546,9 +559,9 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			
 			win32_running = 1;
 
-			LARGE_INTEGER lasttimer;
-			QueryPerformanceCounter(&lasttimer);
-			u64 lastcyclecount = __rdtsc();
+			LARGE_INTEGER old_time;
+			QueryPerformanceCounter(&old_time);
+			u64 old_cycle_count = __rdtsc();
 
 			Input game_input[2] = {};
 			Input* new_input = &game_input[0];
@@ -591,10 +604,10 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					Model m = {};
 
-					auto model_name = jm["name"].string_value();
-					m.name = model_name;
+					std::string model_name = jm["name"].string_value();
+					m.name.assign(model_name);
 
-					auto mesh_name = jm["mesh"].string_value();
+					std::string mesh_name = jm["mesh"].string_value();
 					bool found_mesh = false;
 					for (int i = 0; i < asset_index; i++) {
 						if (mesh_name.compare(asset_handles[i].name) == 0) {
@@ -614,7 +627,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						m.h_mesh = asset_handles[asset_index++];
 					}
 
-					auto texture_name = jm["texture"].string_value();
+					std::string texture_name = jm["texture"].string_value();
 					bool found_texture = false;
 					for (int i = 0; i < asset_index; i++) {
 						if (texture_name.compare(asset_handles[i].name) == 0) {
@@ -751,23 +764,23 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Timing
 				f32 dt = 0.0f;
 				{
-					LARGE_INTEGER endtimer;
-					QueryPerformanceCounter(&endtimer);
-					int64_t timerelapsed = endtimer.QuadPart - lasttimer.QuadPart;
-					f32 msperframe = (f32)((1000.0f * (f32)timerelapsed) / (f32)perftimerfreq);
-					int64_t fps = (int64_t)(perftimerfreq / timerelapsed);
+					LARGE_INTEGER new_time;
+					QueryPerformanceCounter(&new_time);
+					int64_t timer_elapsed = new_time.QuadPart - old_time.QuadPart;
+					f32 ms_per_frame = (f32)((1000.0f * (f32)timer_elapsed) / (f32)perftimerfreq);
+					int64_t fps = (int64_t)(perftimerfreq / timer_elapsed);
 
-					uint64_t endcyclecount = __rdtsc();
-					uint64_t cycleselapsed = endcyclecount - lastcyclecount;
+					uint64_t new_cycle_count = __rdtsc();
+					uint64_t cycles_elapsed = new_cycle_count - old_cycle_count;
 
 					char str_buffer[256];
-					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", msperframe, fps, cycleselapsed);
+					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", ms_per_frame, fps, cycles_elapsed);
 					//OutputDebugStringA(str_buffer);
 
-					dt = msperframe;
+					dt = ms_per_frame;
 
-					lasttimer = endtimer;
-					lastcyclecount = endcyclecount;
+					old_time = new_time;
+					old_cycle_count = new_cycle_count;
 				}
 
 				// Update Input

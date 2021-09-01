@@ -1,7 +1,7 @@
 [
   {
     "name": "ground",
-    "pos": [0.0, 0.0, 0.0],
+    "pos": [0.0, -0.5, 0.0],
     "scale": [100.0, 100.0, 100.0],
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
@@ -70,5 +70,13 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "church"
+  },
+  {
+    "name": "crosshair_0",
+    "pos": [0.0, 0.0, 8.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 270.0,
+    "model": "crosshair_0"
   }
 ]
