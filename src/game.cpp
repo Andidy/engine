@@ -108,7 +108,8 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 
 	gs->MAX_ENTITIES = 1024;
 	//gs->entities = (Entity*)gs->resource_allocator.Allocate((i64)(gs->MAX_ENTITIES * sizeof(Entity)));
-	gs->entities = (Entity*)calloc(gs->MAX_ENTITIES, sizeof(Entity));
+	//gs->entities = (Entity*)calloc(gs->MAX_ENTITIES, sizeof(Entity));
+	gs->entities = new Entity[gs->MAX_ENTITIES];
 
 	gs->num_entities = 0;
 
