@@ -91,7 +91,7 @@ void LoadOBJ(char* filename, VertexBuffer* v_buffer, IndexBuffer* i_buffer, Mesh
 
 	i = 0;
 	while (i < obj_file.size) {
-		if (ptr[i] == '#' || ptr[i] == ' ' || ptr[i] == '\n') { // skip lines which have the comment operator #, and skip blank lines
+		if (ptr[i] == '#' || ptr[i] == ' ' || ptr[i] == '\n' || ptr[i] == '\r') { // skip lines which have the comment operator #, and skip blank lines
 			while (ptr[i] != '\n') { i += 1; }
 			i += 1;
 		}
