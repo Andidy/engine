@@ -331,8 +331,8 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			selected_entity = "No entity selected\0";
 		}
 
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.2f, FPS: %.2f\nSelected Entity: %s\n",
-			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt / 1000.0f, 1.0f / (dt / 1000.0f), selected_entity);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\n",
+			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity);
 	}
 
 	if (keyPressed(gi->keyboard.m)) {
