@@ -477,6 +477,9 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 				}
 			}
 
+			auto is_unit = je["unit"].bool_value();
+			e.is_unit = is_unit;
+
 			gs->entities[entity_index] = e;
 
 			// this makes the name string not garbage
@@ -767,7 +770,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					LARGE_INTEGER new_time;
 					QueryPerformanceCounter(&new_time);
 					int64_t timer_elapsed = new_time.QuadPart - old_time.QuadPart;
-					f32 ms_per_frame = (f32)((1000.0f * (f32)timer_elapsed) / (f32)perftimerfreq);
+					dt = (f32)timer_elapsed / (f32)perftimerfreq;
+					f32 ms_per_frame = 1000.0f * dt;
 					int64_t fps = (int64_t)(perftimerfreq / timer_elapsed);
 
 					uint64_t new_cycle_count = __rdtsc();
@@ -776,8 +780,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 					char str_buffer[256];
 					sprintf_s(str_buffer, "ms / frame: %f, fps: %I64d, %I64u\n", ms_per_frame, fps, cycles_elapsed);
 					//OutputDebugStringA(str_buffer);
-
-					dt = ms_per_frame;
 
 					old_time = new_time;
 					old_cycle_count = new_cycle_count;

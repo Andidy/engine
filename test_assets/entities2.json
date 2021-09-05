@@ -5,7 +5,8 @@
     "scale": [100.0, 100.0, 100.0],
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
-    "model": "ground"
+    "model": "ground",
+    "unit": false
   },
   {
     "name": "nomad",
@@ -13,7 +14,17 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "nomad"
+    "model": "nomad",
+    "unit": true
+  },
+  {
+    "name": "warrior",
+    "pos": [0.0, 0.0, 1.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "warrior",
+    "unit": true
   },
   {
     "name": "tree_0",
@@ -21,7 +32,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "tree_0"
+    "model": "tree_0",
+    "unit": false
   },
   {
     "name": "tree_1",
@@ -29,7 +41,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "tree_1"
+    "model": "tree_1",
+    "unit": false
   },
   {
     "name": "pine_tree_0",
@@ -37,7 +50,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "pine_tree_0"
+    "model": "pine_tree_0",
+    "unit": false
   },
   {
     "name": "pine_tree_1",
@@ -45,7 +59,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "pine_tree_1"
+    "model": "pine_tree_1",
+    "unit": false
   },
   {
     "name": "tower_0",
@@ -53,7 +68,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "tower_0"
+    "model": "tower_0",
+    "unit": false
   },
   {
     "name": "castle_1",
@@ -61,7 +77,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "castle_1"
+    "model": "castle_1",
+    "unit": false
   },
   {
     "name": "church",
@@ -69,7 +86,8 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "church"
+    "model": "church",
+    "unit": false
   },
   {
     "name": "crosshair_0",
@@ -77,6 +95,7 @@
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
-    "model": "crosshair_0"
+    "model": "crosshair_0",
+    "unit": false
   }
 ]

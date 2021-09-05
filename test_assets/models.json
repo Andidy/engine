@@ -91,7 +91,7 @@
     "billboard": true
   },
   {
-    "name": "gree_building_0",
+    "name": "green_building_0",
     "mesh": "quad.obj",
     "texture": "buildings/green_building_0.png",
     "opaque": true,
@@ -287,9 +287,16 @@
     "billboard": true
   },
   {
+    "name": "warrior",
+    "mesh": "quad.obj",
+    "texture": "units/warrior.png",
+    "opaque": true,
+    "billboard": true
+  },
+  {
     "name": "ground",
     "mesh": "quad.obj",
-    "texture": "green.png",
+    "texture": "debug.png",
     "opaque": true,
     "billboard": false
   },

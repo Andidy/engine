@@ -32,6 +32,8 @@ struct Entity {
 	vec3 render_rot_axis;
 	f32 render_rot_angle;
 	AssetHandle h_model;
+
+	bool is_unit;
 };
 
 struct GameState {
@@ -47,6 +49,8 @@ struct GameState {
 	Camera main_camera;
 
 	int crosshair_entity;
+
+	int selected_entity;
 
 	int picked_object;
 	vec3 picking_dir;
