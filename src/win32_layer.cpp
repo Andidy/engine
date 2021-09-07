@@ -336,45 +336,16 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	GameState* gs = (GameState*)game_memory->data;
 
-	if (1) {
-		for (int iter = 0; iter < gs->num_entities;) {
-			Entity e = gs->entities[iter];
-			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
-			render_data->num_entities = iter;
-		}	
-	}
-
-	/*
-	if (0) {
-		int iter = 0;
-		Entity e = gs->entities[gs->blackGuyHead];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
-		e = gs->entities[gs->blackGuyHead2];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 0, 0 };
-
-		e = gs->entities[gs->bunnyTest];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 1, 1 };
-		e = gs->entities[gs->bunnyTest2];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 1, 1 };
-
-		for (int i = 0; i < 7; i++) {
-			e = gs->entities[gs->cubes[i]];
-			render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 2, 2 + i };
+	int num_render_entities = 0;
+	for (int iter = 0; iter < gs->num_entities; iter++) {
+		Entity e = gs->entities[iter];
+		if (e.should_render) {
+			vec3 pos = { e.game_pos.x, 0.0f, e.game_pos.y };
+			pos = AddVec(pos, e.render_offset);
+			render_data->entities[num_render_entities++] = { pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
+			render_data->num_entities = num_render_entities;
 		}
-		e = gs->entities[gs->quad];
-		render_data->entities[iter++] = { e.render_pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, 3, 0 };
-
-		render_data->num_entities = iter;
-	}
-
-	// set this to 1 to make all models just have a white texture
-	// set to 0 for actual textures
-	if (0) {
-		for (int i = 0; i < render_data->num_entities; i++) {
-			render_data->entities[i].texture_index = 9;
-		}
-	}
-	*/
+	}	
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -458,7 +429,10 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			e.name = name;
 
 			auto pos = je["pos"].array_items();
-			e.render_pos = Vec3(pos[0].number_value(), pos[1].number_value(), pos[2].number_value());
+			e.game_pos = Vec2(pos[0].number_value(), pos[1].number_value());
+
+			auto render_offset = je["render_offset"].array_items();
+			e.render_offset = Vec3(render_offset[0].number_value(), render_offset[1].number_value(), render_offset[2].number_value());
 
 			auto scale = je["scale"].array_items();
 			e.render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
@@ -479,6 +453,9 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 
 			auto is_unit = je["unit"].bool_value();
 			e.is_unit = is_unit;
+
+			auto should_render = true;
+			e.should_render = should_render;
 
 			gs->entities[entity_index] = e;
 

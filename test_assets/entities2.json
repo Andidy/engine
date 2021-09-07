@@ -1,7 +1,8 @@
 [
   {
     "name": "ground",
-    "pos": [0.0, -0.5, 0.0],
+    "pos": [0.0, 0.0, 0.0],
+    "render_offset": [0.0, -0.5, 0.0],
     "scale": [100.0, 100.0, 100.0],
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
@@ -10,7 +11,8 @@
   },
   {
     "name": "nomad",
-    "pos": [0.0, 0.0, 0.0],
+    "pos": [0.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -19,7 +21,8 @@
   },
   {
     "name": "warrior",
-    "pos": [0.0, 0.0, 1.0],
+    "pos": [0.0, 1.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -28,7 +31,8 @@
   },
   {
     "name": "tree_0",
-    "pos": [3.0, 0.0, 3.5],
+    "pos": [3.0, 3.5],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -37,7 +41,8 @@
   },
   {
     "name": "tree_1",
-    "pos": [4.0, 0.0, 3.0],
+    "pos": [4.0, 3.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -46,7 +51,8 @@
   },
   {
     "name": "pine_tree_0",
-    "pos": [6.0, 0.0, 0.0],
+    "pos": [6.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -55,7 +61,8 @@
   },
   {
     "name": "pine_tree_1",
-    "pos": [5.0, 0.0, 0.0],
+    "pos": [5.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -64,7 +71,8 @@
   },
   {
     "name": "tower_0",
-    "pos": [10.0, 0.0, 2.0],
+    "pos": [10.0, 2.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -73,7 +81,8 @@
   },
   {
     "name": "castle_1",
-    "pos": [0.0, 0.0, 7.0],
+    "pos": [0.0, 7.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -82,7 +91,8 @@
   },
   {
     "name": "church",
-    "pos": [0.0, 0.0, 8.0],
+    "pos": [0.0, -8.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -91,7 +101,8 @@
   },
   {
     "name": "crosshair_0",
-    "pos": [0.0, 0.0, 8.0],
+    "pos": [0.0, 0.0],
+    "render_offset": [0.0, -0.4, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,

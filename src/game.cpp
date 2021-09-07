@@ -27,6 +27,7 @@ MouseRayReturn MouseRay(GameState* gs, Input* gi) {
 	return { start_vector, direction_vector };
 }
 
+/*
 // The return type is the index of the entity the ray connected with in the gs->entities array, -1 means no entity was hit.
 int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
 	int result = -1;
@@ -54,7 +55,7 @@ int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
 			// double root, ray is tangent to the sphere
 			t0 = -b / 2.0f;
 		}
-		else /* discriminant < 0 */ {
+		else { // discriminant < 0
 			// no roots, ray does not intersect the sphere
 			DebugPrint((char*)"Didn't Hit Object\n");
 			continue;
@@ -78,6 +79,7 @@ int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
 	gs->picking_dist = min_distance;
 	return result;
 }
+*/
 
 // The return type is the point on the plane intersected with, Vec3(INF, INF, INF) means the ray cast is parallel to the plane.
 vec3 RayPlaneCollisionCheck(vec3 ray_start, vec3 ray_dir, vec3 plane_point, vec3 plane_normal) {
@@ -128,6 +130,8 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	for (int i = 0; i < gs->num_entities; i++) {
 		if (gs->entities[i].name.compare((char*)"crosshair_0") == 0) {
 			gs->crosshair_entity = i;
+			gs->entities[i].should_render = false;
+			gs->crosshair_active = false;
 			break;
 		}
 	}
@@ -142,11 +146,17 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	gs->picking_dist = 0.0f;
 
 	gs->main_camera.pos = Vec3(-10.0f, 10.0f, 0.0f);
-	gs->main_camera.dir = Vec3(0.0f, 0.0f, 1.0f);
 	gs->main_camera.up = Vec3(0.0, 1.0, 0.0f);
 
 	gs->main_camera.pitch = 0.0f;
-	gs->main_camera.yaw = 0.0f;
+	gs->main_camera.yaw = -90.0f;
+
+	vec3 dir = Vec3(
+		cosf(DegToRad(gs->main_camera.yaw)) * cosf(DegToRad(gs->main_camera.pitch)),
+		sinf(DegToRad(gs->main_camera.pitch)),
+		sinf(DegToRad(gs->main_camera.yaw)) * cosf(DegToRad(gs->main_camera.pitch))
+	);
+	gs->main_camera.dir = NormVec(dir);
 
 	gs->main_camera.view = LookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
 	gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
@@ -173,7 +183,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 	// Camera Update
 	Camera* camera = &gs->main_camera;
 	{
-		const f32 base_camera_speed = 1.0f;
+		const f32 base_camera_speed = 10.0f;
 		const f32 speed_multiplier = 50.0f;
 		f32 camera_speed = base_camera_speed;
 
@@ -181,7 +191,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			camera_speed *= speed_multiplier;
 		}
 
-		const f32 rotateSpeed = 10.0f;
+		const f32 rotateSpeed = 36.0f;
 
 		vec3 dir = NormVec(camera->dir);
 		vec3 right = NormVec(Cross(camera->up, dir));
@@ -254,7 +264,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 	// end Camera Update
 	// ========================================================================
 	// Object Picking
-
+	/*
 	if (keyPressed(gi->mouse.middle) && gs->picked_object >= 0) {
 		gs->picked_object = -1;
 		gs->picking_dir = ZeroVec();
@@ -276,7 +286,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 		MouseRayReturn mrr = MouseRay(gs, gi);
 		gs->entities[gs->picked_object].render_pos = AddVec(mrr.start, ScaleVec(mrr.direction, gs->picking_dist));
 	}
-
+	*/
 	// end Object Picking
 	// ========================================================================
 	// Game Updates
@@ -284,34 +294,54 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 	if (keyPressed(gi->mouse.left)) {
 		MouseRayReturn mrr = MouseRay(gs, gi);
 
+		// calculate the closest entity in the path of the ray
+		// entity_index -1 means no entity was hit, 0 -> gs->num_entities-1 means an entity was hit
 		float min = INFINITY;
-		int e = -1;
+		int entity_index = -1;
 		vec3 quad_norm = NegVec(gs->main_camera.dir);
 		for (int i = 1; i < gs->num_entities; i++) {
-			float new_min = fabsf(Distance(mrr.start, gs->entities[i].render_pos));
-			if (RayQuadCollisionCheck(mrr.start, mrr.direction, gs->entities[i].render_pos, quad_norm)
+			vec3 pos = { gs->entities[i].game_pos.x, 0.0f, gs->entities[i].game_pos.y };
+			float new_min = fabsf(Distance(mrr.start, pos));
+			if (RayQuadCollisionCheck(mrr.start, mrr.direction, pos, quad_norm)
 				&& new_min < min) {
 				min = new_min;
-				e = i;
+				entity_index = i;
 			}
 		}
 
-		if (min == INFINITY) {
-			vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, ZeroVec(), UpVec());
-			gs->entities[gs->crosshair_entity].render_pos = clicked_point;
+		// if we didn't hit any entity and we already selected an entity, check if we hit the ground plane, to position the crosshair
+		if (min == INFINITY && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
+			vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
+			gs->entities[gs->crosshair_entity].game_pos = { clicked_point.x, clicked_point.z };
+			gs->entities[gs->crosshair_entity].should_render = true;
+			gs->crosshair_active = true;
 		}
+		// if there is already a selected entity moving towards an active waypoint
+		// and the user clicks an entity, cancel the waypoint
+		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
+			gs->entities[gs->crosshair_entity].should_render = false;
+			gs->crosshair_active = false;
+			gs->selected_entity = -1;
+		}
+		// if we did hit any entity, check if we hit the crosshair, and discard that case
+		// otherwise set the selected entity to the hit entity
 		else {
-			e = e == gs->crosshair_entity ? -1 : e;
-			gs->selected_entity = e;
+			entity_index = entity_index == gs->crosshair_entity ? -1 : entity_index;
+			gs->selected_entity = entity_index;
 		}
 	}
 
 	if (gs->game_ticked) {
-		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
-			float dist = Distance(gs->entities[gs->selected_entity].render_pos, gs->entities[gs->crosshair_entity].render_pos);
-			if (dist > 0.001f) {
-				vec3 dir = NormVec(SubVec(gs->entities[gs->crosshair_entity].render_pos, gs->entities[gs->selected_entity].render_pos));
-				gs->entities[gs->selected_entity].render_pos = AddVec(gs->entities[gs->selected_entity].render_pos, ScaleVec(dir, 10.0f * dt));
+		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
+			float dist = Vec2Distance(gs->entities[gs->selected_entity].game_pos, gs->entities[gs->crosshair_entity].game_pos);
+			if (dist > (dt * 10.0f)) {
+				vec2 dir = Vec2Norm(Vec2Sub(gs->entities[gs->crosshair_entity].game_pos, gs->entities[gs->selected_entity].game_pos));
+				gs->entities[gs->selected_entity].game_pos = Vec2Add(gs->entities[gs->selected_entity].game_pos, Vec2Scale(dir, 10.0f * dt));
+			}
+			else {
+				gs->entities[gs->crosshair_entity].should_render = false;
+				gs->crosshair_active = false;
+				gs->selected_entity = -1;
 			}
 		}
 
@@ -331,8 +361,16 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			selected_entity = "No entity selected\0";
 		}
 
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\n",
-			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity);
+		const char* waypoint_active = NULL;
+		if (gs->crosshair_active) {
+			waypoint_active = "true\0";
+		}
+		else {
+			waypoint_active = "false\0";
+		}
+
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\nWaypoint Active: %s\n",
+			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity, waypoint_active);
 	}
 
 	if (keyPressed(gi->keyboard.m)) {

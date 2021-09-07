@@ -27,13 +27,16 @@ struct Camera {
 
 struct Entity {
 	std::string name;
-	vec3 render_pos;
+	vec3 render_offset;
 	vec3 render_scale;
 	vec3 render_rot_axis;
 	f32 render_rot_angle;
 	AssetHandle h_model;
 
+	vec2 game_pos;
+
 	bool is_unit;
+	bool should_render;
 };
 
 struct GameState {
@@ -49,6 +52,7 @@ struct GameState {
 	Camera main_camera;
 
 	int crosshair_entity;
+	bool crosshair_active;
 
 	int selected_entity;
 
