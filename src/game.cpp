@@ -17,7 +17,7 @@ MouseRayReturn MouseRay(GameState* gs, Input* gi) {
 	};
 
 	vec4 dir = MulMatVec(gs->main_camera.inv_view, camera_space_vector);
-	vec3 direction_vector = NormVec({ dir.x, dir.y, dir.z });
+	vec3 direction_vector = Normalize({ dir.x, dir.y, dir.z });
 	vec3 start_vector = {
 		gs->main_camera.inv_view.data[0][3],
 		gs->main_camera.inv_view.data[1][3],
@@ -88,7 +88,7 @@ vec3 RayPlaneCollisionCheck(vec3 ray_start, vec3 ray_dir, vec3 plane_point, vec3
 	float d = Dot(plane_point, NegVec(plane_normal));
 	float t = -(d + Dot(ray_start, plane_normal)) / Dot(ray_dir, plane_normal);
 	if (t > 0.00001f) {
-		return AddVec(ray_start, ScaleVec(ray_dir, t));
+		return ray_start + (ray_dir * t);
 	}
 	else {
 		return result;
@@ -156,10 +156,10 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 		sinf(DegToRad(gs->main_camera.pitch)),
 		sinf(DegToRad(gs->main_camera.yaw)) * cosf(DegToRad(gs->main_camera.pitch))
 	);
-	gs->main_camera.dir = NormVec(dir);
+	gs->main_camera.dir = Normalize(dir);
 
-	gs->main_camera.view = LookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
-	gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
+	gs->main_camera.view = LookAtMat(gs->main_camera.pos, gs->main_camera.pos + gs->main_camera.dir, gs->main_camera.up);
+	gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, gs->main_camera.pos + gs->main_camera.dir, gs->main_camera.up);
 	gs->main_camera.proj = PerspectiveMat(90.0f, window_dimensions.x / window_dimensions.y, 0.1f, 1000.0f);
 
 	Viewport viewport = {};
@@ -193,42 +193,42 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 
 		const f32 rotateSpeed = 36.0f;
 
-		vec3 dir = NormVec(camera->dir);
-		vec3 right = NormVec(Cross(camera->up, dir));
+		vec3 dir = Normalize(camera->dir);
+		vec3 right = Normalize(Cross(camera->up, dir));
 
 		if (keyDown(gi->keyboard.w)) {
-			vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
-			temp_dir = ScaleVec(NormVec(temp_dir), camera_speed * dt);
-			camera->pos = AddVec(camera->pos, temp_dir);
+			vec3 temp_dir = dir - UpVec() * (Dot(dir, UpVec()) / powf(dir.Len(), 2.0f));
+			temp_dir = Normalize(temp_dir) * (camera_speed * dt);
+			camera->pos += temp_dir;
 		}
 		else if (keyDown(gi->keyboard.s)) {
-			vec3 temp_dir = SubVec(dir, ScaleVec(UpVec(), (Dot(dir, UpVec()) / powf(VecLen(dir), 2.0f))));
-			temp_dir = ScaleVec(NormVec(temp_dir), camera_speed * dt);
-			camera->pos = AddVec(camera->pos, NegVec(temp_dir));
+			vec3 temp_dir = dir - UpVec() * (Dot(dir, UpVec()) / powf(dir.Len(), 2.0f));
+			temp_dir = Normalize(temp_dir) * (camera_speed * dt);
+			camera->pos -= temp_dir;
 		}
 		else if (keyDown(gi->keyboard.up)) {
-			dir = ScaleVec(dir, camera_speed * dt);
-			gs->main_camera.pos = AddVec(gs->main_camera.pos, dir);
+			dir *= (camera_speed * dt);
+			gs->main_camera.pos += dir;
 		}
 		else if (keyDown(gi->keyboard.down)) {
-			dir = NegVec(ScaleVec(dir, camera_speed * dt));
-			gs->main_camera.pos = AddVec(gs->main_camera.pos, dir);
+			dir *= (camera_speed * dt);
+			gs->main_camera.pos -= dir;
 		}
 
 		if (keyDown(gi->keyboard.t)) {
-			camera->pos = AddVec(camera->pos, ScaleVec(UpVec(), camera_speed * dt));
+			camera->pos += UpVec() * (camera_speed * dt);
 		}
 		else if (keyDown(gi->keyboard.g)) {
-			camera->pos = AddVec(camera->pos, NegVec(ScaleVec(UpVec(), camera_speed * dt)));
+			camera->pos -= UpVec() * camera_speed * dt;
 		}
 
 		if (keyDown(gi->keyboard.left) || keyDown(gi->keyboard.a)) {
-			right = ScaleVec(right, camera_speed * dt);
-			gs->main_camera.pos = AddVec(gs->main_camera.pos, right);
+			right *= (camera_speed * dt);
+			gs->main_camera.pos += right;
 		}
 		else if (keyDown(gi->keyboard.right) || keyDown(gi->keyboard.d)) {
-			right = NegVec(ScaleVec(right, camera_speed * dt));
-			gs->main_camera.pos = AddVec(gs->main_camera.pos, right);
+			right *= (camera_speed * dt);
+			gs->main_camera.pos -= right;
 		}
 
 		if (keyDown(gi->keyboard.q)) {
@@ -256,10 +256,10 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			sinf(DegToRad(camera->pitch)),
 			sinf(DegToRad(camera->yaw)) * cosf(DegToRad(camera->pitch))
 		);
-		camera->dir = NormVec(dir);
+		camera->dir = Normalize(dir);
 
-		gs->main_camera.view = LookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
-		gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, AddVec(gs->main_camera.pos, gs->main_camera.dir), gs->main_camera.up);
+		gs->main_camera.view = LookAtMat(gs->main_camera.pos, gs->main_camera.pos + gs->main_camera.dir, gs->main_camera.up);
+		gs->main_camera.inv_view = InverseLookAtMat(gs->main_camera.pos, gs->main_camera.pos + gs->main_camera.dir, gs->main_camera.up);
 	}
 	// end Camera Update
 	// ========================================================================
@@ -298,7 +298,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 		// entity_index -1 means no entity was hit, 0 -> gs->num_entities-1 means an entity was hit
 		float min = INFINITY;
 		int entity_index = -1;
-		vec3 quad_norm = NegVec(gs->main_camera.dir);
+		vec3 quad_norm = -gs->main_camera.dir;
 		for (int i = 1; i < gs->num_entities; i++) {
 			vec3 pos = { gs->entities[i].game_pos.x, 0.0f, gs->entities[i].game_pos.y };
 			float new_min = fabsf(Distance(mrr.start, pos));
@@ -333,10 +333,10 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 
 	if (gs->game_ticked) {
 		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
-			float dist = Vec2Distance(gs->entities[gs->selected_entity].game_pos, gs->entities[gs->crosshair_entity].game_pos);
+			float dist = Distance(gs->entities[gs->selected_entity].game_pos, gs->entities[gs->crosshair_entity].game_pos);
 			if (dist > (dt * 10.0f)) {
-				vec2 dir = Vec2Norm(Vec2Sub(gs->entities[gs->crosshair_entity].game_pos, gs->entities[gs->selected_entity].game_pos));
-				gs->entities[gs->selected_entity].game_pos = Vec2Add(gs->entities[gs->selected_entity].game_pos, Vec2Scale(dir, 10.0f * dt));
+				vec2 dir = Normalize(gs->entities[gs->crosshair_entity].game_pos - gs->entities[gs->selected_entity].game_pos);
+				gs->entities[gs->selected_entity].game_pos += dir * (10.0f * dt);
 			}
 			else {
 				gs->entities[gs->crosshair_entity].should_render = false;

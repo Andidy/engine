@@ -341,7 +341,7 @@ void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 		Entity e = gs->entities[iter];
 		if (e.should_render) {
 			vec3 pos = { e.game_pos.x, 0.0f, e.game_pos.y };
-			pos = AddVec(pos, e.render_offset);
+			pos += e.render_offset;
 			render_data->entities[num_render_entities++] = { pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
 			render_data->num_entities = num_render_entities;
 		}
@@ -805,7 +805,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 					PrepareRenderData(&game_memory, &render_data);
 					PrepareText(
-						game_debug_text, strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
+						game_debug_text, (int)strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
 						&font, text_verts, dim
 					);
 					renderer.RenderFrame(&game_memory, &model_buffer, models, &render_data, text_verts);
