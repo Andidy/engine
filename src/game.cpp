@@ -16,7 +16,7 @@ MouseRayReturn MouseRay(GameState* gs, Input* gi) {
 		0.0f
 	};
 
-	vec4 dir = MulMatVec(gs->main_camera.inv_view, camera_space_vector);
+	vec4 dir = gs->main_camera.inv_view * camera_space_vector;
 	vec3 direction_vector = Normalize({ dir.x, dir.y, dir.z });
 	vec3 start_vector = {
 		gs->main_camera.inv_view.data[0][3],

@@ -845,13 +845,13 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 					rotate.data[2][3] = 0.0f;
 				}
 
-				mat4 world = MulMat(translate, MulMat(rotate, scale));
+				mat4 world = translate * (rotate * scale);
 
 				D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 				context->Map(constant_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 				Constants* constants = (Constants*)(mappedSubresource.pData);
 				constants->m = world;
-				constants->mvp = MulMat(proj, MulMat(view, world));
+				constants->mvp = proj * (view * world);
 				constants->camera_pos = gs->main_camera.pos;
 				context->Unmap(constant_buffer, 0);
 				context->VSSetConstantBuffers(0, 1, &constant_buffer);
@@ -901,13 +901,13 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 				rotate.data[2][3] = 0.0f;
 			}
 			
-			mat4 world = MulMat(translate, MulMat(rotate, scale));
+			mat4 world = translate * (rotate * scale);
 
 			D3D11_MAPPED_SUBRESOURCE mappedSubresource;
 			context->Map(constant_buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedSubresource);
 			Constants* constants = (Constants*)(mappedSubresource.pData);
 			constants->m = world;
-			constants->mvp = MulMat(proj, MulMat(view, world));
+			constants->mvp = proj * (view * world);
 			constants->camera_pos = gs->main_camera.pos;
 			context->Unmap(constant_buffer, 0);
 			context->VSSetConstantBuffers(0, 1, &constant_buffer);
