@@ -1,0 +1,17 @@
+[
+  {
+    "type": "tower"
+  },
+  {
+    "type": "castle"
+  },
+  {
+    "type": "house"
+  },
+  {
+    "type": "church"
+  },
+  {
+    "type": "bar"
+  }
+]
