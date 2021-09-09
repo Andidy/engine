@@ -336,16 +336,29 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
 	GameState* gs = (GameState*)game_memory->data;
 
+	Entity crosshair = gs->entities[gs->crosshair_entity];
+
 	int num_render_entities = 0;
 	for (int iter = 0; iter < gs->num_entities; iter++) {
 		Entity e = gs->entities[iter];
 		if (e.should_render) {
+			// handle generic data
 			vec3 pos = { e.game_pos.x, 0.0f, e.game_pos.y };
 			pos += e.render_offset;
 			render_data->entities[num_render_entities++] = { pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
-			render_data->num_entities = num_render_entities;
+
+			// handle unit specific data
+			if (e.is_unit) {
+				// waypoint
+				if (e.waypoint_active) {
+					pos = { e.waypoint_pos.x, 0.0f, e.waypoint_pos.y };
+					pos += crosshair.render_offset;
+					render_data->entities[num_render_entities++] = { pos, crosshair.render_scale, crosshair.render_rot_axis, crosshair.render_rot_angle, crosshair.h_model.handle };
+				}
+			}
 		}
 	}	
+	render_data->num_entities = num_render_entities;
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -451,11 +464,17 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 				}
 			}
 
+			auto should_render = true;
+			e.should_render = should_render;
+
 			auto is_unit = je["unit"].bool_value();
 			e.is_unit = is_unit;
 
-			auto should_render = true;
-			e.should_render = should_render;
+			auto waypoint_active = false;
+			e.waypoint_active = waypoint_active;
+
+			vec2 waypoint_pos = { 0.0f, 0.0f };
+			e.waypoint_pos = waypoint_pos;
 
 			gs->entities[entity_index] = e;
 

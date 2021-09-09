@@ -131,7 +131,6 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 		if (gs->entities[i].name.compare((char*)"crosshair_0") == 0) {
 			gs->crosshair_entity = i;
 			gs->entities[i].should_render = false;
-			gs->crosshair_active = false;
 			break;
 		}
 	}
@@ -314,50 +313,41 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			// we only want to position the crosshair when we have selected a unit since only units can move
 			if (gs->entities[gs->selected_entity].is_unit) {
 				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
-				gs->entities[gs->crosshair_entity].game_pos = { clicked_point.x, clicked_point.z };
-				gs->entities[gs->crosshair_entity].should_render = true;
-				gs->crosshair_active = true;
+				gs->entities[gs->selected_entity].waypoint_pos = { clicked_point.x, clicked_point.z };
+				gs->entities[gs->selected_entity].waypoint_active = true;
 			}
 			// otherwise we should deselect the entity that isn't a unit
 			else {
-				gs->entities[gs->crosshair_entity].should_render = false;
-				gs->crosshair_active = false;
 				gs->selected_entity = -1;
 			}
 		}
 		// if there is already a selected entity moving towards an active waypoint
-		// and the user clicks an entity, cancel the waypoint, and select the new entity
-		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
-			// when we select the same entity we don't want to cancel the movement
+		// and the user clicks an entity, select the new entity
+		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
 			if (entity_index != gs->selected_entity) {
-				gs->entities[gs->crosshair_entity].should_render = false;
-				gs->crosshair_active = false;
-				entity_index = entity_index == gs->crosshair_entity ? -1 : entity_index;
 				gs->selected_entity = entity_index;
 			}
 		}
-		// if we did hit any entity, check if we hit the crosshair, and discard that case
+		// if we did hit an entity, check if we hit the crosshair, and discard that case
 		// otherwise set the selected entity to the hit entity
 		else {
-			entity_index = entity_index == gs->crosshair_entity ? -1 : entity_index;
 			gs->selected_entity = entity_index;
 		}
 	}
 
 	if (gs->game_ticked) {
-		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
-			float dist = Distance(gs->entities[gs->selected_entity].game_pos, gs->entities[gs->crosshair_entity].game_pos);
-			if (dist > (dt * 10.0f)) {
-				vec2 dir = Normalize(gs->entities[gs->crosshair_entity].game_pos - gs->entities[gs->selected_entity].game_pos);
-				gs->entities[gs->selected_entity].game_pos += dir * (10.0f * dt);
-			}
-			else {
-				gs->entities[gs->crosshair_entity].should_render = false;
-				gs->crosshair_active = false;
-				gs->selected_entity = -1;
+		for (int i = 0; i < gs->num_entities; i++) {
+			if (gs->entities[i].is_unit && gs->entities[i].waypoint_active) {
+				float dist = Distance(gs->entities[i].game_pos, gs->entities[i].waypoint_pos);
+				if (dist > (dt * 10.0f)) {
+					vec2 dir = Normalize(gs->entities[i].waypoint_pos - gs->entities[i].game_pos);
+					gs->entities[i].game_pos += dir * (10.0f * dt);
+				}
+				else {
+					gs->entities[i].waypoint_active = false;
+				}
 			}
 		}
-
 		gs->game_ticked = false;
 	}
 
@@ -374,16 +364,8 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 			selected_entity = "No entity selected\0";
 		}
 
-		const char* waypoint_active = NULL;
-		if (gs->crosshair_active) {
-			waypoint_active = "true\0";
-		}
-		else {
-			waypoint_active = "false\0";
-		}
-
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\nWaypoint Active: %s\n",
-			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity, waypoint_active);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\n",
+			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity);
 	}
 
 	if (keyPressed(gi->keyboard.m)) {

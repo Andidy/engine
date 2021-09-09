@@ -34,9 +34,12 @@ struct Entity {
 	AssetHandle h_model;
 
 	vec2 game_pos;
+	bool should_render;
 
 	bool is_unit;
-	bool should_render;
+	// unit specific stuff
+	bool waypoint_active;
+	vec2 waypoint_pos;
 };
 
 struct GameState {
@@ -52,7 +55,6 @@ struct GameState {
 	Camera main_camera;
 
 	int crosshair_entity;
-	bool crosshair_active;
 
 	int selected_entity;
 
