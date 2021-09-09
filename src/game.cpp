@@ -311,17 +311,30 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 
 		// if we didn't hit any entity and we already selected an entity, check if we hit the ground plane, to position the crosshair
 		if (min == INFINITY && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
-			vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
-			gs->entities[gs->crosshair_entity].game_pos = { clicked_point.x, clicked_point.z };
-			gs->entities[gs->crosshair_entity].should_render = true;
-			gs->crosshair_active = true;
+			// we only want to position the crosshair when we have selected a unit since only units can move
+			if (gs->entities[gs->selected_entity].is_unit) {
+				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
+				gs->entities[gs->crosshair_entity].game_pos = { clicked_point.x, clicked_point.z };
+				gs->entities[gs->crosshair_entity].should_render = true;
+				gs->crosshair_active = true;
+			}
+			// otherwise we should deselect the entity that isn't a unit
+			else {
+				gs->entities[gs->crosshair_entity].should_render = false;
+				gs->crosshair_active = false;
+				gs->selected_entity = -1;
+			}
 		}
 		// if there is already a selected entity moving towards an active waypoint
-		// and the user clicks an entity, cancel the waypoint
+		// and the user clicks an entity, cancel the waypoint, and select the new entity
 		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities && gs->crosshair_active) {
-			gs->entities[gs->crosshair_entity].should_render = false;
-			gs->crosshair_active = false;
-			gs->selected_entity = -1;
+			// when we select the same entity we don't want to cancel the movement
+			if (entity_index != gs->selected_entity) {
+				gs->entities[gs->crosshair_entity].should_render = false;
+				gs->crosshair_active = false;
+				entity_index = entity_index == gs->crosshair_entity ? -1 : entity_index;
+				gs->selected_entity = entity_index;
+			}
 		}
 		// if we did hit any entity, check if we hit the crosshair, and discard that case
 		// otherwise set the selected entity to the hit entity
