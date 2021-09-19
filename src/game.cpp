@@ -101,12 +101,10 @@ bool RayQuadCollisionCheck(vec3 ray_start, vec3 ray_dir, vec3 quad_pos, vec3 qua
 	return dist <= 0.5f;
 }
 
-void SetMainCameraViewportAndProjMat(Memory* game_memory, float width, float height) {
-	GameState* gs = (GameState*)game_memory->data;
-
-	gs->main_camera.viewport.size.x = width;
-	gs->main_camera.viewport.size.y = height;
-	gs->main_camera.proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
+void SetCameraViewportAndProjMat(Camera* camera, float width, float height) {
+	camera->viewport.size.x = width;
+	camera->viewport.size.y = height;
+	camera->proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
 }
 
 void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles) {
