@@ -33,6 +33,7 @@ struct Entity {
 	f32 render_rot_angle;
 	AssetHandle h_model;
 
+	bool is_active;
 	vec2 game_pos;
 	bool should_render;
 
@@ -40,6 +41,9 @@ struct Entity {
 	// unit specific stuff
 	bool waypoint_active;
 	vec2 waypoint_pos;
+	int coins;
+
+	bool is_pickup;
 };
 
 struct GameState {

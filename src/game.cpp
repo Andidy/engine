@@ -107,6 +107,19 @@ void SetCameraViewportAndProjMat(Camera* camera, float width, float height) {
 	camera->proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
 }
 
+bool PickupItem(Entity* e, Entity* item) {
+	if (item->is_pickup) {
+		e->coins += item->coins;
+
+		item->should_render = false;
+		item->is_active = false;
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
 void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles) {
 	GameState* gs = (GameState*)game_memory->data;
 
@@ -345,6 +358,17 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 					gs->entities[i].waypoint_active = false;
 				}
 			}
+
+			if (gs->entities[i].is_unit) {
+				for (int item = 0; item < gs->num_entities; item++) {
+					if (i == item) continue;
+
+					float dist = Distance(gs->entities[i].game_pos, gs->entities[item].game_pos);
+					if (gs->entities[item].is_active && gs->entities[item].is_pickup && dist < 1.0f) {
+						PickupItem(&gs->entities[i], &gs->entities[item]);
+					}
+				}
+			}
 		}
 		gs->game_ticked = false;
 	}
@@ -355,15 +379,18 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 	// Debug Text to draw to screen
 	{
 		const char* selected_entity = NULL;
+		int coins = 0;
 		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
 			selected_entity = gs->entities[gs->selected_entity].name.c_str();
+			coins = gs->entities[gs->selected_entity].coins;
 		}
 		else {
 			selected_entity = "No entity selected\0";
+			coins = -1;
 		}
 
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\n",
-			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\nCoins: %d\n",
+			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity, coins);
 	}
 
 	if (keyPressed(gi->keyboard.m)) {

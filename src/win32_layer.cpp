@@ -476,6 +476,15 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			vec2 waypoint_pos = { 0.0f, 0.0f };
 			e.waypoint_pos = waypoint_pos;
 
+			bool is_pickup = je["pickup"].bool_value();
+			e.is_pickup = is_pickup;
+
+			e.is_active = true;
+
+			if (e.is_pickup || e.is_unit) {
+				e.coins = rand() % 100;
+			}
+
 			gs->entities[entity_index] = e;
 
 			// this makes the name string not garbage
@@ -807,6 +816,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Update Game
 				{
 					if (client_area_updated) {
+						// this is disgusting
 						Camera* main_camera = &((GameState*)(&(game_memory.data)))->main_camera;
 						SetCameraViewportAndProjMat(main_camera, dim.width, dim.height);
 					}

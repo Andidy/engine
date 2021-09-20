@@ -7,7 +7,8 @@
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
     "model": "ground",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "nomad",
@@ -17,7 +18,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "nomad",
-    "unit": true
+    "unit": true,
+    "pickup": false
   },
   {
     "name": "warrior",
@@ -27,7 +29,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "warrior",
-    "unit": true
+    "unit": true,
+    "pickup": false
   },
   {
     "name": "tree_0",
@@ -37,7 +40,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "tree_0",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "tree_1",
@@ -47,7 +51,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "tree_1",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "pine_tree_0",
@@ -57,7 +62,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "pine_tree_0",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "pine_tree_1",
@@ -67,7 +73,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "pine_tree_1",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "tower_0",
@@ -77,7 +84,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "tower_0",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "castle_1",
@@ -87,7 +95,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "castle_1",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "church",
@@ -97,7 +106,8 @@
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
     "model": "church",
-    "unit": false
+    "unit": false,
+    "pickup": false
   },
   {
     "name": "crosshair_0",
@@ -107,6 +117,18 @@
     "rotation_axis": [1.0, 0.0, 0.0],
     "rotation_angle": 270.0,
     "model": "crosshair_0",
-    "unit": false
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "coins",
+    "pos": [-7.0, -5.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "coins",
+    "unit": false,
+    "pickup": true
   }
 ]
