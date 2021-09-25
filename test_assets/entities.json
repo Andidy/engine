@@ -1,122 +1,134 @@
 [
   {
-    "name": "african_head",
-    "pos": [-1.0, 0.0, -1.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "african_head"
-  },
-  {
-    "name": "african_head2",
-    "pos": [-2.0, 0.0, -1.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 90.0,
-    "model": "african_head"
-  },
-  {
-    "name": "bunny",
-    "pos": [-3.0, 0.0, -1.0],
-    "scale": [0.1, 0.1, 0.1],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "bunny"
-  },
-  {
-    "name": "bunny2",
-    "pos": [-4.0, 0.0, -1.0],
-    "scale": [0.1, 0.1, 0.1],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 180.0,
-    "model": "bunny"
-  },
-  {
-    "name": "cube",
-    "pos": [0.0, 5.0, -1.0],
-    "scale": [0.1, 0.1, 0.1],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "cube"
-  },
-  {
-    "name": "quad",
-    "pos": [-5.0, 5.0, -1.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "quad"
-  },
-  {
-    "name": "borpa",
-    "pos": [0.0, 10.0, -1.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "quad2",
-    "pos": [0.0, 10.0, -2.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "quad"
-  },
-  {
-    "name": "quad3",
-    "pos": [0.0, 10.0, -1.0],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "transparent_quad"
-  },
-  {
-    "name": "borpa2",
-    "pos": [0.0, 10.0, -0.5],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "bb0",
-    "pos": [0.0, 0.0, -0.5],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "bb1",
-    "pos": [0.2, 0.2, -0.4],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "bb2",
-    "pos": [0.3, 0.1, -0.3],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "bb3",
-    "pos": [0.1, 0.15, -0.6],
-    "scale": [1.0, 1.0, 1.0],
-    "rotation_axis": [0.0, 1.0, 0.0],
-    "rotation_angle": 0.0,
-    "model": "borpa"
-  },
-  {
-    "name": "crate",
+    "name": "ground",
     "pos": [0.0, 0.0, 0.0],
+    "render_offset": [0.0, -0.5, 0.0],
+    "scale": [100.0, 100.0, 100.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 270.0,
+    "model": "ground",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "nomad",
+    "pos": [0.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
-    "model": "crate"
+    "model": "nomad",
+    "unit": true,
+    "pickup": false
+  },
+  {
+    "name": "warrior",
+    "pos": [0.0, 1.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "warrior",
+    "unit": true,
+    "pickup": false
+  },
+  {
+    "name": "tree_0",
+    "pos": [3.0, 3.5],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tree_0",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "tree_1",
+    "pos": [4.0, 3.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tree_1",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "pine_tree_0",
+    "pos": [6.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "pine_tree_0",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "pine_tree_1",
+    "pos": [5.0, 0.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "pine_tree_1",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "tower_0",
+    "pos": [10.0, 2.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "tower_0",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "castle_1",
+    "pos": [0.0, 7.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "castle_1",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "church",
+    "pos": [0.0, -8.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [0.0, 1.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "church",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "crosshair_0",
+    "pos": [0.0, 0.0],
+    "render_offset": [0.0, -0.4, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 270.0,
+    "model": "crosshair_0",
+    "unit": false,
+    "pickup": false
+  },
+  {
+    "name": "coins",
+    "pos": [-7.0, -5.0],
+    "render_offset": [0.0, 0.0, 0.0],
+    "scale": [1.0, 1.0, 1.0],
+    "rotation_axis": [1.0, 0.0, 0.0],
+    "rotation_angle": 0.0,
+    "model": "coins",
+    "unit": false,
+    "pickup": true
   }
 ]
