@@ -27,24 +27,30 @@ struct Camera {
 
 struct Entity {
 	std::string name;
+	// rendering stuff
+	bool should_render;
 	vec3 render_offset;
 	vec3 render_scale;
 	vec3 render_rot_axis;
 	f32 render_rot_angle;
 	AssetHandle h_model;
 
+	// gameplay stuff
 	bool is_active;
 	vec2 game_pos;
-	bool should_render;
 
-	bool is_unit;
 	// unit specific stuff
+	bool is_unit;
 	bool waypoint_active;
 	vec2 waypoint_pos;
 	int coins;
 
+	// item specific stuff
 	bool is_pickup;
 };
+
+#include "items.h"
+#include "units.h"
 
 struct GameState {
 	int64_t game_tick;
@@ -54,7 +60,7 @@ struct GameState {
 	
 	i32 num_entities;
 	int MAX_ENTITIES;
-	Entity* entities;
+	Entity** entities;
 
 	Camera main_camera;
 
@@ -65,13 +71,11 @@ struct GameState {
 	int picked_object;
 	vec3 picking_dir;
 	float picking_dist;
-
-	PermanentResourceAllocator resource_allocator;
 };
 
 void LoadGameAssets(GameState* gs, AssetHandle* asset_handles);
-void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles);
-void GameUpdate(Memory* game_memory, Input* game_input, f32 dt, char* game_debug_text);
+void InitGameState(GameState* gs, vec2 window_dimensions, AssetHandle* asset_handles);
+void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text);
 void SetCameraViewportAndProjMat(Camera* camera, float x, float y);
 
 #endif

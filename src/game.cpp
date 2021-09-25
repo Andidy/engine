@@ -120,15 +120,12 @@ bool PickupItem(Entity* e, Entity* item) {
 	}
 }
 
-void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* asset_handles) {
-	GameState* gs = (GameState*)game_memory->data;
-
-	gs->resource_allocator = PermanentResourceAllocator(Megabytes(64));
-
+void InitGameState(GameState* gs, vec2 window_dimensions, AssetHandle* asset_handles) {
 	gs->MAX_ENTITIES = 1024;
-	//gs->entities = (Entity*)gs->resource_allocator.Allocate((i64)(gs->MAX_ENTITIES * sizeof(Entity)));
-	//gs->entities = (Entity*)calloc(gs->MAX_ENTITIES, sizeof(Entity));
-	gs->entities = new Entity[gs->MAX_ENTITIES];
+	gs->entities = new Entity*[gs->MAX_ENTITIES];
+	for (int i = 0; i < gs->MAX_ENTITIES; i++) {
+		gs->entities[i] = new Entity;
+	}
 
 	gs->num_entities = 0;
 
@@ -139,9 +136,9 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	// end Experimental asset loading
 
 	for (int i = 0; i < gs->num_entities; i++) {
-		if (gs->entities[i].name.compare((char*)"crosshair_0") == 0) {
+		if (gs->entities[i]->name.compare((char*)"crosshair_0") == 0) {
 			gs->crosshair_entity = i;
-			gs->entities[i].should_render = false;
+			gs->entities[i]->should_render = false;
 			break;
 		}
 	}
@@ -179,9 +176,7 @@ void InitGameState(Memory* game_memory, vec2 window_dimensions, AssetHandle* ass
 	gs->main_camera.viewport = viewport;
 }
 
-void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
-	GameState* gs = (GameState*)game_memory->data;
-
+void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 	gs->tick_accumulator += dt;
 	if (gs->tick_accumulator > (1.0f / gs->ticks_per_second)) {
 		gs->tick_accumulator = 0.0f;
@@ -310,7 +305,7 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 		int entity_index = -1;
 		vec3 quad_norm = -gs->main_camera.dir;
 		for (int i = 1; i < gs->num_entities; i++) {
-			vec3 pos = { gs->entities[i].game_pos.x, 0.0f, gs->entities[i].game_pos.y };
+			vec3 pos = { gs->entities[i]->game_pos.x, 0.0f, gs->entities[i]->game_pos.y };
 			float new_min = fabsf(Distance(mrr.start, pos));
 			if (RayQuadCollisionCheck(mrr.start, mrr.direction, pos, quad_norm)
 				&& new_min < min) {
@@ -322,10 +317,10 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 		// if we didn't hit any entity and we already selected an entity, check if we hit the ground plane, to position the crosshair
 		if (min == INFINITY && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
 			// we only want to position the crosshair when we have selected a unit since only units can move
-			if (gs->entities[gs->selected_entity].is_unit) {
+			if (gs->entities[gs->selected_entity]->is_unit) {
 				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
-				gs->entities[gs->selected_entity].waypoint_pos = { clicked_point.x, clicked_point.z };
-				gs->entities[gs->selected_entity].waypoint_active = true;
+				gs->entities[gs->selected_entity]->waypoint_pos = { clicked_point.x, clicked_point.z };
+				gs->entities[gs->selected_entity]->waypoint_active = true;
 			}
 			// otherwise we should deselect the entity that isn't a unit
 			else {
@@ -348,24 +343,24 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 
 	if (gs->game_ticked) {
 		for (int i = 0; i < gs->num_entities; i++) {
-			if (gs->entities[i].is_unit && gs->entities[i].waypoint_active) {
-				float dist = Distance(gs->entities[i].game_pos, gs->entities[i].waypoint_pos);
+			if (gs->entities[i]->is_unit && gs->entities[i]->waypoint_active) {
+				float dist = Distance(gs->entities[i]->game_pos, gs->entities[i]->waypoint_pos);
 				if (dist > (dt * 10.0f)) {
-					vec2 dir = Normalize(gs->entities[i].waypoint_pos - gs->entities[i].game_pos);
-					gs->entities[i].game_pos += dir * (10.0f * dt);
+					vec2 dir = Normalize(gs->entities[i]->waypoint_pos - gs->entities[i]->game_pos);
+					gs->entities[i]->game_pos += dir * (10.0f * dt);
 				}
 				else {
-					gs->entities[i].waypoint_active = false;
+					gs->entities[i]->waypoint_active = false;
 				}
 			}
 
-			if (gs->entities[i].is_unit) {
+			if (gs->entities[i]->is_unit) {
 				for (int item = 0; item < gs->num_entities; item++) {
 					if (i == item) continue;
 
-					float dist = Distance(gs->entities[i].game_pos, gs->entities[item].game_pos);
-					if (gs->entities[item].is_active && gs->entities[item].is_pickup && dist < 1.0f) {
-						PickupItem(&gs->entities[i], &gs->entities[item]);
+					float dist = Distance(gs->entities[i]->game_pos, gs->entities[item]->game_pos);
+					if (gs->entities[item]->is_active && gs->entities[item]->is_pickup && dist < 1.0f) {
+						PickupItem(gs->entities[i], gs->entities[item]);
 					}
 				}
 			}
@@ -381,8 +376,8 @@ void GameUpdate(Memory* game_memory, Input* gi, f32 dt, char* game_debug_text) {
 		const char* selected_entity = NULL;
 		int coins = 0;
 		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
-			selected_entity = gs->entities[gs->selected_entity].name.c_str();
-			coins = gs->entities[gs->selected_entity].coins;
+			selected_entity = gs->entities[gs->selected_entity]->name.c_str();
+			coins = gs->entities[gs->selected_entity]->coins;
 		}
 		else {
 			selected_entity = "No entity selected\0";

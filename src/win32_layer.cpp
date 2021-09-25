@@ -333,14 +333,12 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 	return window_dimension;
 }
 
-void PrepareRenderData(Memory* game_memory, RenderData* render_data) {
-	GameState* gs = (GameState*)game_memory->data;
-
-	Entity crosshair = gs->entities[gs->crosshair_entity];
+void PrepareRenderData(GameState* gs, RenderData* render_data) {
+	Entity crosshair = *(gs->entities[gs->crosshair_entity]);
 
 	int num_render_entities = 0;
 	for (int iter = 0; iter < gs->num_entities; iter++) {
-		Entity e = gs->entities[iter];
+		Entity e = *(gs->entities[iter]);
 		if (e.should_render) {
 			// handle generic data
 			vec3 pos = { e.game_pos.x, 0.0f, e.game_pos.y };
@@ -436,65 +434,57 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 		while (json[entity_index].is_object()) {
 			json11::Json::object je = json[entity_index].object_items();
 
-			Entity e = {};
+			Entity* e = gs->entities[entity_index];
 
 			std::string name = je["name"].string_value();
-			e.name = name;
+			e->name = name;
 
 			auto pos = je["pos"].array_items();
-			e.game_pos = Vec2(pos[0].number_value(), pos[1].number_value());
+			e->game_pos = Vec2(pos[0].number_value(), pos[1].number_value());
 
 			auto render_offset = je["render_offset"].array_items();
-			e.render_offset = Vec3(render_offset[0].number_value(), render_offset[1].number_value(), render_offset[2].number_value());
+			e->render_offset = Vec3(render_offset[0].number_value(), render_offset[1].number_value(), render_offset[2].number_value());
 
 			auto scale = je["scale"].array_items();
-			e.render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
+			e->render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
 
 			auto rotation_axis = je["rotation_axis"].array_items();
-			e.render_rot_axis = Vec3(rotation_axis[0].number_value(), rotation_axis[1].number_value(), rotation_axis[2].number_value());
+			e->render_rot_axis = Vec3(rotation_axis[0].number_value(), rotation_axis[1].number_value(), rotation_axis[2].number_value());
 
 			auto rotation_angle = je["rotation_angle"].number_value();
-			e.render_rot_angle = (float)rotation_angle;
+			e->render_rot_angle = (float)rotation_angle;
 
 			std::string asset_name = je["model"].string_value();
 			for (int i = 0; i < 256; i++) {
 				if (asset_name.compare(asset_handles[i].name) == 0) {
-					e.h_model = asset_handles[i];
+					e->h_model = asset_handles[i];
 					break;
 				}
 			}
 
 			auto should_render = true;
-			e.should_render = should_render;
+			e->should_render = should_render;
 
 			auto is_unit = je["unit"].bool_value();
-			e.is_unit = is_unit;
+			e->is_unit = is_unit;
 
 			auto waypoint_active = false;
-			e.waypoint_active = waypoint_active;
+			e->waypoint_active = waypoint_active;
 
 			vec2 waypoint_pos = { 0.0f, 0.0f };
-			e.waypoint_pos = waypoint_pos;
+			e->waypoint_pos = waypoint_pos;
 
 			bool is_pickup = je["pickup"].bool_value();
-			e.is_pickup = is_pickup;
+			e->is_pickup = is_pickup;
 
-			e.is_active = true;
+			e->is_active = true;
 
-			if (e.is_pickup || e.is_unit) {
-				e.coins = rand() % 100;
+			if (e->is_pickup || e->is_unit) {
+				e->coins = rand() % 100;
 			}
 
-			gs->entities[entity_index] = e;
-
-			// this makes the name string not garbage
-			//gs->entities[entity_index].name = e.name;
-
+			// *(gs->entities[entity_index]) = e;
 			entity_index++;
-
-			char c = gs->entities[entity_index - 1].name.at(3);
-			DebugPrint(&c);
-			DebugPrint((char *)gs->entities[entity_index - 1].name.c_str());
 		}
 		gs->num_entities = entity_index;
 	}
@@ -575,10 +565,8 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			Input* new_input = &game_input[0];
 			Input* old_input = &game_input[1];
 
-			Memory game_memory = {};
-			game_memory.is_initialized = 0;
-			game_memory.size = Kilobytes((u64)1);
-			game_memory.data = VirtualAlloc(0, (SIZE_T)game_memory.size, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
+			GameState game_state = {};
+			GameState* gs = &game_state;
 
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
@@ -758,12 +746,12 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				stbi_image_free(images[iter].data);
 			}
 
-			InitGameState(&game_memory, Vec2((f32)dim.width, (f32)dim.height), asset_handles);
+			InitGameState(&game_state, Vec2((f32)dim.width, (f32)dim.height), asset_handles);
 
 			// end experimental asset loading
 
 			RenderData render_data = {};
-			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)(((GameState*)game_memory.data)->num_entities));
+			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)game_state.num_entities);
 
 			win32_WindowDimension old_dim = dim;
 			bool client_area_updated = false;
@@ -817,11 +805,11 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				{
 					if (client_area_updated) {
 						// this is disgusting
-						Camera* main_camera = &((GameState*)(&(game_memory.data)))->main_camera;
+						Camera* main_camera = &gs->main_camera;
 						SetCameraViewportAndProjMat(main_camera, dim.width, dim.height);
 					}
 
-					GameUpdate(&game_memory, new_input, dt, game_debug_text);
+					GameUpdate(&game_state, new_input, dt, game_debug_text);
 				}
 
 				// Render Game
@@ -830,15 +818,14 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 						renderer.RendererResize(window, dim.width, dim.height, old_dim.width, old_dim.height);
 					}
 
-					GameState* gs = (GameState*)game_memory.data;
 					renderer.UpdateViewport(gs->main_camera.viewport);
 
-					PrepareRenderData(&game_memory, &render_data);
+					PrepareRenderData(gs, &render_data);
 					PrepareText(
 						game_debug_text, (int)strlen(game_debug_text), &renderer.NUM_CHARS_TO_RENDER, 10, 10,
 						&font, text_verts, dim
 					);
-					renderer.RenderFrame(&game_memory, &model_buffer, models, &render_data, text_verts);
+					renderer.RenderFrame(gs, &model_buffer, models, &render_data, text_verts);
 					if (FAILED(renderer.RenderPresent(window))) {
 						break;
 					}

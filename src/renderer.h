@@ -144,7 +144,7 @@ struct Renderer {
 	void InitD3D11(HWND window, i32 swapchain_width, i32 swapchain_height, VertexBuffer* v_buf, IndexBuffer* i_buf, Image* images, int num_images, TextVertex* text_vertex_buffer, int num_text_verts, int text_image_index);
 	void RendererResize(HWND window, i32 swapchain_width, i32 swapchain_height, i32 old_width, i32 old_height);
 	HRESULT RenderPresent(HWND window);
-	void RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* verts);
+	void RenderFrame(GameState* gs, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* verts);
 	void UpdateViewport(Viewport viewport);
 };
 

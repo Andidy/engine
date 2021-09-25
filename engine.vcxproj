@@ -281,7 +281,9 @@
     <ClInclude Include="src\ady_types.h" />
     <ClInclude Include="src\asset_loading.h" />
     <ClInclude Include="src\game.h" />
+    <ClInclude Include="src\items.h" />
     <ClInclude Include="src\renderer.h" />
+    <ClInclude Include="src\units.h" />
     <ClInclude Include="src\universal.h" />
   </ItemGroup>
   <ItemGroup>

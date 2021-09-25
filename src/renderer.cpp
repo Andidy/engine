@@ -17,11 +17,11 @@ Vertex CreateVertex(vec3 pos, vec3 norm, vec2 tex) {
 }
 
 void InitRenderer(VertexBuffer* v_buf, IndexBuffer* i_buf, MeshBuffer* meshes, PermanentResourceAllocator* allocator) {
-	v_buf->buffer_length = 100000000;
+	v_buf->buffer_length = 100000;
 	v_buf->num_vertices = 0;
 	v_buf->vertices = (Vertex*)allocator->Allocate(sizeof(Vertex) * v_buf->buffer_length);
 
-	i_buf->buffer_length = 100000000;
+	i_buf->buffer_length = 100000;
 	i_buf->num_indices = 0;
 	i_buf->indices = (i32*)allocator->Allocate(sizeof(i32) * i_buf->buffer_length);
 
@@ -788,7 +788,7 @@ HRESULT Renderer::RenderPresent(HWND window) {
 	return S_OK;
 }
 
-void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* text_vert_buffer) {
+void Renderer::RenderFrame(GameState* gs, MeshBuffer* m_buffer, Model* models, RenderData* render_data, TextVertex* text_vert_buffer) {
 	if (!renderer_occluded) {
 		//if (render_frame_latency_wait) {
 		//	WaitForSingleObjectEx(render_frame_latency_wait, INFINITE, TRUE);
@@ -816,7 +816,6 @@ void Renderer::RenderFrame(Memory* game_memory, MeshBuffer* m_buffer, Model* mod
 		context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		context->IASetIndexBuffer(index_buffer, DXGI_FORMAT_R32_UINT, 0);
 
-		GameState* gs = (GameState*)game_memory->data;
 		mat4 view = gs->main_camera.view;
 		mat4 proj = gs->main_camera.proj;
 
