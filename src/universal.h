@@ -28,12 +28,6 @@ void DebugPrint(char* str);
 // ============================================================================
 // Memory
 
-struct Memory {
-	b32 is_initialized;
-	u64 size;
-	void* data;
-};
-
 // This allocator is to be used for resources which will exist for the entire 
 // period the program is running
 struct PermanentResourceAllocator {
