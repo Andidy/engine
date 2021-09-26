@@ -617,7 +617,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			std::string asset_folder_path = "test_assets/";
 			std::string asset_path = "";
-			const int MAX_MODELS = 16;
+			const int MAX_MODELS = 128;
 			Model models[MAX_MODELS];
 			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
 			if (file.data != NULL && file.size >= 0) {
