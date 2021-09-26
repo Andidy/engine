@@ -248,22 +248,25 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 	
 	if (gs->game_ticked) {
 		for (int i = 0; i < gs->entities.size(); i++) {
-			if (gs->entities[i].unit >= 0) {
-				if (gs->c_units[gs->entities[i].unit].waypoint_active) {
-					float dist = Distance(gs->c_transforms[gs->entities[i].transform].game_pos, gs->c_units[gs->entities[i].unit].waypoint_pos);
+			int unit = gs->entities[i].unit;
+			int transform = gs->entities[i].transform;
+
+			if (unit >= 0) {
+				if (gs->c_units[unit].waypoint_active) {
+					float dist = Distance(gs->c_transforms[transform].game_pos, gs->c_units[unit].waypoint_pos);
 					if (dist > (dt * 10.0f)) {
-						vec2 dir = Normalize(gs->c_units[gs->entities[i].unit].waypoint_pos - gs->c_transforms[gs->entities[i].transform].game_pos);
-						gs->c_transforms[gs->entities[i].transform].game_pos += dir * (10.0f * dt);
+						vec2 dir = Normalize(gs->c_units[unit].waypoint_pos - gs->c_transforms[transform].game_pos);
+						gs->c_transforms[transform].game_pos += dir * (10.0f * dt);
 					}
 					else {
-						gs->c_units[gs->entities[i].unit].waypoint_active = false;
+						gs->c_units[unit].waypoint_active = false;
 					}
 				}
 
 				for (int item = 0; item < gs->entities.size(); item++) {
 					if (i == item) continue;
 
-					float dist = Distance(gs->c_transforms[gs->entities[i].transform].game_pos, gs->c_transforms[gs->entities[item].transform].game_pos);
+					float dist = Distance(gs->c_transforms[transform].game_pos, gs->c_transforms[gs->entities[item].transform].game_pos);
 					if (gs->entities[item].is_active && (gs->entities[item].item >= 0) && dist < 1.0f) {
 						PickupItem(gs, &gs->entities[i], &gs->entities[item]);
 					}
