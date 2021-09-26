@@ -3,9 +3,9 @@
 #include "universal.h"
 
 /*
-* The Renderable component contains information that allows the entity to be
-* rendered by the Rendering system of the engine. It's purpose is focused on
-* rendering and not gameplay or game world representation.
+	The Renderable component contains information that allows the entity to be
+	rendered by the Rendering system of the engine. It's purpose is focused on
+	rendering and not gameplay or game world representation.
 */
 struct cRenderable {
 	bool should_render; // should this renderable be rendered this frame
@@ -22,8 +22,8 @@ struct cRenderable {
 };
 
 /*
-* The Transform component is responsible for representing the entity's position
-* in the game world and associated information like orientation.
+	The Transform component is responsible for representing the entity's position
+	in the game world and associated information like orientation.
 */
 struct cTransform {
 	vec2 game_pos; // position in the game world of the entity
