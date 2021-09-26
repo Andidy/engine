@@ -617,7 +617,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 
 			std::string asset_folder_path = "test_assets/";
 			std::string asset_path = "";
-			const int MAX_MODELS = 128;
+			const int MAX_MODELS = 16;
 			Model models[MAX_MODELS];
 			debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/models.json");
 			if (file.data != NULL && file.size >= 0) {
@@ -700,7 +700,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				fseek(font_file, 0, SEEK_END);
 				i32 font_buf_size = ftell(font_file);
 				fseek(font_file, 0, SEEK_SET);
-				font.font_buf = (uchar*)malloc(font_buf_size); // malloc
+				font.font_buf = (uchar*)calloc(font_buf_size, 1u);
 
 				fread(font.font_buf, font_buf_size, 1, font_file);
 				fclose(font_file);
@@ -756,7 +756,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			images[iter].data = font_image.data;
 			images[iter].width = font_image.width;
 			images[iter].height = font_image.height;
-			//PremultiplyAlpha(&images[iter]);
 			int text_image_index = iter;
 			iter += 1;
 
