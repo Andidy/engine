@@ -496,13 +496,13 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			}
 			else if (is_pickup) {
 				int items_index = gs->c_items.size();
-				gs->c_items.push_back(cItem(1, 0));
+				gs->c_items.push_back(cItem(1));
 
 				ent.InitItem(entity_index, is_active, transforms_index, renderables_index, items_index);
 			}
 			else if (is_food) {
 				int items_index = gs->c_items.size();
-				gs->c_items.push_back(cItem(1, 0));
+				gs->c_items.push_back(cItem(1));
 
 				int foods_index = gs->c_foods.size();
 				gs->c_foods.push_back(cFood(1));
