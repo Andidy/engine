@@ -334,28 +334,30 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 }
 
 void PrepareRenderData(GameState* gs, RenderData* render_data) {
-	Entity crosshair = *(gs->entities[gs->crosshair_entity]);
+	Entity* crosshair = &gs->entities[gs->crosshair_entity];
+	cRenderable* ch = &gs->c_renderables[crosshair->renderable];
 
 	int num_render_entities = 0;
-	for (int iter = 0; iter < gs->num_entities; iter++) {
-		Entity e = *(gs->entities[iter]);
-		if (e.should_render) {
-			// handle generic data
-			vec3 pos = { e.game_pos.x, 0.0f, e.game_pos.y };
-			pos += e.render_offset;
-			render_data->entities[num_render_entities++] = { pos, e.render_scale, e.render_rot_axis, e.render_rot_angle, e.h_model.handle };
+	for (int iter = 0; iter < gs->entities.size(); iter++) {
+		Entity* e = &gs->entities[iter];
+		cTransform* t = &gs->c_transforms[e->transform];
+		cRenderable* r = &gs->c_renderables[e->renderable];
 
-			// handle unit specific data
-			if (e.is_unit) {
-				// waypoint
-				if (e.waypoint_active) {
-					pos = { e.waypoint_pos.x, 0.0f, e.waypoint_pos.y };
-					pos += crosshair.render_offset;
-					render_data->entities[num_render_entities++] = { pos, crosshair.render_scale, crosshair.render_rot_axis, crosshair.render_rot_angle, crosshair.h_model.handle };
+		if (r->should_render) {
+			vec3 pos = { t->game_pos.x, 0.0f, t->game_pos.y };
+			pos += r->offset;
+			render_data->entities[num_render_entities++] = { pos, r->scale, r->rot_axis, r->rot_angle, r->h_model.handle };
+
+			if (e->unit >= 0) {
+				cUnit* u = &gs->c_units[e->unit];
+				if (u->waypoint_active) {
+					pos = { u->waypoint_pos.x, 0.0f, u->waypoint_pos.y };
+					pos += ch->offset;
+					render_data->entities[num_render_entities++] = { pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle };
 				}
 			}
 		}
-	}	
+	}
 	render_data->num_entities = num_render_entities;
 }
 
@@ -425,7 +427,7 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 // Game
 
 void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
-	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities2.json");
+	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities.json");
 	if (file.data != NULL && file.size >= 0) {
 		std::string json_err_str;
 		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
@@ -434,59 +436,87 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 		while (json[entity_index].is_object()) {
 			json11::Json::object je = json[entity_index].object_items();
 
-			Entity* e = gs->entities[entity_index];
-
 			std::string name = je["name"].string_value();
-			e->name = name;
 
-			auto pos = je["pos"].array_items();
-			e->game_pos = Vec2(pos[0].number_value(), pos[1].number_value());
+			auto j_pos = je["pos"].array_items();
+			vec2 pos = Vec2(j_pos[0].number_value(), j_pos[1].number_value());
 
-			auto render_offset = je["render_offset"].array_items();
-			e->render_offset = Vec3(render_offset[0].number_value(), render_offset[1].number_value(), render_offset[2].number_value());
+			auto j_ro = je["render_offset"].array_items();
+			vec3 render_offset = Vec3(j_ro[0].number_value(), j_ro[1].number_value(), j_ro[2].number_value());
 
-			auto scale = je["scale"].array_items();
-			e->render_scale = Vec3(scale[0].number_value(), scale[1].number_value(), scale[2].number_value());
+			auto j_scale = je["scale"].array_items();
+			vec3 render_scale = Vec3(j_scale[0].number_value(), j_scale[1].number_value(), j_scale[2].number_value());
 
-			auto rotation_axis = je["rotation_axis"].array_items();
-			e->render_rot_axis = Vec3(rotation_axis[0].number_value(), rotation_axis[1].number_value(), rotation_axis[2].number_value());
+			auto j_ra = je["rotation_axis"].array_items();
+			vec3 render_rot_axis = Vec3(j_ra[0].number_value(), j_ra[1].number_value(), j_ra[2].number_value());
 
-			auto rotation_angle = je["rotation_angle"].number_value();
-			e->render_rot_angle = (float)rotation_angle;
+			auto j_rang = je["rotation_angle"].number_value();
+			float render_rot_angle = (float)j_rang;
 
+			AssetHandle h_model = {};
 			std::string asset_name = je["model"].string_value();
 			for (int i = 0; i < 256; i++) {
 				if (asset_name.compare(asset_handles[i].name) == 0) {
-					e->h_model = asset_handles[i];
+					h_model = asset_handles[i];
 					break;
 				}
 			}
 
-			auto should_render = true;
-			e->should_render = should_render;
-
-			auto is_unit = je["unit"].bool_value();
-			e->is_unit = is_unit;
-
-			auto waypoint_active = false;
-			e->waypoint_active = waypoint_active;
-
+			bool should_render = true;
+			bool is_unit = je["unit"].bool_value();
+			bool waypoint_active = false;
 			vec2 waypoint_pos = { 0.0f, 0.0f };
-			e->waypoint_pos = waypoint_pos;
-
 			bool is_pickup = je["pickup"].bool_value();
-			e->is_pickup = is_pickup;
+			bool is_food = false;
+			bool is_active = true;
 
-			e->is_active = true;
-
-			if (e->is_pickup || e->is_unit) {
-				e->coins = rand() % 100;
+			if (name.compare((char*)"crosshair_0") == 0) {
+				should_render = false;
+				gs->crosshair_entity = entity_index;
 			}
 
-			// *(gs->entities[entity_index]) = e;
+			// ================================================================
+			// Create components and store them in the associated vectors
+			// then Create and initialize an entity with the components
+			// and store the entity in the entities array
+
+			int transforms_index = gs->c_transforms.size();
+			gs->c_transforms.push_back(cTransform(pos));
+
+			int renderables_index = gs->c_renderables.size();
+			gs->c_renderables.push_back(cRenderable(should_render, render_offset, render_scale, render_rot_axis, render_rot_angle, h_model));
+			
+			Entity ent = {};
+
+			if (is_unit) {
+				int units_index = gs->c_units.size();
+				gs->c_units.push_back(cUnit(waypoint_active, waypoint_pos));
+				
+				ent.InitUnit(entity_index, is_active, transforms_index, renderables_index, units_index);
+			}
+			else if (is_pickup) {
+				int items_index = gs->c_items.size();
+				gs->c_items.push_back(cItem(1, 0));
+
+				ent.InitItem(entity_index, is_active, transforms_index, renderables_index, items_index);
+			}
+			else if (is_food) {
+				int items_index = gs->c_items.size();
+				gs->c_items.push_back(cItem(1, 0));
+
+				int foods_index = gs->c_foods.size();
+				gs->c_foods.push_back(cFood(1));
+
+				ent.InitFood(entity_index, is_active, transforms_index, renderables_index, items_index, foods_index);
+			}
+			else {
+				ent.InitGeneric(entity_index, is_active, transforms_index, renderables_index);
+			}
+
+			gs->entities.push_back(ent);
+
 			entity_index++;
 		}
-		gs->num_entities = entity_index;
 	}
 }
 
@@ -751,7 +781,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			// end experimental asset loading
 
 			RenderData render_data = {};
-			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)game_state.num_entities);
+			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)game_state.entities.size());
 
 			win32_WindowDimension old_dim = dim;
 			bool client_area_updated = false;

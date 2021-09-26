@@ -25,47 +25,28 @@ struct Camera {
 	Viewport viewport;
 };
 
-struct Entity {
-	std::string name;
-	// rendering stuff
-	bool should_render;
-	vec3 render_offset;
-	vec3 render_scale;
-	vec3 render_rot_axis;
-	f32 render_rot_angle;
-	AssetHandle h_model;
-
-	// gameplay stuff
-	bool is_active;
-	vec2 game_pos;
-
-	// unit specific stuff
-	bool is_unit;
-	bool waypoint_active;
-	vec2 waypoint_pos;
-	int coins;
-
-	// item specific stuff
-	bool is_pickup;
-};
-
 #include "items.h"
 #include "units.h"
+#include "entity.h"
 
 struct GameState {
 	int64_t game_tick;
 	float ticks_per_second;
 	float tick_accumulator;
 	bool game_ticked;
-	
-	i32 num_entities;
-	int MAX_ENTITIES;
-	Entity** entities;
+
+	// put "templates" here
+
+	std::vector<Entity> entities;
+	std::vector<cTransform> c_transforms;
+	std::vector<cRenderable> c_renderables;
+	std::vector<cUnit> c_units;
+	std::vector<cItem> c_items;
+	std::vector<cFood> c_foods;
 
 	Camera main_camera;
 
 	int crosshair_entity;
-
 	int selected_entity;
 
 	int picked_object;

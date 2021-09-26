@@ -27,60 +27,6 @@ MouseRayReturn MouseRay(GameState* gs, Input* gi) {
 	return { start_vector, direction_vector };
 }
 
-/*
-// The return type is the index of the entity the ray connected with in the gs->entities array, -1 means no entity was hit.
-int RayEntityCollisionCheck(GameState* gs, vec3 start, vec3 direction) {
-	int result = -1;
-
-	// now compare the picking ray against the hitboxes of the models in the scene
-	float min_distance = INFINITY;
-	for (int i = 0; i < gs->num_entities; i++) {
-		vec3 pos = gs->entities[i].render_pos;
-		float radius = 1.0f;
-
-		vec3 pos_to_start = SubVec(start, pos);
-
-		float b = Dot(ScaleVec(direction, 2.0f), pos_to_start);
-		float c = Dot(pos_to_start, pos_to_start) - radius * radius;
-
-		float discriminant = b * b - 4.0f * c;
-		float t0 = -1.0f;
-		float t1 = -1.0f;
-		if (discriminant > 0) {
-			// 2 real roots, ray goes through the sphere
-			t0 = (-b + sqrtf(discriminant)) / 2.0f;
-			t1 = (-b - sqrtf(discriminant)) / 2.0f;
-		}
-		else if (-0.0001f < discriminant && discriminant < 0.0001f) {
-			// double root, ray is tangent to the sphere
-			t0 = -b / 2.0f;
-		}
-		else { // discriminant < 0
-			// no roots, ray does not intersect the sphere
-			DebugPrint((char*)"Didn't Hit Object\n");
-			continue;
-		}
-
-		float t = fmaxf(t0, t1);
-		float distance = Distance(start, pos);
-		if (t > 0.0f && t > 0.1f && t < 1000.0f && distance < min_distance) {
-			// we hit the object and it is within the bounds of the 
-			// near and far of the projection matrix and it is the
-			// closest object that we have hit
-			DebugPrint((char*)"Better Object Hit\n");
-			result = i;
-			min_distance = distance;
-		}
-		else {
-			DebugPrint((char*)"Worse Object Hit\n");
-		}
-	}
-
-	gs->picking_dist = min_distance;
-	return result;
-}
-*/
-
 // The return type is the point on the plane intersected with, Vec3(INF, INF, INF) means the ray cast is parallel to the plane.
 vec3 RayPlaneCollisionCheck(vec3 ray_start, vec3 ray_dir, vec3 plane_point, vec3 plane_normal) {
 	vec3 result = { INFINITY, INFINITY, INFINITY };
@@ -107,11 +53,11 @@ void SetCameraViewportAndProjMat(Camera* camera, float width, float height) {
 	camera->proj = PerspectiveMat(90.0f, width / height, 0.1f, 1000.0f);
 }
 
-bool PickupItem(Entity* e, Entity* item) {
-	if (item->is_pickup) {
-		e->coins += item->coins;
+bool PickupItem(GameState* gs, Entity* e, Entity* item) {
+	if (item->item >= 0) {
+		// e->coins += item->coins;
 
-		item->should_render = false;
+		gs->c_renderables[item->renderable].should_render = false;
 		item->is_active = false;
 		return true;
 	}
@@ -121,27 +67,11 @@ bool PickupItem(Entity* e, Entity* item) {
 }
 
 void InitGameState(GameState* gs, vec2 window_dimensions, AssetHandle* asset_handles) {
-	gs->MAX_ENTITIES = 1024;
-	gs->entities = new Entity*[gs->MAX_ENTITIES];
-	for (int i = 0; i < gs->MAX_ENTITIES; i++) {
-		gs->entities[i] = new Entity;
-	}
-
-	gs->num_entities = 0;
-
 	// Experimental asset loading
 
 	LoadGameAssets(gs, asset_handles);
 
 	// end Experimental asset loading
-
-	for (int i = 0; i < gs->num_entities; i++) {
-		if (gs->entities[i]->name.compare((char*)"crosshair_0") == 0) {
-			gs->crosshair_entity = i;
-			gs->entities[i]->should_render = false;
-			break;
-		}
-	}
 
 	gs->game_tick = 0;
 	gs->ticks_per_second = 10.0f;
@@ -268,32 +198,6 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 	}
 	// end Camera Update
 	// ========================================================================
-	// Object Picking
-	/*
-	if (keyPressed(gi->mouse.middle) && gs->picked_object >= 0) {
-		gs->picked_object = -1;
-		gs->picking_dir = ZeroVec();
-	}
-	else if (keyPressed(gi->mouse.middle) && gs->picked_object == -1) {
-		MouseRayReturn mrr = MouseRay(gs, gi);
-
-		gs->picked_object = RayEntityCollisionCheck(gs, mrr.start, mrr.direction);
-		if (gs->picked_object > 0) {
-			// store the direction vector for cross frame object selection
-			gs->picking_dir = mrr.direction;
-		}
-		else {
-			gs->picking_dir = ZeroVec();
-		}
-	}
-
-	if (gs->picked_object != -1) {
-		MouseRayReturn mrr = MouseRay(gs, gi);
-		gs->entities[gs->picked_object].render_pos = AddVec(mrr.start, ScaleVec(mrr.direction, gs->picking_dist));
-	}
-	*/
-	// end Object Picking
-	// ========================================================================
 	// Game Updates
 	
 	if (keyPressed(gi->mouse.left)) {
@@ -304,8 +208,9 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 		float min = INFINITY;
 		int entity_index = -1;
 		vec3 quad_norm = -gs->main_camera.dir;
-		for (int i = 1; i < gs->num_entities; i++) {
-			vec3 pos = { gs->entities[i]->game_pos.x, 0.0f, gs->entities[i]->game_pos.y };
+		for (int i = 1; i < gs->entities.size(); i++) {
+			vec3 pos = { gs->c_transforms[gs->entities[i].transform].game_pos.x,
+				0.0f, gs->c_transforms[gs->entities[i].transform].game_pos.y };
 			float new_min = fabsf(Distance(mrr.start, pos));
 			if (RayQuadCollisionCheck(mrr.start, mrr.direction, pos, quad_norm)
 				&& new_min < min) {
@@ -315,12 +220,12 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 		}
 
 		// if we didn't hit any entity and we already selected an entity, check if we hit the ground plane, to position the crosshair
-		if (min == INFINITY && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
+		if (min == INFINITY && 0 <= gs->selected_entity && gs->selected_entity < gs->entities.size()) {
 			// we only want to position the crosshair when we have selected a unit since only units can move
-			if (gs->entities[gs->selected_entity]->is_unit) {
+			if (gs->entities[gs->selected_entity].unit >= 0) {
 				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
-				gs->entities[gs->selected_entity]->waypoint_pos = { clicked_point.x, clicked_point.z };
-				gs->entities[gs->selected_entity]->waypoint_active = true;
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_pos = { clicked_point.x, clicked_point.z };
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_active = true;
 			}
 			// otherwise we should deselect the entity that isn't a unit
 			else {
@@ -329,7 +234,7 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 		}
 		// if there is already a selected entity moving towards an active waypoint
 		// and the user clicks an entity, select the new entity
-		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
+		else if (entity_index != -1 && 0 <= gs->selected_entity && gs->selected_entity < gs->entities.size()) {
 			if (entity_index != gs->selected_entity) {
 				gs->selected_entity = entity_index;
 			}
@@ -340,27 +245,29 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 			gs->selected_entity = entity_index;
 		}
 	}
-
+	
 	if (gs->game_ticked) {
-		for (int i = 0; i < gs->num_entities; i++) {
-			if (gs->entities[i]->is_unit && gs->entities[i]->waypoint_active) {
-				float dist = Distance(gs->entities[i]->game_pos, gs->entities[i]->waypoint_pos);
-				if (dist > (dt * 10.0f)) {
-					vec2 dir = Normalize(gs->entities[i]->waypoint_pos - gs->entities[i]->game_pos);
-					gs->entities[i]->game_pos += dir * (10.0f * dt);
-				}
-				else {
-					gs->entities[i]->waypoint_active = false;
+		for (int i = 0; i < gs->entities.size(); i++) {
+			if (gs->entities[i].unit >= 0) {
+				if (gs->c_units[gs->entities[i].unit].waypoint_active) {
+					float dist = Distance(gs->c_transforms[gs->entities[i].transform].game_pos, gs->c_units[gs->entities[i].unit].waypoint_pos);
+					if (dist > (dt * 10.0f)) {
+						vec2 dir = Normalize(gs->c_units[gs->entities[i].unit].waypoint_pos - gs->c_transforms[gs->entities[i].transform].game_pos);
+						gs->c_transforms[gs->entities[i].transform].game_pos += dir * (10.0f * dt);
+					}
+					else {
+						gs->c_units[gs->entities[i].unit].waypoint_active = false;
+					}
 				}
 			}
 
-			if (gs->entities[i]->is_unit) {
-				for (int item = 0; item < gs->num_entities; item++) {
+			if (gs->entities[i].unit >= 0) {
+				for (int item = 0; item < gs->entities.size(); item++) {
 					if (i == item) continue;
 
-					float dist = Distance(gs->entities[i]->game_pos, gs->entities[item]->game_pos);
-					if (gs->entities[item]->is_active && gs->entities[item]->is_pickup && dist < 1.0f) {
-						PickupItem(gs->entities[i], gs->entities[item]);
+					float dist = Distance(gs->c_transforms[gs->entities[i].transform].game_pos, gs->c_transforms[gs->entities[item].transform].game_pos);
+					if (gs->entities[item].is_active && (gs->entities[item].item >= 0) && dist < 1.0f) {
+						PickupItem(gs, &gs->entities[i], &gs->entities[item]);
 					}
 				}
 			}
@@ -373,19 +280,8 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 
 	// Debug Text to draw to screen
 	{
-		const char* selected_entity = NULL;
-		int coins = 0;
-		if (0 <= gs->selected_entity && gs->selected_entity < gs->num_entities) {
-			selected_entity = gs->entities[gs->selected_entity]->name.c_str();
-			coins = gs->entities[gs->selected_entity]->coins;
-		}
-		else {
-			selected_entity = "No entity selected\0";
-			coins = -1;
-		}
-
-		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\nSelected Entity: %s\nCoins: %d\n",
-			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt, selected_entity, coins);
+		snprintf(game_debug_text, 1024, "Camera: (%.2f, %.2f, %.2f)\nMouse: (%d, %d)\nDT: %.4f, FPS: %.2f\n",
+			camera->pos.x, camera->pos.y, camera->pos.z, gi->mouse.x, gi->mouse.y, dt, 1.0f / dt);
 	}
 
 	if (keyPressed(gi->keyboard.m)) {

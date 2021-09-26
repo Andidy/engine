@@ -1,14 +1,18 @@
 #pragma once
 
-#include <stdint.h>
-#include <string>
+#include "universal.h"
 
-struct Item {
+struct cItem {
 	int32_t type; // food, weapon, loot
 	int32_t amount; // how many of the item is in this "stack"
-	int32_t value; // the monetary value of the item
+
+	cItem(int type, int amount)
+		: type(type), amount(amount) {}
 };
 
-struct FoodItem : Item {
+struct cFood {
 	int32_t nourishment; // how much nourishment the food provides
+
+	cFood(int nourishment)
+		: nourishment(nourishment) {}
 };
