@@ -1,19 +1,5 @@
 [
   {
-    "name": "african_head",
-    "mesh": "african_head.obj",
-    "texture": "african_head.png",
-    "opaque": true,
-    "billboard": false
-  },
-  {
-    "name": "bunny",
-    "mesh": "bunny.obj",
-    "texture": "bunny.png",
-    "opaque": true,
-    "billboard": false
-  },
-  {
     "name": "cube",
     "mesh": "cube.obj",
     "texture": "no_tex.png",
@@ -39,13 +25,6 @@
     "mesh": "quad.obj",
     "texture": "half_transparent_red.png",
     "opaque": false,
-    "billboard": false
-  },
-  {
-    "name": "crate",
-    "mesh": "crate.obj",
-    "texture": "wood.png",
-    "opaque": true,
     "billboard": false
   },
   {
@@ -213,98 +192,98 @@
     "name": "tree_0",
     "mesh": "quad.obj",
     "texture": "foliage/tree_0.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "tree_1",
     "mesh": "quad.obj",
     "texture": "foliage/tree_1.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "tree_2",
     "mesh": "quad.obj",
     "texture": "foliage/tree_2.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "tree_3",
     "mesh": "quad.obj",
     "texture": "foliage/tree_3.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "tree_4",
     "mesh": "quad.obj",
     "texture": "foliage/tree_4.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "pine_tree_0",
     "mesh": "quad.obj",
     "texture": "foliage/pine_tree_0.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "pine_tree_1",
     "mesh": "quad.obj",
     "texture": "foliage/pine_tree_1.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "grass",
     "mesh": "quad.obj",
     "texture": "foliage/grass.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "flag_0",
     "mesh": "quad.obj",
     "texture": "structures/flag_0.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "flag_1",
     "mesh": "quad.obj",
     "texture": "structures/flag_1.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "flag_2",
     "mesh": "quad.obj",
     "texture": "structures/flag_2.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "fire",
     "mesh": "quad.obj",
     "texture": "structures/fire.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "nomad",
     "mesh": "quad.obj",
     "texture": "units/nomad.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "warrior",
     "mesh": "quad.obj",
     "texture": "units/warrior.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
@@ -318,147 +297,147 @@
     "name": "crosshair_0",
     "mesh": "quad.obj",
     "texture": "ui/crosshair_0.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": false
   },
   {
     "name": "cat",
     "mesh": "quad.obj",
     "texture": "animals/cat.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "dog",
     "mesh": "quad.obj",
     "texture": "animals/dog.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "pig",
     "mesh": "quad.obj",
     "texture": "animals/pig.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "cow",
     "mesh": "quad.obj",
     "texture": "animals/cow.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "chicken",
     "mesh": "quad.obj",
     "texture": "animals/chicken.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "rooster",
     "mesh": "quad.obj",
     "texture": "animals/rooster.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "horse",
     "mesh": "quad.obj",
     "texture": "animals/horse.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "apple",
     "mesh": "quad.obj",
     "texture": "items/apple.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "bread",
     "mesh": "quad.obj",
     "texture": "items/bread.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "carrot",
     "mesh": "quad.obj",
     "texture": "items/carrot.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "cheese",
     "mesh": "quad.obj",
     "texture": "items/cheese.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "coin",
     "mesh": "quad.obj",
     "texture": "items/coin.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "coins",
     "mesh": "quad.obj",
     "texture": "items/coins.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "egg",
     "mesh": "quad.obj",
     "texture": "items/egg.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "fish",
     "mesh": "quad.obj",
     "texture": "items/fish.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "loot",
     "mesh": "quad.obj",
     "texture": "items/loot.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "meat",
     "mesh": "quad.obj",
     "texture": "items/meat.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "pear",
     "mesh": "quad.obj",
     "texture": "items/pear.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "steak",
     "mesh": "quad.obj",
     "texture": "items/steak.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   },
   {
     "name": "wine",
     "mesh": "quad.obj",
     "texture": "items/wine.png",
-    "opaque": true,
+    "opaque": false,
     "billboard": true
   }
 ]
