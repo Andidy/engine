@@ -834,7 +834,6 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 				// Update Game
 				{
 					if (client_area_updated) {
-						// this is disgusting
 						Camera* main_camera = &gs->main_camera;
 						SetCameraViewportAndProjMat(main_camera, dim.width, dim.height);
 					}
