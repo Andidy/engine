@@ -43,6 +43,7 @@ struct GameState {
 	std::vector<cUnit> c_units;
 	std::vector<cItem> c_items;
 	std::vector<cFood> c_foods;
+	std::vector<cInventory> c_inventories;
 
 	Camera main_camera;
 
