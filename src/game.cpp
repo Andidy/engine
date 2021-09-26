@@ -259,9 +259,7 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 						gs->c_units[gs->entities[i].unit].waypoint_active = false;
 					}
 				}
-			}
 
-			if (gs->entities[i].unit >= 0) {
 				for (int item = 0; item < gs->entities.size(); item++) {
 					if (i == item) continue;
 
