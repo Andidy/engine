@@ -351,9 +351,11 @@ void PrepareRenderData(GameState* gs, RenderData* render_data) {
 			if (e->unit >= 0) {
 				cUnit* u = &gs->c_units[e->unit];
 				if (u->waypoint_active) {
-					pos = { u->waypoint_pos.x, 0.0f, u->waypoint_pos.y };
-					pos += ch->offset;
-					render_data->entities[num_render_entities++] = { pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle };
+					for (auto& wp : u->waypoint_pos) {
+						pos = { wp.x, 0.0f, wp.y };
+						pos += ch->offset;
+						render_data->entities[num_render_entities++] = { pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle };
+					}
 				}
 			}
 		}
@@ -467,8 +469,6 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 
 			bool should_render = true;
 			bool is_unit = je["unit"].bool_value();
-			bool waypoint_active = false;
-			vec2 waypoint_pos = { 0.0f, 0.0f };
 			bool is_pickup = je["pickup"].bool_value();
 			bool is_food = false;
 			bool is_active = true;
@@ -493,7 +493,7 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 
 			if (is_unit) {
 				int units_index = gs->c_units.size();
-				gs->c_units.push_back(cUnit(waypoint_active, waypoint_pos));
+				gs->c_units.push_back(cUnit());
 				
 				ent.InitUnit(entity_index, is_active, transforms_index, renderables_index, units_index);
 			}

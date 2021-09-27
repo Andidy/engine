@@ -224,7 +224,9 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 			// we only want to position the crosshair when we have selected a unit since only units can move
 			if (gs->entities[gs->selected_entity].unit >= 0) {
 				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
-				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_pos = { clicked_point.x, clicked_point.z };
+				
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_pos.clear();
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_pos.push_back({ clicked_point.x, clicked_point.z });
 				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_active = true;
 			}
 			// otherwise we should deselect the entity that isn't a unit
@@ -246,6 +248,20 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 		}
 	}
 	
+	if (keyPressed(gi->mouse.right)) {
+		MouseRayReturn mrr = MouseRay(gs, gi);
+
+		// if we didn't hit any entity and we already selected an entity, check if we hit the ground plane, to position the crosshair
+		if (0 <= gs->selected_entity && gs->selected_entity < gs->entities.size()) {
+			// we only want to position the crosshair when we have selected a unit since only units can move
+			if (gs->entities[gs->selected_entity].unit >= 0) {
+				vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_pos.push_back({ clicked_point.x, clicked_point.z });
+				gs->c_units[gs->entities[gs->selected_entity].unit].waypoint_active = true;
+			}
+		}
+	}
+
 	if (gs->game_ticked) {
 		for (int i = 0; i < gs->entities.size(); i++) {
 			int unit = gs->entities[i].unit;
@@ -253,13 +269,17 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 
 			if (unit >= 0) {
 				if (gs->c_units[unit].waypoint_active) {
-					float dist = Distance(gs->c_transforms[transform].game_pos, gs->c_units[unit].waypoint_pos);
+					float dist = Distance(gs->c_transforms[transform].game_pos, gs->c_units[unit].waypoint_pos.front());
 					if (dist > (dt * 10.0f)) {
-						vec2 dir = Normalize(gs->c_units[unit].waypoint_pos - gs->c_transforms[transform].game_pos);
+						vec2 dir = Normalize(gs->c_units[unit].waypoint_pos.front() - gs->c_transforms[transform].game_pos);
 						gs->c_transforms[transform].game_pos += dir * (10.0f * dt);
 					}
 					else {
-						gs->c_units[unit].waypoint_active = false;
+						gs->c_units[unit].waypoint_pos.pop_front();
+						
+						if (gs->c_units[unit].waypoint_pos.empty()) {
+							gs->c_units[unit].waypoint_active = false;
+						}
 					}
 				}
 
