@@ -436,6 +436,9 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 		while (json[entity_index].is_object()) {
 			json11::Json::object je = json[entity_index].object_items();
 
+			// ================================================================
+			// Pull out the entity data from the json object
+
 			std::string name = je["name"].string_value();
 
 			auto j_pos = je["pos"].array_items();
