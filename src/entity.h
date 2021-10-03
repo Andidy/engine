@@ -49,11 +49,12 @@ struct Entity {
 	int32_t unit;
 	int32_t item;
 	int32_t food;
+	int32_t inventory;
 
 	// the default constructor creates a dead entity with no components. it
 	// should be initialized with one of the InitXXXX functions further down
 	Entity() : id(-1), is_active(false), transform(-1), renderable(-1), unit(-1),
-		item(-1), food(-1) {}
+		item(-1), food(-1), inventory(-1) {}
 
 	// The Init functions are responsible for attaching components to an entity
 	// to create a type of game entity which has a purpose in the game world
@@ -67,12 +68,13 @@ struct Entity {
 		renderable = _renderable;
 	}
 
-	void InitUnit(int _id, bool _is_active, int _transform, int _renderable, int _unit) {
+	void InitUnit(int _id, bool _is_active, int _transform, int _renderable, int _unit, int _inventory) {
 		id = _id;
 		is_active = _is_active;
 		transform = _transform;
 		renderable = _renderable;
 		unit = _unit;
+		inventory = _inventory;
 	}
 
 	void InitItem(int _id, bool _is_active, int _transform, int _renderable, int _item) {
@@ -93,3 +95,4 @@ struct Entity {
 	}
 };
 
+typedef Entity EntityBlueprint;
