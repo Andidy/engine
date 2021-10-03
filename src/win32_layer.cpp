@@ -483,40 +483,74 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			// then Create and initialize an entity with the components
 			// and store the entity in the entities array
 
-			int transforms_index = gs->c_transforms.size();
-			gs->c_transforms.push_back(cTransform(pos));
-
-			int renderables_index = gs->c_renderables.size();
-			gs->c_renderables.push_back(cRenderable(should_render, render_offset, render_scale, render_rot_axis, render_rot_angle, h_model));
+			cTransform c_transform = cTransform(pos);
 			
+			int transforms_index = gs->c_transforms.size();
+			gs->c_transforms.push_back(c_transform);
+			
+			int transforms_bp_index = gs->blueprint_transforms.size();
+			gs->blueprint_transforms.push_back(c_transform);
+
+			cRenderable c_renderable = cRenderable(should_render, render_offset, render_scale, render_rot_axis, render_rot_angle, h_model);
+			
+			int renderables_index = gs->c_renderables.size();
+			gs->c_renderables.push_back(c_renderable);
+
+			int renderables_bp_index = gs->blueprint_renderables.size();
+			gs->blueprint_renderables.push_back(c_renderable);
+
 			Entity ent = {};
+			EntityBlueprint ent_bp = {};
 
 			if (is_unit) {
 				int units_index = gs->c_units.size();
 				gs->c_units.push_back(cUnit());
 				
-				ent.InitUnit(entity_index, is_active, transforms_index, renderables_index, units_index);
+				int units_bp_index = gs->blueprint_units.size();
+				gs->blueprint_units.push_back(cUnit());
+
+				int inventory_index = gs->c_inventories.size();
+				gs->c_inventories.push_back(cInventory());
+
+				int inventory_bp_index = gs->blueprint_inventories.size();
+				gs->blueprint_inventories.push_back(cInventory());
+
+				ent.InitUnit(entity_index, is_active, transforms_index, renderables_index, units_index, inventory_index);
+				ent_bp.InitUnit(entity_index, is_active, transforms_bp_index, renderables_bp_index, units_bp_index, inventory_bp_index);
 			}
 			else if (is_pickup) {
 				int items_index = gs->c_items.size();
-				gs->c_items.push_back(cItem(1));
+				gs->c_items.push_back(cItem(1, 1));
+
+				int items_bp_index = gs->blueprint_items.size();
+				gs->blueprint_items.push_back(cItem(1, 1));
 
 				ent.InitItem(entity_index, is_active, transforms_index, renderables_index, items_index);
+				ent_bp.InitItem(entity_index, is_active, transforms_bp_index, renderables_bp_index, items_bp_index);
 			}
 			else if (is_food) {
 				int items_index = gs->c_items.size();
-				gs->c_items.push_back(cItem(1));
+				gs->c_items.push_back(cItem(1, 1));
+
+				int items_bp_index = gs->blueprint_items.size();
+				gs->blueprint_items.push_back(cItem(1, 1));
 
 				int foods_index = gs->c_foods.size();
 				gs->c_foods.push_back(cFood(1));
 
+				int foods_bp_index = gs->blueprint_foods.size();
+				gs->blueprint_foods.push_back(cFood(1));
+
 				ent.InitFood(entity_index, is_active, transforms_index, renderables_index, items_index, foods_index);
+				ent_bp.InitFood(entity_index, is_active, transforms_bp_index, renderables_bp_index, items_bp_index, foods_bp_index);
 			}
 			else {
 				ent.InitGeneric(entity_index, is_active, transforms_index, renderables_index);
+				ent_bp.InitGeneric(entity_index, is_active, transforms_bp_index, renderables_bp_index);
 			}
 
 			gs->entities.push_back(ent);
+			gs->blueprints.push_back(ent_bp);
 
 			entity_index++;
 		}

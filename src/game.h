@@ -35,8 +35,23 @@ struct GameState {
 	float tick_accumulator;
 	bool game_ticked;
 
-	// put "templates" here
+	// A blueprint is an entity that has most of its data and components setup in
+	// such a way so that when a new entity is to be created or spawned the game
+	// can use the blueprint to simplify entity creation. For example, there will
+	// be a blueprint for pine trees and it will have the components that pine
+	// trees use already set up. Or a nomad unit, or a knight unit, or a loot
+	// pile. The idea is that most of the data fields will already be filled out
+	// and the creation function will only need to modify a handful of fields to
+	// match the spawning context and current game state.
+	std::vector<EntityBlueprint> blueprints;
+	std::vector<cTransform> blueprint_transforms;
+	std::vector<cRenderable> blueprint_renderables;
+	std::vector<cUnit> blueprint_units;
+	std::vector<cItem> blueprint_items;
+	std::vector<cFood> blueprint_foods;
+	std::vector<cInventory> blueprint_inventories;
 
+	// The actual entities and components used by the game.
 	std::vector<Entity> entities;
 	std::vector<cTransform> c_transforms;
 	std::vector<cRenderable> c_renderables;
