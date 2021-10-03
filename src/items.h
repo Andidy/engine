@@ -9,10 +9,22 @@
 	building or structure.
 */
 struct cItem {
-	int32_t type; // food, weapon, loot
+	enum class Type {
+		None = 0,
+		Valuable = 1,
+		Food = 2,
+		Weapon = 3,
+		Tool = 4,
+		Wood = 5,
+		Stone = 6
+	};
+	Type type;
+	int32_t value;
 
-	cItem(int type)
-		: type(type) {}
+	cItem(int _type, int _value) {
+		type = (Type)_type;
+		value = _value;
+	}
 };
 
 /*
