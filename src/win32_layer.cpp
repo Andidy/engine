@@ -638,7 +638,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			VertexBuffer vertex_buffer;
 			IndexBuffer index_buffer;
 			MeshBuffer model_buffer;
-			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)4));
+			PermanentResourceAllocator renderer_allocator(Gigabytes((u64)1));
 			FrameAllocator frame_allocator(Megabytes((u64)64));
 
 			InitRenderer(&vertex_buffer, &index_buffer, &model_buffer, &renderer_allocator);
