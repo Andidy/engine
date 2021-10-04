@@ -334,10 +334,10 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 }
 
 void PrepareRenderData(GameState* gs, RenderData* render_data) {
+	render_data->entities.clear();
 	Entity* crosshair = &gs->entities[gs->crosshair_entity];
 	cRenderable* ch = &gs->c_renderables[crosshair->renderable];
 
-	int num_render_entities = 0;
 	for (int iter = 0; iter < gs->entities.size(); iter++) {
 		Entity* e = &gs->entities[iter];
 		cTransform* t = &gs->c_transforms[e->transform];
@@ -346,7 +346,7 @@ void PrepareRenderData(GameState* gs, RenderData* render_data) {
 		if (r->should_render) {
 			vec3 pos = { t->game_pos.x, 0.0f, t->game_pos.y };
 			pos += r->offset;
-			render_data->entities[num_render_entities++] = { pos, r->scale, r->rot_axis, r->rot_angle, r->h_model.handle };
+			render_data->entities.push_back({ pos, r->scale, r->rot_axis, r->rot_angle, r->h_model.handle });
 
 			if (e->unit >= 0) {
 				cUnit* u = &gs->c_units[e->unit];
@@ -354,13 +354,12 @@ void PrepareRenderData(GameState* gs, RenderData* render_data) {
 					for (auto& wp : u->waypoint_pos) {
 						pos = { wp.x, 0.0f, wp.y };
 						pos += ch->offset;
-						render_data->entities[num_render_entities++] = { pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle };
+						render_data->entities.push_back({ pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle });
 					}
 				}
 			}
 		}
 	}
-	render_data->num_entities = num_render_entities;
 }
 
 void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int ypos, Font* font, TextVertex* verts, win32_WindowDimension scr) {
@@ -817,7 +816,7 @@ int WINAPI wWinMain(_In_ HINSTANCE hinstance, _In_opt_ HINSTANCE hprevinstance, 
 			// end experimental asset loading
 
 			RenderData render_data = {};
-			render_data.entities = (RenderEntity*)renderer_allocator.Allocate(sizeof(RenderEntity) * (i64)game_state.entities.size());
+			render_data.entities.reserve(game_state.entities.size());
 
 			win32_WindowDimension old_dim = dim;
 			bool client_area_updated = false;

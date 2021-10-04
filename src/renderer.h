@@ -56,8 +56,7 @@ struct RenderEntity {
 };
 
 struct RenderData {
-	int32_t num_entities;
-	RenderEntity* entities;
+	std::vector<RenderEntity> entities;
 };
 
 struct Model {

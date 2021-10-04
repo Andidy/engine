@@ -820,14 +820,14 @@ void Renderer::RenderFrame(GameState* gs, MeshBuffer* m_buffer, Model* models, R
 		mat4 proj = gs->main_camera.proj;
 
 		int distances_count = 0;
-		float distances[100];
-		int indexes[100];
-		for (int i = 0; i < 100; i++) {
-			distances[i] = -1.0f;
-			indexes[i] = -1;
+		std::vector<float> distances;
+		std::vector<int> indexes;
+		for (int i = 0; i < render_data->entities.size(); i++) {
+			distances.push_back(-1.0f);
+			indexes.push_back(-1);
 		}
 
-		for (int i = 0; i < render_data->num_entities; i++) {
+		for (int i = 0; i < render_data->entities.size(); i++) {
 			RenderEntity re = render_data->entities[i];
 			Model m = models[re.model_index];
 
@@ -862,7 +862,7 @@ void Renderer::RenderFrame(GameState* gs, MeshBuffer* m_buffer, Model* models, R
 			else {
 				int current_index = i;
 				float distance_to_cam = Distance(gs->main_camera.pos, re.pos);
-				for (int j = 0; j < 100; j++) {
+				for (int j = 0; j < render_data->entities.size(); j++) {
 					if (distance_to_cam > distances[j]) {
 						float temp = distances[j];
 						distances[j] = distance_to_cam;
