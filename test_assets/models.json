@@ -301,6 +301,27 @@
     "billboard": false
   },
   {
+    "name": "arrow_head_0",
+    "mesh": "xz_quad.obj",
+    "texture": "ui/arrow_head_0.png",
+    "opaque": false,
+    "billboard": false
+  },
+  {
+    "name": "arrow_shaft_0",
+    "mesh": "xz_quad.obj",
+    "texture": "ui/arrow_shaft_0.png",
+    "opaque": false,
+    "billboard": false
+  },
+  {
+    "name": "arrow_butt_0",
+    "mesh": "xz_quad.obj",
+    "texture": "ui/arrow_shaft_0.png",
+    "opaque": false,
+    "billboard": false
+  },
+  {
     "name": "cat",
     "mesh": "quad.obj",
     "texture": "animals/cat.png",
