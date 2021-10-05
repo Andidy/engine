@@ -123,7 +123,7 @@
   {
     "name": "arrow_head_0",
     "pos": [0.0, 0.0],
-    "render_offset": [0.0, -0.4, 0.0],
+    "render_offset": [0.0, -0.3, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -134,7 +134,7 @@
   {
     "name": "arrow_shaft_0",
     "pos": [0.0, 0.0],
-    "render_offset": [0.0, -0.4, 0.0],
+    "render_offset": [0.0, -0.3, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
@@ -145,7 +145,7 @@
   {
     "name": "arrow_butt_0",
     "pos": [0.0, 0.0],
-    "render_offset": [0.0, -0.4, 0.0],
+    "render_offset": [0.0, -0.3, 0.0],
     "scale": [1.0, 1.0, 1.0],
     "rotation_axis": [0.0, 1.0, 0.0],
     "rotation_angle": 0.0,
