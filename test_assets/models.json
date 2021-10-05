@@ -288,14 +288,14 @@
   },
   {
     "name": "ground",
-    "mesh": "quad.obj",
+    "mesh": "xz_quad.obj",
     "texture": "debug.png",
     "opaque": true,
     "billboard": false
   },
   {
     "name": "crosshair_0",
-    "mesh": "quad.obj",
+    "mesh": "xz_quad.obj",
     "texture": "ui/crosshair_0.png",
     "opaque": false,
     "billboard": false
