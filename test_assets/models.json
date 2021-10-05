@@ -317,7 +317,7 @@
   {
     "name": "arrow_butt_0",
     "mesh": "xz_quad.obj",
-    "texture": "ui/arrow_shaft_0.png",
+    "texture": "ui/arrow_butt_0.png",
     "opaque": false,
     "billboard": false
   },
