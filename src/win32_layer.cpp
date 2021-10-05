@@ -337,6 +337,10 @@ void PrepareRenderData(GameState* gs, RenderData* render_data) {
 	render_data->entities.clear();
 	Entity* crosshair = &gs->entities[gs->crosshair_entity];
 	cRenderable* ch = &gs->c_renderables[crosshair->renderable];
+	
+	cRenderable* ah = &gs->c_renderables[gs->blueprints[gs->arrow_head_entity].renderable];
+	cRenderable* as = &gs->c_renderables[gs->blueprints[gs->arrow_shaft_entity].renderable];
+	cRenderable* ab = &gs->c_renderables[gs->blueprints[gs->arrow_butt_entity].renderable];
 
 	for (int iter = 0; iter < gs->entities.size(); iter++) {
 		Entity* e = &gs->entities[iter];
@@ -351,10 +355,44 @@ void PrepareRenderData(GameState* gs, RenderData* render_data) {
 			if (e->unit >= 0) {
 				cUnit* u = &gs->c_units[e->unit];
 				if (u->waypoint_active) {
+					vec2 arrow_pos_last = { t->game_pos.x, t->game_pos.y };
+					vec2 arrow_pos_next = { 0, 0 };
+					const vec2 angle_origin = { 0, -1 };
+
 					for (auto& wp : u->waypoint_pos) {
+						// set position of waypoint and put waypoint renderable in render_data
 						pos = { wp.x, 0.0f, wp.y };
 						pos += ch->offset;
 						render_data->entities.push_back({ pos, ch->scale, ch->rot_axis, ch->rot_angle, ch->h_model.handle });
+
+						// calculate positions for the arrow_head, arrow_shaft, and
+						// arrow_butt and the rotation and put them in render_data
+						arrow_pos_next = wp;
+						vec2 arrow_dir = arrow_pos_next - arrow_pos_last;
+
+						// calculate midpoint for arrow_shaft
+						float distance = Distance(arrow_pos_next, arrow_pos_last);
+						vec2 midpoint = arrow_pos_last + Normalize(arrow_dir) * (0.5f * distance);
+
+						// calculate angle
+						float dot = Dot(angle_origin, arrow_dir);
+						float determinant = Determinant(angle_origin, arrow_dir);
+						// dot and determinant are flipped in the atan2f function so the
+						// direction of rotation matches what the renderer expects
+						float angle = -RadToDeg(atan2f(determinant, dot));
+
+						// butt
+						vec3 arrow_pos = Vec3(arrow_pos_last.x, 0.0f, arrow_pos_last.y) + ab->offset;
+						render_data->entities.push_back({ arrow_pos, ab->scale * 0.5f, ab->rot_axis, angle, ab->h_model.handle });
+						// shaft
+						arrow_pos = Vec3(midpoint.x, 0.0f, midpoint.y) + as->offset;
+						vec3 shaft_scale = Vec3(as->scale.x * 0.5f, as->scale.y * 0.5f, as->scale.z * distance);
+						render_data->entities.push_back({ arrow_pos, shaft_scale, as->rot_axis, angle, as->h_model.handle });
+						// head
+						arrow_pos = Vec3(arrow_pos_next.x, 0.0f, arrow_pos_next.y) + ah->offset;
+						render_data->entities.push_back({ arrow_pos, ah->scale * 0.5f, ah->rot_axis, angle, ah->h_model.handle });
+
+						arrow_pos_last = arrow_pos_next;
 					}
 				}
 			}
@@ -475,6 +513,18 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			if (name.compare((char*)"crosshair_0") == 0) {
 				should_render = false;
 				gs->crosshair_entity = entity_index;
+			}
+			else if (name.compare((char*)"arrow_head_0") == 0) {
+				should_render = false;
+				gs->arrow_head_entity = entity_index;
+			}
+			else if (name.compare((char*)"arrow_shaft_0") == 0) {
+				should_render = false;
+				gs->arrow_shaft_entity = entity_index;
+			}
+			else if (name.compare((char*)"arrow_butt_0") == 0) {
+				should_render = false;
+				gs->arrow_butt_entity = entity_index;
 			}
 
 			// ================================================================

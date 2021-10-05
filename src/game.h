@@ -63,6 +63,9 @@ struct GameState {
 	Camera main_camera;
 
 	int crosshair_entity;
+	int arrow_head_entity;
+	int arrow_shaft_entity;
+	int arrow_butt_entity;
 	int selected_entity;
 
 	int picked_object;
