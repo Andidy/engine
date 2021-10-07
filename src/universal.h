@@ -10,6 +10,8 @@
 #include <string>
 #include <vector>
 #include <deque>
+#include <unordered_map>
+#include <fstream>
 
 // ============================================================================
 // Macros

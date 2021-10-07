@@ -66,6 +66,7 @@ bool PickupItem(GameState* gs, Entity* e, Entity* item) {
 	}
 }
 
+/*
 void SpawnEntityFromBlueprint(GameState* gs, int blueprint_index, vec2 position) {
 	EntityBlueprint& eb = gs->blueprints[blueprint_index];
 	
@@ -82,11 +83,14 @@ void SpawnEntityFromBlueprint(GameState* gs, int blueprint_index, vec2 position)
 
 	gs->entities.push_back(e);
 }
+*/
 
 void InitGameState(GameState* gs, vec2 window_dimensions, AssetHandle* asset_handles) {
 	// Experimental asset loading
 
 	LoadGameAssets(gs, asset_handles);
+
+	LoadGameEntities(gs);
 
 	// end Experimental asset loading
 
@@ -279,13 +283,15 @@ void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text) {
 		}
 	}
 
+	/*
 	if (keyPressed(gi->keyboard.u)) {
 		MouseRayReturn mrr = MouseRay(gs, gi);
 
 		vec3 clicked_point = RayPlaneCollisionCheck(mrr.start, mrr.direction, Vec3(0.0f, -0.4f, 0.0f), UpVec());
 
-		SpawnEntityFromBlueprint(gs, 3, Vec2(clicked_point.x, clicked_point.z));
+		// SpawnEntityFromBlueprint(gs, 3, Vec2(clicked_point.x, clicked_point.z));
 	}
+	*/
 
 	if (gs->game_ticked) {
 		for (int i = 0; i < gs->entities.size(); i++) {

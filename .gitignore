@@ -343,3 +343,4 @@ healthchecksdb
 # My gitignore changes
 !test_assets/*
 test_assets/1bitpack_kenney_1.1
+Debug-Clang

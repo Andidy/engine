@@ -1,0 +1,11 @@
+ground 0 0
+nomad 0 0
+warrior 0 1
+tree_0 3 3.5
+tree_1 4 3
+pine_tree_0 6 0
+pine_tree_1 5 0
+tower_0 10 2
+castle_1 0 7
+church 0 -8
+coins -7 -5

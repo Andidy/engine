@@ -43,7 +43,7 @@ struct GameState {
 	// pile. The idea is that most of the data fields will already be filled out
 	// and the creation function will only need to modify a handful of fields to
 	// match the spawning context and current game state.
-	std::vector<EntityBlueprint> blueprints;
+	std::unordered_map<std::string, EntityBlueprint> blueprints;
 	std::vector<cTransform> blueprint_transforms;
 	std::vector<cRenderable> blueprint_renderables;
 	std::vector<cUnit> blueprint_units;
@@ -73,6 +73,7 @@ struct GameState {
 	float picking_dist;
 };
 
+void LoadGameEntities(GameState* gs);
 void LoadGameAssets(GameState* gs, AssetHandle* asset_handles);
 void InitGameState(GameState* gs, vec2 window_dimensions, AssetHandle* asset_handles);
 void GameUpdate(GameState* gs, Input* gi, f32 dt, char* game_debug_text);
