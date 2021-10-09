@@ -466,7 +466,7 @@ void PrepareText(char* str, int str_len, int* num_chars_visible, int xpos, int y
 // Game
 
 void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
-	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/entities.json");
+	debug_ReadFileResult file = debug_ReadFile((char*)"test_assets/blueprints.json");
 	if (file.data != NULL && file.size >= 0) {
 		std::string json_err_str;
 		json11::Json json = json11::Json::parse((char*)file.data, json_err_str);
@@ -575,7 +575,7 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 }
 
 void LoadGameEntities(GameState* gs) {
-	std::ifstream file("test_assets/name.txt", std::ios_base::in);
+	std::ifstream file("test_assets/entities.txt", std::ios_base::in);
 	if (file.is_open()) {
 		std::string blueprint;
 		float pos_x;
