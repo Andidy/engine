@@ -44,12 +44,12 @@ struct GameState {
 	// and the creation function will only need to modify a handful of fields to
 	// match the spawning context and current game state.
 	std::unordered_map<std::string, EntityBlueprint> blueprints;
-	std::vector<cTransform> blueprint_transforms;
-	std::vector<cRenderable> blueprint_renderables;
-	std::vector<cUnit> blueprint_units;
-	std::vector<cItem> blueprint_items;
-	std::vector<cFood> blueprint_foods;
-	std::vector<cInventory> blueprint_inventories;
+	std::unordered_map<std::string, cTransform> blueprint_transforms;
+	std::unordered_map<std::string, cRenderable> blueprint_renderables;
+	std::unordered_map<std::string, cUnit> blueprint_units;
+	std::unordered_map<std::string, cItem> blueprint_items;
+	std::unordered_map<std::string, cFood> blueprint_foods;
+	std::unordered_map<std::string, cInventory> blueprint_inventories;
 
 	// The actual entities and components used by the game.
 	std::vector<Entity> entities;

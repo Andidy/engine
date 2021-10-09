@@ -15,10 +15,94 @@ struct cRenderable {
 	f32 rot_angle; // the angle of rotation
 	AssetHandle h_model; // a handle to the model the renderable will be drawn as
 
+	// Constructors and Assignment Operators ==================================
+
+	cRenderable() = default;
+
 	cRenderable(bool should_render, vec3 offset, vec3 scale, vec3 rot_axis,
 		float rot_angle, AssetHandle h_model)
 		: should_render(should_render), offset(offset), scale(scale),
 		rot_axis(rot_axis), rot_angle(rot_angle), h_model(h_model) {}
+
+	// Copy Ctor
+	cRenderable(const cRenderable& source) {
+		should_render = source.should_render;
+		offset = source.offset;
+		scale = source.scale;
+		rot_axis = source.rot_axis;
+		rot_angle = source.rot_angle;
+
+		h_model.handle = source.h_model.handle;
+		h_model.type = source.h_model.type;
+		h_model.name = h_model.name;
+	}
+
+	// Copy op=
+	cRenderable& operator= (const cRenderable& source) {
+		assert(this != &source);
+		
+		should_render = source.should_render;
+		offset = source.offset;
+		scale = source.scale;
+		rot_axis = source.rot_axis;
+		rot_angle = source.rot_angle;
+
+		h_model.handle = source.h_model.handle;
+		h_model.type = source.h_model.type;
+		h_model.name = h_model.name;
+		
+		return *this;
+	}
+
+	// Move Ctor
+	cRenderable(cRenderable&& source) {
+		should_render = source.should_render;
+		offset = source.offset;
+		scale = source.scale;
+		rot_axis = source.rot_axis;
+		rot_angle = source.rot_angle;
+
+		h_model.handle = source.h_model.handle;
+		h_model.type = source.h_model.type;
+		h_model.name = h_model.name;
+
+		source.should_render = false;
+		source.offset = Vec3(0.0f, 0.0f, 0.0f);
+		source.scale = Vec3(0.0f, 0.0f, 0.0f);
+		source.rot_axis = Vec3(0.0f, 0.0f, 0.0f);
+		source.rot_angle = 0.0f;
+
+		source.h_model.handle = -1;
+		source.h_model.type = AssetType::UNKNOWN;
+		source.h_model.name = "";
+	}
+
+	// Move op=
+	cRenderable& operator= (cRenderable&& source) {
+		assert(this != &source);
+
+		should_render = source.should_render;
+		offset = source.offset;
+		scale = source.scale;
+		rot_axis = source.rot_axis;
+		rot_angle = source.rot_angle;
+
+		h_model.handle = source.h_model.handle;
+		h_model.type = source.h_model.type;
+		h_model.name = h_model.name;
+
+		source.should_render = false;
+		source.offset = Vec3(0.0f, 0.0f, 0.0f);
+		source.scale = Vec3(0.0f, 0.0f, 0.0f);
+		source.rot_axis = Vec3(0.0f, 0.0f, 0.0f);
+		source.rot_angle = 0.0f;
+
+		source.h_model.handle = -1;
+		source.h_model.type = AssetType::UNKNOWN;
+		source.h_model.name = "";
+
+		return *this;
+	}
 };
 
 /*
@@ -28,8 +112,42 @@ struct cRenderable {
 struct cTransform {
 	vec2 game_pos; // position in the game world of the entity
 
+	// Constructors and Assignment Operators ==================================
+
+	cTransform() = default;
+
 	cTransform(vec2 game_pos)
 		: game_pos(game_pos) {}
+
+	// Copy Ctor
+	cTransform(const cTransform& source) {
+		game_pos = source.game_pos;
+	}
+
+	// Copy op=
+	cTransform& operator= (const cTransform& source) {
+		assert(this != &source);
+		
+		game_pos = source.game_pos;
+		
+		return *this;
+	}
+
+	// Move Ctor
+	cTransform(cTransform&& source) {
+		game_pos = source.game_pos;
+		source.game_pos = Vec2(0.0f, 0.0f);
+	}
+
+	// Move op=
+	cTransform& operator= (cTransform&& source) {
+		assert(this != &source);
+		
+		game_pos = source.game_pos;
+		source.game_pos = Vec2(0.0f, 0.0f);
+		
+		return *this;
+	}
 };
 
 /*

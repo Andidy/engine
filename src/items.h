@@ -21,9 +21,49 @@ struct cItem {
 	Type type;
 	int32_t value;
 
+	// Constructors and Assignment Operators ==================================
+
+	cItem() = default;
+
 	cItem(int _type, int _value) {
 		type = (Type)_type;
 		value = _value;
+	}
+
+	// Copy Ctor
+	cItem(const cItem& source) {
+		type = source.type;
+		value = source.value;
+	}
+
+	// Copy op=
+	cItem& operator= (const cItem& source) {
+		assert(this != &source);
+		
+		type = source.type;
+		value = source.value;
+		
+		return *this;
+	}
+
+	// Move Ctor
+	cItem(cItem&& source) {
+		type = source.type;
+		source.type = cItem::Type::None;
+		value = source.value;
+		source.value = INT_MIN;
+	}
+
+	// Move op=
+	cItem& operator= (cItem&& source) {
+		assert(this != &source);
+		
+		type = source.type;
+		source.type = cItem::Type::None;
+		value = source.value;
+		source.value = INT_MIN;
+		
+		return *this;
 	}
 };
 
@@ -34,8 +74,42 @@ struct cItem {
 struct cFood {
 	int32_t nourishment; // how much nourishment the food provides
 
+	// Constructors and Assignment Operators ==================================
+
+	cFood() = default;
+
 	cFood(int nourishment)
 		: nourishment(nourishment) {}
+
+	// Copy Ctor
+	cFood(const cFood& source) {
+		nourishment = source.nourishment;
+	}
+
+	// Copy op=
+	cFood& operator= (const cFood& source) {
+		assert(this != &source);
+		
+		nourishment = source.nourishment;
+		
+		return *this;
+	}
+
+	// Move Ctor
+	cFood(cFood&& source) {
+		nourishment = source.nourishment;
+		source.nourishment = INT_MIN;
+	}
+
+	// Move op=
+	cFood& operator= (cFood&& source) {
+		assert(this != &source);
+		
+		nourishment = source.nourishment;
+		source.nourishment = INT_MIN;
+		
+		return *this;
+	}
 };
 
 /*
@@ -57,4 +131,46 @@ struct ItemPile {
 */
 struct cInventory {
 	std::vector<ItemPile> items;
+
+	// Constructors and Assignment Operators ==================================
+
+	cInventory() = default;
+
+	// copy constructor
+	cInventory(const cInventory& source) {
+		for (int i = 0; i < source.items.size(); i++) {
+			items.push_back(source.items[i]);
+		}
+	}
+
+	// copy assignment
+	cInventory& operator= (const cInventory& source) {
+		assert(this != &source);
+		
+		for (int i = 0; i < source.items.size(); i++) {
+			items.push_back(source.items[i]);
+		}
+		
+		return *this;
+	}
+
+	// move constructor
+	cInventory(cInventory&& source) {
+		for (int i = 0; i < source.items.size(); i++) {
+			items.push_back(source.items[i]);
+		}
+		source.items.clear();
+	}
+
+	// move assignment
+	cInventory& operator= (cInventory&& source) {
+		assert(this != &source);
+		
+		for (int i = 0; i < source.items.size(); i++) {
+			items.push_back(source.items[i]);
+		}
+		source.items.clear();
+		
+		return *this;
+	}
 };

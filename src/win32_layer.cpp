@@ -336,11 +336,11 @@ static win32_WindowDimension win32_GetWindowDimension(HWND window) {
 void PrepareRenderData(GameState* gs, RenderData* render_data) {
 	render_data->entities.clear();
 	//Entity* crosshair = &gs->entities[gs->crosshair_entity];
-	cRenderable* ch = &gs->blueprint_renderables[gs->blueprints["crosshair_0"].renderable];
+	cRenderable* ch = &gs->blueprint_renderables["crosshair_0"];
 	
-	cRenderable* ah = &gs->blueprint_renderables[gs->blueprints["arrow_head_0"].renderable];
-	cRenderable* as = &gs->blueprint_renderables[gs->blueprints["arrow_shaft_0"].renderable];
-	cRenderable* ab = &gs->blueprint_renderables[gs->blueprints["arrow_butt_0"].renderable];
+	cRenderable* ah = &gs->blueprint_renderables["arrow_head_0"];
+	cRenderable* as = &gs->blueprint_renderables["arrow_shaft_0"];
+	cRenderable* ab = &gs->blueprint_renderables["arrow_butt_0"];
 
 	for (int iter = 0; iter < gs->entities.size(); iter++) {
 		Entity* e = &gs->entities[iter];
@@ -480,9 +480,6 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 
 			std::string name = je["name"].string_value();
 
-			auto j_pos = je["pos"].array_items();
-			vec2 pos = Vec2(j_pos[0].number_value(), j_pos[1].number_value());
-
 			auto j_ro = je["render_offset"].array_items();
 			vec3 render_offset = Vec3(j_ro[0].number_value(), j_ro[1].number_value(), j_ro[2].number_value());
 
@@ -532,73 +529,44 @@ void LoadGameAssets(GameState* gs, AssetHandle* asset_handles) {
 			// then Create and initialize an entity with the components
 			// and store the entity in the entities array
 
-			cTransform c_transform = cTransform(pos);
-			
-			//int transforms_index = gs->c_transforms.size();
-			//gs->c_transforms.push_back(c_transform);
-			
+			cTransform c_transform = cTransform(Vec2(0.0f, 0.0f));
 			int transforms_bp_index = gs->blueprint_transforms.size();
-			gs->blueprint_transforms.push_back(c_transform);
+			gs->blueprint_transforms[name] = (c_transform);
 
 			cRenderable c_renderable = cRenderable(should_render, render_offset, render_scale, render_rot_axis, render_rot_angle, h_model);
-			
-			//int renderables_index = gs->c_renderables.size();
-			//gs->c_renderables.push_back(c_renderable);
-
 			int renderables_bp_index = gs->blueprint_renderables.size();
-			gs->blueprint_renderables.push_back(c_renderable);
+			gs->blueprint_renderables[name] = (c_renderable);
 
-			//Entity ent = {};
 			EntityBlueprint ent_bp = {};
 
 			if (is_unit) {
-				//int units_index = gs->c_units.size();
-				//gs->c_units.push_back(cUnit());
-				
 				int units_bp_index = gs->blueprint_units.size();
-				gs->blueprint_units.push_back(cUnit());
-
-				//int inventory_index = gs->c_inventories.size();
-				//gs->c_inventories.push_back(cInventory());
+				gs->blueprint_units[name] = (cUnit());
 
 				int inventory_bp_index = gs->blueprint_inventories.size();
-				gs->blueprint_inventories.push_back(cInventory());
+				gs->blueprint_inventories[name] = (cInventory());
 
-				//ent.InitUnit(entity_index, is_active, transforms_index, renderables_index, units_index, inventory_index);
 				ent_bp.InitUnit(entity_index, is_active, transforms_bp_index, renderables_bp_index, units_bp_index, inventory_bp_index);
 			}
 			else if (is_pickup) {
-				//int items_index = gs->c_items.size();
-				//gs->c_items.push_back(cItem(1, 1));
-
 				int items_bp_index = gs->blueprint_items.size();
-				gs->blueprint_items.push_back(cItem(1, 1));
+				gs->blueprint_items[name] = (cItem(1, 1));
 
-				//ent.InitItem(entity_index, is_active, transforms_index, renderables_index, items_index);
 				ent_bp.InitItem(entity_index, is_active, transforms_bp_index, renderables_bp_index, items_bp_index);
 			}
 			else if (is_food) {
-				//int items_index = gs->c_items.size();
-				//gs->c_items.push_back(cItem(1, 1));
-
 				int items_bp_index = gs->blueprint_items.size();
-				gs->blueprint_items.push_back(cItem(1, 1));
-
-				//int foods_index = gs->c_foods.size();
-				//gs->c_foods.push_back(cFood(1));
+				gs->blueprint_items[name] = (cItem(1, 1));
 
 				int foods_bp_index = gs->blueprint_foods.size();
-				gs->blueprint_foods.push_back(cFood(1));
+				gs->blueprint_foods[name] = (cFood(1));
 
-				//ent.InitFood(entity_index, is_active, transforms_index, renderables_index, items_index, foods_index);
 				ent_bp.InitFood(entity_index, is_active, transforms_bp_index, renderables_bp_index, items_bp_index, foods_bp_index);
 			}
 			else {
-				//ent.InitGeneric(entity_index, is_active, transforms_index, renderables_index);
 				ent_bp.InitGeneric(entity_index, is_active, transforms_bp_index, renderables_bp_index);
 			}
 
-			//gs->entities.push_back(ent);
 			gs->blueprints.insert({ name, ent_bp });
 
 			entity_index++;
@@ -616,7 +584,6 @@ void LoadGameEntities(GameState* gs) {
 		while (file.good()) {
 			file >> blueprint >> pos_x >> pos_y;
 
-			EntityBlueprint& eb = gs->blueprints[blueprint];
 			int transform_index = -1;
 			int renderable_index = -1;
 			int unit_index = -1;
@@ -625,34 +592,32 @@ void LoadGameEntities(GameState* gs) {
 			int inventory_index = -1;
 
 			cTransform transform = cTransform(Vec2(pos_x, pos_y));
-			if (eb.transform >= 0) {
-				transform_index = gs->c_transforms.size();
-				gs->c_transforms.push_back(transform);
-			}
+			transform_index = gs->c_transforms.size();
+			gs->c_transforms.push_back(transform);
 
-			if (eb.renderable >= 0) {
+			if (gs->blueprint_renderables.count(blueprint)) {
 				renderable_index = gs->c_renderables.size();
-				gs->c_renderables.push_back(gs->blueprint_renderables[eb.renderable]);
+				gs->c_renderables.push_back(gs->blueprint_renderables[blueprint]);
 			}
 
-			if (eb.unit >= 0) {
+			if (gs->blueprint_units.count(blueprint)) {
 				unit_index = gs->c_units.size();
-				gs->c_units.push_back(gs->blueprint_units[eb.unit]);
+				gs->c_units.push_back(gs->blueprint_units[blueprint]);
 			}
 
-			if (eb.item >= 0) {
+			if (gs->blueprint_items.count(blueprint)) {
 				item_index = gs->c_items.size();
-				gs->c_items.push_back(gs->blueprint_items[eb.item]);
+				gs->c_items.push_back(gs->blueprint_items[blueprint]);
 			}
 
-			if (eb.food >= 0) {
+			if (gs->blueprint_foods.count(blueprint)) {
 				food_index = gs->c_foods.size();
-				gs->c_foods.push_back(gs->blueprint_foods[eb.food]);
+				gs->c_foods.push_back(gs->blueprint_foods[blueprint]);
 			}
 
-			if (eb.inventory >= 0) {
+			if (gs->blueprint_inventories.count(blueprint)) {
 				inventory_index = gs->c_inventories.size();
-				gs->c_inventories.push_back(gs->blueprint_inventories[eb.inventory]);
+				gs->c_inventories.push_back(gs->blueprint_inventories[blueprint]);
 			}
 
 			Entity e = {};
@@ -664,7 +629,6 @@ void LoadGameEntities(GameState* gs) {
 			e.item = item_index;
 			e.food = food_index;
 			e.inventory = inventory_index;
-
 
 			gs->entities.push_back(e);
 		}

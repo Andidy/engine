@@ -12,5 +12,53 @@ struct cUnit {
 	bool waypoint_active = false; // is the movement waypoint active
 	std::deque<vec2> waypoint_pos; // where the movement waypoint is
 
-	cUnit() {}
+	// Constructors and Assignment Operators ==================================
+
+	cUnit() = default;
+
+	// copy constructor
+	cUnit(const cUnit& source) {
+		waypoint_active = source.waypoint_active;
+		for (int i = 0; i < source.waypoint_pos.size(); i++) {
+			waypoint_pos.push_back(source.waypoint_pos[i]);
+		}
+	}
+
+	// copy assignment
+	cUnit& operator= (const cUnit& source) {
+		assert(this != &source);
+
+		waypoint_active = source.waypoint_active;
+		for (int i = 0; i < source.waypoint_pos.size(); i++) {
+			waypoint_pos.push_back(source.waypoint_pos[i]);
+		}
+
+		return *this;
+	}
+
+	// move constructor
+	cUnit(cUnit&& source) {
+		waypoint_active = source.waypoint_active;
+		for (int i = 0; i < source.waypoint_pos.size(); i++) {
+			waypoint_pos.push_back(source.waypoint_pos[i]);
+		}
+
+		source.waypoint_active = false;
+		source.waypoint_pos.clear();
+	}
+
+	// move assignment
+	cUnit& operator= (cUnit&& source) {
+		assert(this != &source);
+
+		waypoint_active = source.waypoint_active;
+		for (int i = 0; i < source.waypoint_pos.size(); i++) {
+			waypoint_pos.push_back(source.waypoint_pos[i]);
+		}
+
+		source.waypoint_active = false;
+		source.waypoint_pos.clear();
+
+		return *this;
+	}
 };
