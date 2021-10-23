@@ -578,8 +578,8 @@ void LoadGameEntities(GameState* gs) {
 	std::ifstream file("test_assets/entities.txt", std::ios_base::in);
 	if (file.is_open()) {
 		std::string blueprint;
-		float pos_x;
-		float pos_y;
+		float pos_x = 0.0f;
+		float pos_y = 0.0f;
 
 		while (file.good()) {
 			file >> blueprint >> pos_x >> pos_y;
