@@ -9,3 +9,4 @@ tower_0 10 2
 castle_1 0 7
 church 0 -8
 coins -7 -5
+border_test 10 10

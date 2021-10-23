@@ -322,6 +322,13 @@
     "billboard": false
   },
   {
+    "name": "border_test",
+    "mesh": "quad.obj",
+    "texture": "ui/border_test.png",
+    "opaque": false,
+    "billboard": true
+  },
+  {
     "name": "cat",
     "mesh": "quad.obj",
     "texture": "animals/cat.png",
