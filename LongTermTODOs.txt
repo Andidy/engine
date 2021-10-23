@@ -1,4 +1,0 @@
-
-D3D Stuff ---
-Figure out pipeline for converting hlsl source to hlsl bytecode to send to end user, this speeds up initialization
-for end users.
